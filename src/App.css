@@ -40,3 +40,9 @@ body{
 .rmdp-container {
   width: 100% !important;
 }
+
+.rmdp-container  {
+  border: 1px solid rgb(209 213 219 );
+  padding: 8px;
+  border-radius: 6px;
+}

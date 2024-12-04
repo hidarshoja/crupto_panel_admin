@@ -24,7 +24,7 @@ export default function DesktopSidebar({
         leaveFrom="translate-x-0"
         leaveTo="translate-x-full"
       >
-        <div className="hidden lg:w-1/5 lg:flex lg:flex-col lg:bg-[#17202a] lg:overflow-y-auto lg:px-6 lg:pb-4 lg:h-screen border-l-2 border-gray-600">
+        <div className="hidden lg:w-1/5 lg:flex lg:flex-col lg:bg-[#090580] lg:overflow-y-auto lg:px-6 lg:pb-4 lg:h-screen border-l-2 border-gray-600">
           <div className="flex items-center justify-between">
             <div className="flex h-16  items-center my-8">
              <img src="/img/logoT2.png" alt=""   className="w-[80%] h-[100px]" />

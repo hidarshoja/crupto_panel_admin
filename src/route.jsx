@@ -8,6 +8,8 @@ import CustomerDefinition from "./pages/CustomerDefinition";
 import Accounting from "./pages/Accounting";
 import DocumentPage from "./pages/DocumentPage";
 import AccessLevels from "./pages/AccessLevels";
+import Statistical from "./pages/Statistical";
+import StatusPage from "./pages/StatusPage";
 
 
 export const route = createBrowserRouter([
@@ -35,14 +37,14 @@ export const route = createBrowserRouter([
                 path: '/accessLevels',
                 element: <AccessLevels />
             },
-            // {
-            //     path: '/address',
-            //     element: <AddressPage />
-            // },
-            // {
-            //     path: '/create',
-            //     element: <CreatePage />
-            // },
+            {
+                path: '/statistical',
+                element: <Statistical />
+            },
+            {
+                path: '/status',
+                element: <StatusPage />
+            },
          
            
             // {

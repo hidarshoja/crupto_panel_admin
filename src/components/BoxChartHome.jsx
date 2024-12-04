@@ -22,7 +22,7 @@ export default function BoxChartHome() {
       {chartItem?.map((item) => (
         <div key={item.id} className="group">
           <div
-            className="w-[300px] h-[200px] bg-gray-100 rounded-xl shadow-lg p-4 flex flex-col items-center transform transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-xl"
+            className="w-[300px] h-[200px] bg-[#3abef9] rounded-xl shadow-lg p-4 flex flex-col items-center transform transition-all duration-300 ease-in-out group-hover:scale-105 group-hover:shadow-xl"
           >
             <div className="flex-1 w-full">{item.chart}</div>
           </div>
@@ -37,3 +37,4 @@ export default function BoxChartHome() {
     </div>
   );
 }
+
