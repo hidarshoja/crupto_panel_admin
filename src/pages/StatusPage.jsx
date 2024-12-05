@@ -9,17 +9,17 @@ export default function StatusPage() {
     customers: [
       { id: 1, color: 'green', isActive: true },
       { id: 2, color: 'red', isActive: false },
-      { id: 3, color: 'yellow', isActive: false },
+      { id: 3, color: 'amber', isActive: false },
     ],
     suppliers: [
       { id: 1, color: 'green', isActive: false },
       { id: 2, color: 'red', isActive: true },
-      { id: 3, color: 'yellow', isActive: true },
+      { id: 3, color: 'amber', isActive: true },
     ],
     sustainability: [
       { id: 1, color: 'green', isActive: true },
       { id: 2, color: 'red', isActive: false },
-      { id: 3, color: 'yellow', isActive: false },
+      { id: 3, color: 'amber', isActive: false },
     ],
   });
 
@@ -104,7 +104,7 @@ export default function StatusPage() {
               <td className="border px-4 py-2">{category.name}</td>
               <td className="border px-4 py-2">{renderLights(category.key, 'green')}</td>
               <td className="border px-4 py-2">{renderLights(category.key, 'red')}</td>
-              <td className="border px-4 py-2">{renderLights(category.key, 'yellow')}</td>
+              <td className="border px-4 py-2">{renderLights(category.key, 'amber')}</td>
               <td className="border px-4 py-2">
                 <button
                   className="text-blue-500 underline flex items-center"
