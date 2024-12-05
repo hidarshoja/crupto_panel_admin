@@ -79,9 +79,9 @@ export default function BoxAccount() {
   {filteredExchanges.map((exchange) => (
     <div
       key={exchange.id}
-      className="bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 w-full sm:w-1/3 lg:w-[260px]"
+      className="bg-[#3abef9]  p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 w-full sm:w-1/3 lg:w-[260px]"
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex  items-center justify-between mb-4">
         <h2 className="text-md font-semibold text-gray-800">
           {exchange.name}
         </h2>
@@ -95,7 +95,7 @@ export default function BoxAccount() {
         {["rial", "tether", "btc", "eth", "sol", "gold"].map((currency) => (
           <div
             key={currency}
-            className="border border-gray-300 rounded-md p-3"
+            className="border bg-white border-gray-300 rounded-md p-3"
           >
             <h3 className="text-md font-medium text-gray-700 text-center mb-2">
               {`واحد ${currency.charAt(0).toUpperCase() + currency.slice(1)}`}

@@ -9,17 +9,17 @@ export default function StatusPage() {
     customers: [
       { id: 1, color: 'green', isActive: true },
       { id: 2, color: 'red', isActive: false },
-      { id: 3, color: 'yellow', isActive: true },
+      { id: 3, color: 'yellow', isActive: false },
     ],
     suppliers: [
       { id: 1, color: 'green', isActive: false },
       { id: 2, color: 'red', isActive: true },
-      { id: 3, color: 'yellow', isActive: false },
+      { id: 3, color: 'yellow', isActive: true },
     ],
     sustainability: [
       { id: 1, color: 'green', isActive: true },
       { id: 2, color: 'red', isActive: false },
-      { id: 3, color: 'yellow', isActive: true },
+      { id: 3, color: 'yellow', isActive: false },
     ],
   });
 
@@ -87,7 +87,7 @@ export default function StatusPage() {
     <div>
       <h1 className="text-xl font-bold mb-4">وضعیت کاربران</h1>
       <div>
-    {/* <div className="overflow-x-auto">
+    <div className="overflow-x-auto">
       <table className="table-auto border-collapse w-full text-right">
         <thead>
           <tr className="bg-gray-200">
@@ -107,22 +107,35 @@ export default function StatusPage() {
               <td className="border px-4 py-2">{renderLights(category.key, 'yellow')}</td>
               <td className="border px-4 py-2">
                 <button
-                  className="text-blue-500 underline"
+                  className="text-blue-500 underline flex items-center"
                   onClick={() => handleCategoryClick(category.key)}
                 >
-                  لیست
+                <span className='px-1'>
+                مشاهده لیست 
+                </span>
+                  <span className='px-1'>
+                  {category.name}
+                  </span>
                 </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-    </div> */}
+    </div>
   </div>
 
       {selectedCategory && (
         <div className="mt-6">
-          <h2 className="text-lg font-bold mb-2">جدول {selectedCategory}</h2>
+          <h2 className="text-lg font-bold mb-2">
+  جدول {selectedCategory === "customers" 
+    ? "مشتریان" 
+    : selectedCategory === "suppliers" 
+    ? "تامین کنندگان" 
+    : selectedCategory === "sustainability" 
+    ? "وضعیت پایداری" 
+    : selectedCategory}
+</h2>
           <table className="w-full border">
             <thead>
               <tr>
