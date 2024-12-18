@@ -4,7 +4,7 @@ import { getDaysInMonth } from "date-fns";
 import jalaali from 'jalaali-js';
 import axiosClient from "../../axios-client";
 
-import {
+import {  
   Chart,
   LineElement,
   CategoryScale, // x axis

@@ -10,7 +10,12 @@ import DocumentPage from "./pages/DocumentPage";
 import AccessLevels from "./pages/AccessLevels";
 import Statistical from "./pages/Statistical";
 import StatusPage from "./pages/StatusPage";
-
+import KycUser from "./pages/KycUser";
+import UserDefinition from "./pages/UserDefinition";
+import UserAccessLevels from "./pages/UserAccessLevels";
+import AccountingUser from "./pages/AccountingUser";
+import DocumentPageUser from "./pages/DocumentPageUser"
+import StatisticalUser from "./pages/StatisticalUser";
 
 export const route = createBrowserRouter([
     {
@@ -45,12 +50,30 @@ export const route = createBrowserRouter([
                 path: '/status',
                 element: <StatusPage />
             },
-         
-           
-            // {
-            //     path: '/password',
-            //     element: <Password />
-            // }
+             {
+                path: '/user/kyc',
+                element: <KycUser />
+            },
+            {
+                path: '/user/definition',
+                element: <UserDefinition />
+            },
+            {
+                path: '/user/accesslevels',
+                element: <UserAccessLevels />
+            },
+            {
+                path: '/user/Accounting',
+                element: <AccountingUser />
+            },
+            {
+                path: '/user/document',
+                element: <DocumentPageUser />
+            },
+            {
+                path: '/user/statistical',
+                element: <StatisticalUser />
+            },
         ]
     },
     {
