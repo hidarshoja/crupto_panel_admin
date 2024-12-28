@@ -16,6 +16,17 @@ import UserAccessLevels from "./pages/UserAccessLevels";
 import AccountingUser from "./pages/AccountingUser";
 import DocumentPageUser from "./pages/DocumentPageUser"
 import StatisticalUser from "./pages/StatisticalUser";
+import Strategy from "./pages/BotTrade/Strategy";
+import StrategyList from "./pages/BotTrade/ListStrategy";
+import Exchange from "./pages/BotTrade/Exchange";
+import ManualTransaction from "./pages/BotTrade/ManualTransaction";
+import AccountingBot from "./pages/BotTrade/Accounting";
+import TransactionStatus from "./pages/BotTrade/TransactionStatus";
+import BotDocument from "./pages/BotTrade/BotDocument";
+import StableCondition from "./pages/BotTrade/StableCondition";
+import Notification from "./pages/BotTrade/Notification";
+import StatisticalViewBot from "./pages/BotTrade/StatisticalViewBot";
+import StreamViewTable from "./pages/BotTrade/StreamViewTable";
 
 export const route = createBrowserRouter([
     {
@@ -74,6 +85,50 @@ export const route = createBrowserRouter([
                 path: '/user/statistical',
                 element: <StatisticalUser />
             },
+            {
+                path : '/bot/strategy',
+                element : <Strategy />
+            },
+            {
+                path : '/bot/strategy-list',
+                element : <StrategyList />
+            },
+            {
+                path : '/bot/exchange',
+                element : <Exchange />
+            },
+            {
+                path :"/bot/transaction",
+                element : <ManualTransaction />
+            },
+            {
+                path : "/bot/accounting",
+                element : <AccountingBot />
+            },
+            {
+                path :"/bot/document",
+                element : <BotDocument />
+            },
+            {
+                path :"/bot/transactionStatus",
+                element : <TransactionStatus />
+            },
+            {
+                path :"/bot/stableCondition",
+                element : <StableCondition />
+            },
+            {
+                path :"/bot/notification",
+                element : <Notification />
+            },
+            {
+                path :"/bot/statisticalViewBot",
+                element : <StatisticalViewBot />
+            },
+            {
+                path :"/bot/streamViewTable",
+                element : <StreamViewTable />
+            }
         ]
     },
     {
@@ -93,3 +148,5 @@ export const route = createBrowserRouter([
 
 
 ])
+
+

@@ -16,7 +16,7 @@ export default function DocumentPage() {
               className=" w-full p-2 rounded-md focus:outline-none   pl-8" // فاصله از آیکون
             />
             <i className="text-gray-500 pl-2">
-              <CiSearch /> {/* آیکون ذره‌بین */}
+              <CiSearch /> 
             </i>
           </div>
         </div>

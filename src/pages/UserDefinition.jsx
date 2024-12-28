@@ -187,7 +187,7 @@ export default function UserDefinition() {
               value={dateBirth}
               onChange={setDateBirth}
               calendarPosition="bottom-right"
-              inputClass="custom-input"
+               inputClass="w-full outline-none rounded"
             />
           </div>
         </div>

@@ -46,3 +46,12 @@ body{
   padding: 8px;
   border-radius: 6px;
 }
+.parent-div{
+  width: 100% !important;
+}
+.div-box{
+  width: 100% !important;
+}
+.input-box {
+  width: 100% !important;
+}

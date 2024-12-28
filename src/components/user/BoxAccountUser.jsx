@@ -88,8 +88,6 @@ export default function BoxAccountUser() {
         <input
           type="text"
           placeholder="نام سند را وارد کنید..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
           className=" p-2 w-full text-right"
         />
         <LiaSearchSolid className='absolute left-1 top-3 cursor-pointer' />
@@ -98,8 +96,6 @@ export default function BoxAccountUser() {
         <input
           type="text"
           placeholder="نام txid را وارد کنید..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
           className=" p-2 w-full text-right"
         />
         <LiaSearchSolid className='absolute left-1 top-3 cursor-pointer' />

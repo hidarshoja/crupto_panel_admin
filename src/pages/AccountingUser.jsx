@@ -27,7 +27,6 @@ export default function AccountingUser() {
   return (
     <div className="p-4">
       <h1 className="text-lg font-bold mb-4">حسابداری</h1>
-      
      <div className='flex flex-col md:flex-row gap-1 items-start md:items-center'>
       <span className='text-sm font-semibold pl-2'>فیلتر براساس :</span>  
      <select

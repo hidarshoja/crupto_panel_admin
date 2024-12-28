@@ -37,21 +37,16 @@ export const navigation = [
     icon: CurrencyYenIcon,
     
     children: [
-      { name: 'ترید1', href: '#' },
-      { name: 'ترید2', href: '#' },
-      { name: 'ترید3', href: '#' },
-      { name: ' ترید4', href: '#' },
+      { name: 'ایجاد استراتژی', href: '/bot/strategy' },
+      { name: 'لیست استراتژی', href: '/bot/strategy-list' },
+      { name: 'صرافی ها', href: '/bot/exchange' },
+      { name: 'معامله دستی', href: '/bot/transaction' },
+      { name :"حسابداری" , href :"/bot/accounting"},
+      { name :"سند بات" , href :"/bot/document"},
+      { name :"وضعیت معاملات" , href :"/bot/transactionStatus"},
+      { name :"وضعیت پایداری" , href :"/bot/stableCondition"},
+      { name :"نوتیفیکیشن" , href :"/bot/notification"},
+      { name :"نگاه آماری" , href :"/bot/statisticalViewBot"}
     ],
   }, 
-  
-  
-
-  // { name: "شرط ها", href: "/", current: false, src: <TbAirConditioning /> },
-  // { name: "حجم ها", href: "/volume", current: false, src: <MdOutlineContentPaste /> },
-  // { name: "داده ها", href: "/data", current: false, src: <FaDatabase /> },
-  // { name: "نمودار ها", href: "/chart", current: false, src: <FaChartLine /> },
-  // { name: "ساخت باکس جدید", href: "/new-box", current: false, src: <FaBox /> },
-  // { name: "آدرس", href: "/address", current: false, src: <FaMapMarkerAlt /> },
-  // { name: "ایجاد", href: "/create", current: false, src: <FaPlus /> },
-  // { name: "رمز عبور", href: "/password", current: false, src: <FaKey /> },
 ];
