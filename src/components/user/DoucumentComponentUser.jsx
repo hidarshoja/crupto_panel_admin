@@ -25,11 +25,11 @@ export default function DocumentComponentUser() {
     documentType: "",
   });
   const people = [
-    { id: 1, name: "علی", lastname: "شجاع" },
-    { id: 2, name: "رضا", lastname: "محمدی" },
-    { id: 3, name: "مریم", lastname: "کریمی" },
-    { id: 4, name: "سارا", lastname: "حسینی" },
-  ];
+    { id: 1, name: 'علی شجاع' },
+    { id: 2, name: 'رضا محمدی' },
+    { id: 3, name: 'مریم کریمی' },
+    { id: 4, name: 'سارا حسینی' },
+];
   const [userId, setUserId] = useState(null);
   const [pri, setPri] = useState(0);
   const navigate = useNavigate();

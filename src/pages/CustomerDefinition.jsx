@@ -17,16 +17,12 @@ export default function CustomerDefinition() {
     fatherName: "",
     buyCreditIRR: "",
     sellCreditIRR: "",
-    buyCreditUSD: "",
-    sellCreditUSD: "",
-    selectedCurrencies: [],
+    gmail :"",
     selectedWallets: [],
     password: "",
   };
 
   const [formData, setFormData] = useState(initialFormState);
-
-  const currencies = ["Tether", "BTC", "ETH", "SOL", "GOLD", "DAI"];
   const wallets = ["ریال", "Tether", "BTC", "ETH", "SOL", "DAI", "GOLD"];
 
   const handleInputChange = (e) => {
@@ -181,7 +177,7 @@ export default function CustomerDefinition() {
       </div>
       <div className="flex flex-col md:flex-row items-center gap-6">
         {/* نام پدر */}
-        <div className="mb-4 w-full md:w-1/2">
+        <div className="mb-4 w-full md:w-1/3">
           <label className="block text-sm font-medium mb-1">نام پدر:</label>
           <input
             type="text"
@@ -192,12 +188,23 @@ export default function CustomerDefinition() {
           />
         </div>
         {/* رمز عبور */}
-        <div className="mb-4 w-full md:w-1/2">
+        <div className="mb-4 w-full md:w-1/3">
           <label className="block text-sm font-medium mb-1">رمز عبور:</label>
           <input
             type="password"
             name="password"
             value={formData.password}
+            onChange={handleInputChange}
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          />
+        </div>
+         {/* نام ایمیل */}
+         <div className="mb-4 w-full md:w-1/3" dir="ltr">
+          <label className="block text-sm font-medium mb-1" dir="rtl"> ایمیل :</label>
+          <input
+            type="email"
+            name="gmail"
+            value={formData.gmail}
             onChange={handleInputChange}
             className="w-full border border-gray-300 rounded px-3 py-2"
           />
@@ -209,7 +216,7 @@ export default function CustomerDefinition() {
         {/* حد اعتباری خرید (ریال) */}
         <div className="relative">
           <label className="block text-sm font-medium mb-1">
-            حد اعتباری خرید (ریال):
+            حد اعتباری  (ریالی):
           </label>
           <input
             type="text"
@@ -228,7 +235,7 @@ export default function CustomerDefinition() {
         {/* حد اعتباری فروش (ریال) */}
         <div className="relative">
           <label className="block text-sm font-medium mb-1">
-            حد اعتباری فروش (ریال):
+            حد اعتباری  (تتری):
           </label>
           <input
             type="text"
@@ -244,86 +251,10 @@ export default function CustomerDefinition() {
           </span>
         </div>
 
-        {/* حد اعتباری خرید (دلار) */}
-        <div className="relative">
-          <label className="block text-sm font-medium mb-1">
-            حد اعتباری خرید (دلار):
-          </label>
-          <input
-            type="text"
-            name="buyCreditUSD"
-            value={formData.buyCreditUSD.toLocaleString("en-US")}
-            onChange={(e) => handleInputChange(e, "USD")}
-            onBlur={(e) => handleBlur(e, "USD")}
-            className="w-full border border-gray-300 rounded px-3 py-2 pl-10 text-left"
-          />
-          <span className="absolute left-3 top-2/3 transform -translate-y-1/2 text-gray-500">
-            $
-          </span>
-        </div>
-
-        {/* حد اعتباری فروش (دلار) */}
-        <div className="relative">
-          <label className="block text-sm font-medium mb-1">
-            حد اعتباری فروش (دلار):
-          </label>
-          <input
-            type="text"
-            name="sellCreditUSD"
-            value={formData.sellCreditUSD.toLocaleString("en-US")}
-            onChange={(e) => handleInputChange(e, "USD")}
-            onBlur={(e) => handleBlur(e, "USD")}
-            className="w-full border border-gray-300 rounded px-3 py-2 pl-10 text-left"
-          />
-          <span className="absolute left-3 top-2/3 transform -translate-y-1/2 text-gray-500">
-            $
-          </span>
-        </div>
+      
       </div>
 
-      {/* خدمات انتخابی */}
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-2">خدمات انتخابی:</label>
-        <div className="flex items-center flex-wrap gap-3">
-          {currencies.map((currency) => (
-            <label
-              key={currency}
-              className={`flex items-center gap-2 p-3 rounded-md cursor-pointer transition ${
-                formData.selectedCurrencies.includes(currency)
-                  ? "bg-green-500 text-white"
-                  : "bg-gray-200 text-gray-800"
-              } hover:bg-green-400 hover:text-white`}
-            >
-              <input
-                type="checkbox"
-                name={currency}
-                checked={formData.selectedCurrencies.includes(currency)}
-                onChange={(e) => handleCheckboxChange(e, "selectedCurrencies")}
-                className="hidden"
-              />
-              <span className="text-sm">{currency}</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke={
-                  formData.selectedCurrencies.includes(currency)
-                    ? "white"
-                    : "gray"
-                }
-                className="w-5 h-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </label>
-          ))}
-        </div>
-      </div>
+   
 
       {/* لیست کیف پول */}
       <div className="mb-4">

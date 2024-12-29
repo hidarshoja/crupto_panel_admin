@@ -19,10 +19,10 @@ export default function ChartAllUsers() {
   const [dateBirth, setDateBirth] = useState(new DateObject());
   const [dateBirth2, setDateBirth2] = useState(new DateObject());
   const people = [
-    { id: 1, name: 'صرافی', lastname: 'نیوبیکس' },
-    { id: 2, name: 'صرافی', lastname: 'باران' },
-    { id: 3, name: 'صرافی', lastname: 'تتر' },
-    { id: 4, name: 'صرافی', lastname: 'حسینی' },
+    { id: 1, name: 'صرافی نیوبیکس' },
+    { id: 2, name: 'صرافی باران' },
+    { id: 3, name: 'صرافی تتر' },
+    { id: 4, name: 'صرافی حسینی' },
 ];
 const [userId, setUserId] = useState(null);
     const [pri, setPri] = useState(0);

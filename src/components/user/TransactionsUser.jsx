@@ -61,8 +61,8 @@ export default function TransactionsUser() {
 
   return (
     <div className="mt-8 flow-root">
-      <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-4">
-        {/* فیلتر نوع معامله */}
+      <div className="mb-4 flex flex-col md:flex-row gap-3">
+      
         <div>
           <label htmlFor="type" className="block mb-1 text-sm font-medium text-gray-700">
             فیلتر نوع معامله
