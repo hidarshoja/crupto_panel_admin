@@ -27,6 +27,7 @@ import StableCondition from "./pages/BotTrade/StableCondition";
 import Notification from "./pages/BotTrade/Notification";
 import StatisticalViewBot from "./pages/BotTrade/StatisticalViewBot";
 import StreamViewTable from "./pages/BotTrade/StreamViewTable";
+import ChartSellApi from "./pages/chart-home-page/ChartSellApi";
 
 export const route = createBrowserRouter([
     {
@@ -36,6 +37,10 @@ export const route = createBrowserRouter([
             {
                 path: '/',
                 element: <HomePage />
+            },
+            {
+                path: "/home/:chartType",
+                element : <ChartSellApi />
             },
             {
                 path: '/customer_definition',
@@ -129,6 +134,7 @@ export const route = createBrowserRouter([
                 path :"/bot/streamViewTable",
                 element : <StreamViewTable />
             }
+          
         ]
     },
     {

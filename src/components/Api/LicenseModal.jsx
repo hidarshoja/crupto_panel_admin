@@ -4,6 +4,13 @@ import { useState } from 'react';
 const LicenseModal = ({ isOpen2, closeModal2, formData, setFormData }) => {
   if (!isOpen2) return null;
 
+  const handleInputChange = (field, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
@@ -13,6 +20,8 @@ const LicenseModal = ({ isOpen2, closeModal2, formData, setFormData }) => {
           <input
             type="number"
             className="w-full px-3 py-2 border rounded"
+            value={formData?.transaction}
+            onChange={(e) => handleInputChange("transaction", e.target.value)}
           />
         </div>
         <div className="mb-4">
@@ -20,6 +29,8 @@ const LicenseModal = ({ isOpen2, closeModal2, formData, setFormData }) => {
           <input
             type="number"
             className="w-full px-3 py-2 border rounded"
+            value={formData.exchange}
+            onChange={(e) => handleInputChange("exchange", e.target.value)}
           />
         </div>
         {/* دکمه‌ها */}
@@ -31,6 +42,7 @@ const LicenseModal = ({ isOpen2, closeModal2, formData, setFormData }) => {
             بستن
           </button>
           <button 
+             onClick={closeModal2}
             className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"
           >
             ذخیره

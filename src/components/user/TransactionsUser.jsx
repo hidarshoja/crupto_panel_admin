@@ -1,4 +1,5 @@
-import  { useState } from "react";
+import { useState } from "react";
+import UserBox from "../../components/UserBox4";
 
 export default function TransactionsUser() {
   const transactionsData = [
@@ -6,7 +7,7 @@ export default function TransactionsUser() {
       id: 1,
       date: "1402/08/15",
       time: "12:45",
-      trader: "علی احمدی",
+      name: "علی احمدی",
       type: "خرید",
       amount: "123456",
       currency: "دلار",
@@ -17,7 +18,7 @@ export default function TransactionsUser() {
       id: 2,
       date: "1402/08/16",
       time: "14:30",
-      trader: "محمد رضایی",
+      name: "محمد رضایی",
       type: "فروش",
       amount: "654321",
       currency: "یورو",
@@ -25,6 +26,7 @@ export default function TransactionsUser() {
       description: "بازگشت وجه",
     },
   ];
+
   const tableHeaders = [
     "تاریخ و ساعت",
     "کاربر معامله‌گر",
@@ -36,6 +38,7 @@ export default function TransactionsUser() {
     "توضیحات",
   ];
 
+  const [userId, setUserId] = useState(null);
   const [filters, setFilters] = useState({
     type: "همه",
     currency: "همه",
@@ -49,7 +52,9 @@ export default function TransactionsUser() {
   };
 
   const filteredData = transactionsData.filter((transaction) => {
+    const isUserMatch = userId ? transaction.id === userId : true;
     return (
+      isUserMatch &&
       (filters.type === "همه" || transaction.type === filters.type) &&
       (filters.currency === "همه" || transaction.currency === filters.currency) &&
       (filters.status === "همه" || transaction.status === filters.status) &&
@@ -57,13 +62,25 @@ export default function TransactionsUser() {
     );
   });
 
- 
-
   return (
     <div className="mt-8 flow-root">
       <div className="mb-4 flex flex-col md:flex-row gap-3">
-      
-        <div>
+        {/* فیلتر نام کاربر */}
+        <div className="w-full md:w-1/4 flex flex-col mt-[-3px]">
+          <label
+            htmlFor="userFilter"
+            className="block text-gray-700 text-sm font-bold pb-2 w-28"
+          >
+            نام کاربر:
+          </label>
+          <UserBox
+            people={transactionsData}
+            setUserId={setUserId}
+          />
+        </div>
+
+        {/* فیلتر نوع معامله */}
+        <div className="w-full md:w-1/4">
           <label htmlFor="type" className="block mb-1 text-sm font-medium text-gray-700">
             فیلتر نوع معامله
           </label>
@@ -81,7 +98,7 @@ export default function TransactionsUser() {
         </div>
 
         {/* فیلتر ارز معامله */}
-        <div>
+        <div className="w-full md:w-1/4">
           <label htmlFor="currency" className="block mb-1 text-sm font-medium text-gray-700">
             فیلتر ارز معامله
           </label>
@@ -99,7 +116,7 @@ export default function TransactionsUser() {
         </div>
 
         {/* فیلتر وضعیت معامله */}
-        <div>
+        <div className="w-full md:w-1/4">
           <label htmlFor="status" className="block mb-1 text-sm font-medium text-gray-700">
             فیلتر وضعیت معامله
           </label>
@@ -116,8 +133,6 @@ export default function TransactionsUser() {
             <option value="لغو شده">لغو شده</option>
           </select>
         </div>
-
-      
       </div>
 
       <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
@@ -145,7 +160,7 @@ export default function TransactionsUser() {
                         {transaction.date} - {transaction.time}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                        {transaction.trader}
+                        {transaction.name}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500 text-center">
                         {transaction.type}

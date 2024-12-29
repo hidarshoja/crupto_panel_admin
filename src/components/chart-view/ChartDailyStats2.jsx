@@ -18,7 +18,6 @@ import axios from "axios";
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export default function ChartAllUsers() {
-
   const [dateBirth, setDateBirth] = useState(new DateObject());
   const [dateBirth2, setDateBirth2] = useState(new DateObject());
   const people = [

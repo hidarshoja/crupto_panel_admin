@@ -40,7 +40,7 @@ export default function BuyCurrency() {
     try {
       const response = await axios.get("https://jsonplaceholder.typicode.com/posts/1");
       setDataFetch(response.data);
-      console.log("مقدار چارت", response.data);
+     // console.log("مقدار چارت", response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }

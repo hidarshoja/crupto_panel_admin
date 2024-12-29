@@ -1,4 +1,3 @@
-
 import TableAccessLevels from "../components/Api/TableAccessLevels";
 
 export default function AccessLevels() {

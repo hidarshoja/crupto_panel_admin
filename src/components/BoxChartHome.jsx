@@ -5,15 +5,16 @@ import SellingBots from "./SellingBots";
 import BuyBots from "./BuyBots";
 import BuyCurrency from "./BuyCurrency";
 import BuyUserCurrency from "./BuyUserCurrency";
+import { Link } from "react-router-dom";
 
 export default function BoxChartHome() {
   let chartItem = [
-    { id: 1, name: "فروش api", price: 1000000, chart: <SellingCurrency /> },
-    { id: 2, name: "فروش  کاربر", price: 1000000, chart: <SellingUserCurrency /> },
-    { id: 3, name: "فروش  بات ترید", price: 1300000, chart: <SellingBots /> },
-    { id: 4, name: "خرید  بات ترید", price: 1500000, chart: <BuyUserCurrency /> },
-    { id: 5, name: "خرید  کاربر", price: 1060000, chart: <BuyCurrency /> },
-    { id: 6, name: "خرید api ", price: 1007000, chart: <BuyBots /> },
+    { id: 1, name: "فروش api", price: 1000000, chart: <SellingCurrency /> , link :"/home/chart_sell_api" },
+    { id: 2, name: "فروش  کاربر", price: 1000000, chart: <SellingUserCurrency /> , link :"/home/chart_sell_user" },
+    { id: 3, name: "فروش  بات ترید", price: 1300000, chart: <SellingBots /> , link :"/home/chart_sell_bots" },
+    { id: 4, name: "خرید  بات ترید", price: 1500000, chart: <BuyUserCurrency /> , link :"/home/chart_buy_bots"},
+    { id: 5, name: "خرید  کاربر", price: 1060000, chart: <BuyCurrency /> , link :"/home/chart_buy_user"},
+    { id: 6, name: "خرید api ", price: 1007000, chart: <BuyBots />, link :"/home/chart_buy_api" },
   ];
 
   return (
@@ -25,9 +26,11 @@ export default function BoxChartHome() {
           >
             <div className="flex-1 w-full">{item.chart}</div>
           </div>
-          <h3 className="mt-3 text-lg font-bold text-gray-800 text-center group-hover:text-indigo-500 transition-colors duration-300">
-            {item.name}
-          </h3>
+          <Link to={`${item.link}?chartType=${item.name}`}>
+            <h3 className="mt-3 text-lg font-bold text-gray-800 text-center group-hover:text-indigo-500 transition-colors duration-300">
+                {item.name}
+              </h3>
+         </Link>
           <p className="text-gray-600 text-sm mt-1 text-center group-hover:text-gray-800 transition-colors duration-300">
             مجموع: {item.price.toLocaleString()} تومان
           </p>

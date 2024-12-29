@@ -48,8 +48,12 @@ const TableAccessLevels = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
   const [formData, setFormData] = useState({
-    transaction: 'خرید',
-    exchange: 'نیوبیکس',
+    transaction: "100000",
+    exchange: "30000",
+    wallets : [],
+    access :"1",
+    CustomerType:"1"
+    
   });
 
   const openModal = () => setIsModalOpen(true);
@@ -63,6 +67,29 @@ const TableAccessLevels = () => {
     );
     setData(updatedData);
   };
+
+  const handleFormSubmit = (id) => {
+    const updatedData = data.map((item) =>
+      item.id === id
+        ? {
+            ...item,
+            wallet: formData.wallets,
+            permission: formData.permission,
+            customerType: formData.CustomerType, 
+            access: formData.access,  
+          }
+        : item
+    );
+    setData(updatedData);
+  
+    console.log('Updated Data:', {
+      ...formData,
+      id,
+    });
+  };
+  
+  
+  
 
   return (
     <div className="mt-8 flow-root">
@@ -135,7 +162,10 @@ const TableAccessLevels = () => {
                       </select>
                     </td>
                     <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      <button className="bg-blue-500 text-white px-4 py-2 rounded">
+                      <button
+                       className="bg-blue-500 text-white px-4 py-2 rounded"
+                       onClick={() => handleFormSubmit(transaction.id)}
+                       >
                         ثبت
                       </button>
                     </td>

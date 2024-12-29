@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import ChartAllUsers from "../components/chart-view/ChartAllUsers";
  import ChartDailyStats from "../components/chart-view/ChartDailyStats2";
  import ChartMonthlyStats from "../components/chart-view/ChartMonthlyStats";
@@ -8,7 +9,8 @@ import ChartAllUsers from "../components/chart-view/ChartAllUsers";
 
 export default function Statistical() {
     const [activeSection, setActiveSection] = useState("chartAllUsers");
-
+  const [filters, setFilters] = useState({});
+  const [filteredData, setFilteredData] = useState([]);
     const buttonClasses = (section) =>
       `text-sm w-1/2 md:w-full px-3 py-2 text-gray-100 border rounded-md ${
         activeSection === section
@@ -16,13 +18,51 @@ export default function Statistical() {
           : "bg-[#090580] hover:bg-[#3ABEF9]"
       }`;
 
+
+      const handleExportExcel = async () => {
+        const payload = {
+          filters,   // ارسال فیلترها به همراه داده‌ها
+          data: filteredData, // ارسال داده‌های فیلترشده
+        };
+      
+        try {
+          const response = await axios.post("/api/export-excel", payload, {
+            responseType: "blob", // برای دریافت فایل به فرمت blob
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+      
+          const blob = response.data;
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.setAttribute("download", "transactions.xlsx"); // نام فایل خروجی
+          document.body.appendChild(link);
+          link.click();
+          link.parentNode.removeChild(link);
+        } catch (error) {
+          console.error("Error exporting Excel:", error);
+          alert("مشکلی در ارتباط با سرور رخ داده است");
+        }
+      };
+
       
     return (
         <>
           <div className="w-full px-4">
-            <h1 className="block text-gray-700 text-lg font-bold mb-2 py-4 ">
-              نگاه آماری 
-            </h1>
+          <div className="flex items-center justify-between">
+        <h1 className="text-md font-semibold mb-4 mt-4">نگاه آماری</h1>
+        {activeSection === "dailyStats" && (
+             <button
+             onClick={handleExportExcel}
+             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+           >
+             خروجی اکسل
+           </button>
+          )}
+      
+      </div>
           </div>
           <div className="flex flex-col md:flex-row gap-3 my-5 w-full justify-center">
             <div className="flex w-full md:w-2/5 gap-3">

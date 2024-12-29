@@ -3,6 +3,16 @@ import { useState } from 'react';
 const Modal = ({ isOpen, closeModal, formData, setFormData }) => {
   if (!isOpen) return null;
 
+  const handleCheckboxChange = (wallet) => {
+    // اضافه کردن یا حذف کردن کیف پول از فرم دیتا
+    setFormData((prevData) => {
+      const updatedWallets = prevData.wallets.includes(wallet)
+        ? prevData.wallets.filter((w) => w !== wallet)
+        : [...prevData.wallets, wallet];
+      return { ...prevData, wallets: updatedWallets };
+    });
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
@@ -13,7 +23,8 @@ const Modal = ({ isOpen, closeModal, formData, setFormData }) => {
             <label key={wallet} className="flex items-center space-x-2">
               <input
                 type="checkbox"
-            
+                checked={formData?.wallets?.includes(wallet)}
+                onChange={() => handleCheckboxChange(wallet)}
               />
               <span>{wallet}</span>
             </label>
@@ -29,6 +40,7 @@ const Modal = ({ isOpen, closeModal, formData, setFormData }) => {
             بستن
           </button>
           <button 
+            onClick={closeModal}
             className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"
           >
             ذخیره

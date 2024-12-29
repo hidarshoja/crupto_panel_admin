@@ -59,7 +59,7 @@ const WithdrawalChart = () => {
       try {
         const response = await axiosClient.get(url);
         setChartValues(response.data.data);
-        console.log("مقدار چارت", response.data);
+      //  console.log("مقدار چارت", response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
