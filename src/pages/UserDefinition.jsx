@@ -65,6 +65,8 @@ export default function UserDefinition() {
       phone: "",
       password: "",
       wallets: [],
+      Rial :"",
+      tether : ""
     });
     setDateBirth(new DateObject());
   };
@@ -191,6 +193,50 @@ export default function UserDefinition() {
             />
           </div>
         </div>
+        <div className="flex flex-col gap-4 w-full md:flex-row mt-8">
+       
+          <div className="w-full md:w-1/2">
+            <label htmlFor="Rial" className="block text-sm font-medium leading-6 text-gray-900">
+              حد اعتباری ریالی
+            </label>
+            <div className="relative mt-2">
+              <input
+                id="Rial"
+                name="Rial"
+                type="text"
+                value={formData.Rial}
+                onChange={handleInputChange}
+                placeholder=" حد اعتبار ریالی  را وارد کنید"
+                className="peer block w-full pr-2 border-0 bg-gray-50 py-1.5 text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+              />
+              <div
+                aria-hidden="true"
+                className="absolute inset-x-0 bottom-0 border-t border-gray-300 peer-focus:border-t-2 peer-focus:border-indigo-600"
+              />
+            </div>
+          </div>
+          <div className="w-full md:w-1/2">
+            <label htmlFor="tether" className="block text-sm font-medium leading-6 text-gray-900">
+               حد اعتباری تتری
+            </label>
+            <div className="relative mt-2">
+              <input
+                id="tether"
+                name="tether"
+                type="text"
+                value={formData.tether}
+                onChange={handleInputChange}
+                placeholder="  حد اعتبار تتری  را وارد کنید"
+                className="peer block w-full pr-2 border-0 bg-gray-50 py-1.5 text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+              />
+              <div
+                aria-hidden="true"
+                className="absolute inset-x-0 bottom-0 border-t border-gray-300 peer-focus:border-t-2 peer-focus:border-indigo-600"
+              />
+            </div>
+          </div>
+        </div>
+        
 
         <fieldset className="mt-8">
           <legend className="text-md leading-6 text-gray-900">کیف های پول</legend>

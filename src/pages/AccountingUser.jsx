@@ -23,7 +23,35 @@ export default function AccountingUser() {
   const handleSelectChange = (event) => {
     setSelectedValue(event.target.value);
   };
+  const [filters, setFilters] = useState({});
+  const [filteredData, setFilteredData] = useState([]);
+  const handleExportExcel = async () => {
+    const payload = {
+      filters,  
+      data: filteredData,
+    };
 
+    try {
+      const response = await axios.post("/api/export-excel", payload, {
+        responseType: "blob", 
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const blob = response.data;
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "transactions.xlsx"); 
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error("Error exporting Excel:", error);
+      alert("مشکلی در ارتباط با سرور رخ داده است");
+    }
+  };
   return (
     <div className="p-4">
       <h1 className="text-lg font-bold mb-4">حسابداری</h1>
@@ -41,7 +69,15 @@ export default function AccountingUser() {
       </select>
      </div>
      <BoxAccountUser />
+     <div className='flex items-center justify-between'>
      <h1 className="text-lg font-bold mb-4 mt-4">لیست معاملات</h1>
+        <button
+          onClick={handleExportExcel}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          خروجی اکسل
+        </button>
+     </div>
      <TransactionsUser />
     </div>
   );

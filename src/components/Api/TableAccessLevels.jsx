@@ -3,6 +3,7 @@ import Modal from './Modal';
 import LicenseModal from './LicenseModal';
 import { FaWallet, FaLock } from "react-icons/fa";
 
+
 const TableAccessLevels = () => {
   const initialData = [
     {

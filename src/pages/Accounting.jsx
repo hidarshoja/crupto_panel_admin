@@ -24,7 +24,6 @@ export default function Accounting() {
   const handleSelectChange = (event) => {
     setSelectedValue(event.target.value);
   };
-
   const [filters, setFilters] = useState({});
   const [filteredData, setFilteredData] = useState([]);
   const handleExportExcel = async () => {

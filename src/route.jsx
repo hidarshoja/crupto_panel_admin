@@ -28,6 +28,7 @@ import Notification from "./pages/BotTrade/Notification";
 import StatisticalViewBot from "./pages/BotTrade/StatisticalViewBot";
 import StreamViewTable from "./pages/BotTrade/StreamViewTable";
 import ChartSellApi from "./pages/chart-home-page/ChartSellApi";
+import DownloadPhoto from "./pages/DownloadPhoto";
 
 export const route = createBrowserRouter([
     {
@@ -57,6 +58,10 @@ export const route = createBrowserRouter([
             {
                 path: '/accessLevels',
                 element: <AccessLevels />
+            },
+            {
+                path :"/download",
+                element : <DownloadPhoto />
             },
             {
                 path: '/statistical',
