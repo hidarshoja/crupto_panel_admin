@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { FaPlay , FaPause , FaRegEye  } from "react-icons/fa";
-
+import { MdOutlineReplay } from "react-icons/md";
+import { toast } from "react-hot-toast";
+import axios from "axios";
 
 
 const ListStrategy = () => {
   const [modalContent, setModalContent] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [playState, setPlayState] = useState({});
+  
 
   const strategies = [
     {
@@ -37,6 +40,48 @@ const ListStrategy = () => {
     setModalContent(list);
     setIsModalOpen(true);
   };
+  const handleRipet = (strategyId) => {
+    toast(
+      (t) => (
+        <div className="text-center">
+          <p className="mt-8">آیا از تکرار مطمئن هستید؟</p>
+          <div className="flex justify-center gap-4 my-10">
+          <button
+              className="px-4 py-2 bg-gray-300 text-black rounded"
+              onClick={() => toast.dismiss(t.id)} 
+            >
+              خیر
+            </button>
+            <button
+              className="px-4 py-2 bg-green-500 text-white rounded"
+              onClick={() => {
+                toast.dismiss(t.id);
+                repeatStrategy(strategyId); 
+              }}
+            >
+              بله
+            </button>
+          
+          </div>
+        </div>
+      ),
+      {
+        duration: Infinity, // پیام تا زمانی که کاربر تصمیم بگیرد باز می‌ماند
+      }
+    );
+  };
+  
+  // ارسال مشخصات به API
+  const repeatStrategy = async (strategyId) => {
+    try {
+      const response = await axios.post("/api/repeat-strategy", { id: strategyId });
+      toast.success("استراتژی با موفقیت تکرار شد");
+      console.log("API Response:", response.data);
+    } catch (error) {
+      toast.error("خطایی رخ داد. لطفاً دوباره تلاش کنید.");
+      console.error("API Error:", error);
+    }
+  };
 
   const togglePlayStop = (id) => {
    setPlayState((prevState) => {
@@ -52,7 +97,7 @@ const ListStrategy = () => {
   return (
     <div>
       <h1 className="text-lg font-bold mb-4 mt-4">لیست استراتژی‌ها</h1>
-      <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+      <div className="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
         <table className="min-w-full divide-y divide-gray-300">
           <thead className="bg-gray-50">
             <tr>
@@ -100,11 +145,16 @@ const ListStrategy = () => {
                     onClick={() => togglePlayStop(strategy.id)}
                     className="text-xl text-gray-700 hover:text-gray-900"
                   >
-                    {playState[strategy.id] ? <FaPlay /> : <FaPause />}
+                    {playState[strategy.id] ? <FaPlay style={{ color: "red" }} /> : <FaPause style={{ color: "green" }}/>}
                   </button>
                 </td>
                 <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                  {strategy.repeat ? "بله" : "خیر"}
+                  {/* {strategy.repeat ? "بله" : "خیر"} */}
+                  <MdOutlineReplay
+                   size={20}
+                  onClick={() => handleRipet(strategy.id)}
+                  className="cursor-pointer"
+                   />
                 </td>
               </tr>
             ))}

@@ -25,27 +25,17 @@ export default function CustomerDefinition() {
   const [formData, setFormData] = useState(initialFormState);
   const wallets = ["ریال", "Tether", "BTC", "ETH", "SOL", "DAI", "GOLD"];
 
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    // فیلتر کردن اعداد فقط برای فیلدهای مشخص
-    const numericFields = [
-      "nationalCode",
-      "phoneNumber",
-      "buyCreditIRR",
-      "sellCreditIRR",
-      "buyCreditUSD",
-      "sellCreditUSD",
-    ];
-
-    const newValue = numericFields.includes(name)
-      ? value.replace(/,/g, "").replace(/[^\d]/g, "") // فقط اعداد
-      : value; // مقدار بدون تغییر برای سایر فیلدها
-
-    setFormData({
-      ...formData,
-      [name]: newValue,
-    });
+    if (name === "buyCreditIRR" || name === "sellCreditIRR" ) {
+      const plainValue = value.replace(/,/g, '');
+      const formattedValue = Number(plainValue).toLocaleString('en-US');
+  
+      setFormData((prev) => ({ ...prev, [name]: formattedValue })); 
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleBlur = (e, currency) => {

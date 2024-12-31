@@ -1,7 +1,7 @@
 import React from "react";
-import Remaining from "../../components/Bot/Remaining";
-import PortComponent from "../../components/Bot/PortComponent";
-import TableAccount from "../../components/Bot/TableAccount";
+
+
+
 
 export default function StableCondition() {
  const exchangeData = [
@@ -67,9 +67,6 @@ export default function StableCondition() {
           </tbody>
         </table>
       </div>
-      <Remaining />
-      <PortComponent />
-      <TableAccount />
     </div>
   );
 }

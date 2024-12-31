@@ -26,9 +26,18 @@ export default function UserDefinition() {
     { id: 7, name: "GOLD" },
   ];
 
+ 
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "Rial" || name === "tether" ) {
+      const plainValue = value.replace(/,/g, '');
+      const formattedValue = Number(plainValue).toLocaleString('en-US');
+  
+      setFormData((prev) => ({ ...prev, [name]: formattedValue })); 
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleCheckboxChange = (id) => {

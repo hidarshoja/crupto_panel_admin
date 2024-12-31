@@ -57,10 +57,14 @@ export default function Exchange() {
         permissions: { ...formData.permissions, [name]: checked },
       });
     } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
+      if (name === "buyLimit" || name === "sellLimit" ) {
+        const plainValue = value.replace(/,/g, '');
+        const formattedValue = Number(plainValue).toLocaleString('en-US');
+    
+        setFormData((prev) => ({ ...prev, [name]: formattedValue })); 
+      } else {
+        setFormData((prev) => ({ ...prev, [name]: value }));
+      }
     }
   };
 

@@ -5,7 +5,7 @@ import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 
 export default function TransactionStatus() {
-  const [selectedValue, setSelectedValue] = useState("1");
+  const [selectedValue, setSelectedValue] = useState("3");
   const [dateBirth, setDateBirth] = useState(new DateObject());
   const [dateBirth2, setDateBirth2] = useState(new DateObject());
 

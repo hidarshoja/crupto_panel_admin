@@ -70,7 +70,7 @@ export default function UserComponentUsers({
             مبلغ بر اساس ارز پایه:
           </span>
           <input
-            type="number"
+            type="text"
             name="amount"
             value={formData2.amount}
             onChange={handleChange2}

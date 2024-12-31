@@ -50,7 +50,7 @@ export default function UserComponent({ formData2, handleSubmit2, handleChange2 
       <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
         <span className="text-sm font-semibold pl-2">مبلغ بر اساس ارز پایه:</span>
         <input
-          type="number"
+          type="text"
           name="amount"
           value={formData2.amount}
           onChange={handleChange2}

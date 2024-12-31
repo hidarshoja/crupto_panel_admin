@@ -29,6 +29,9 @@ import StatisticalViewBot from "./pages/BotTrade/StatisticalViewBot";
 import StreamViewTable from "./pages/BotTrade/StreamViewTable";
 import ChartSellApi from "./pages/chart-home-page/ChartSellApi";
 import DownloadPhoto from "./pages/DownloadPhoto";
+import Remaining from "./components/Bot/Remaining";
+import PortBot from "./pages/BotTrade/PortBot";
+import AccountList from "./pages/BotTrade/AccountList";
 
 export const route = createBrowserRouter([
     {
@@ -138,6 +141,18 @@ export const route = createBrowserRouter([
             {
                 path :"/bot/streamViewTable",
                 element : <StreamViewTable />
+            },
+            {
+                path :"/bot/remaining",
+                element : <Remaining />
+            },
+            {
+                path :"/bot/port",
+                element : <PortBot />
+            },
+            {
+                path : "/bot/account-list",
+                element : <AccountList />
             }
           
         ]

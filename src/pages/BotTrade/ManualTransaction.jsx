@@ -1,7 +1,10 @@
-import  { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
-
+import TableReview from "../../components/Bot/TableReview";
+import TableRegistration from "../../components/Bot/TableRegistration";
 export default function ManualTransaction() {
+  const[review , setReview] = useState(false);
+  const[registration , setRegistration] = useState(false);
   const [formData, setFormData] = useState({
     transaction: "",
     exchange: "",
@@ -10,11 +13,16 @@ export default function ManualTransaction() {
     price: "",
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-
-  const handleInputChange = (e) => {
+const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (name === "amount" || name === "price") {
+      const plainValue = value.replace(/,/g, '');
+      const formattedValue = Number(plainValue).toLocaleString('en-US');
+  
+      setFormData((prev) => ({ ...prev, [name]: formattedValue })); 
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleCancel = () => {
@@ -28,9 +36,13 @@ export default function ManualTransaction() {
   };
 
   const handleCheck = async () => {
-   console.log(`formData`, formData);
+    setReview(true)
+    console.log(`formData`, formData);
     try {
-      const response = await axios.post("https://jsonplaceholder.org/posts", formData);
+      const response = await axios.post(
+        "https://jsonplaceholder.org/posts",
+        formData
+      );
       console.log("Response:", response.data);
       alert("اطلاعات با موفقیت ارسال شد");
     } catch (error) {
@@ -43,13 +55,28 @@ export default function ManualTransaction() {
     setIsModalOpen(true);
   };
 
+  const handleCancel2 = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleRegister = () => {
+    setRegistration(true)
+    console.log("ثبت شد:", formData);
+    // در اینجا می‌توانید عملیات دیگری برای ذخیره داده انجام دهید
+  };
+  
+
+
   return (
     <div>
       <h1 className="text-lg font-bold mb-4 mt-4">معامله دستی</h1>
       <div className="flex w-full flex-col md:flex-row gap-3 mt-6">
         {/* نوع معامله */}
         <div className="w-full md:w-1/3">
-          <label htmlFor="transaction" className="block text-sm font-medium leading-6 text-gray-900">
+          <label
+            htmlFor="transaction"
+            className="block text-sm font-medium leading-6 text-gray-900"
+          >
             نوع معامله :
           </label>
           <select
@@ -65,29 +92,27 @@ export default function ManualTransaction() {
           </select>
         </div>
 
-        {/* نوع صرافی */}
         <div className="w-full md:w-1/3">
-          <label htmlFor="exchange" className="block text-sm font-medium leading-6 text-gray-900">
-            نوع صرافی :
-          </label>
-          <select
-            id="exchange"
-            name="exchange"
-            value={formData.exchange}
-            onChange={handleInputChange}
-            className="mt-2 block w-full rounded-md border-0 py-1.5 pr-2 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          <label
+            htmlFor="exchange"
+            className="block text-sm font-medium leading-6 text-gray-900"
           >
-            <option value="">انتخاب کنید ...</option>
-            <option value="Newbex">نیوبیکس</option>
-            <option value="November Teter">آبان تتر</option>
-            <option value="Lidia">لیدیا</option>
-            <option value="Tetherland">تترلند</option>
-          </select>
+            نام صرافی :
+          </label>
+          <div
+            onClick={handleSubmit}
+            className="mt-2 cursor-pointer flex items-center justify-center w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 hover:bg-green-500 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          >
+            انتخاب نام صرافی
+          </div>
         </div>
 
         {/* نوع ارز */}
         <div className="w-full md:w-1/3">
-          <label htmlFor="currency" className="block text-sm font-medium leading-6 text-gray-900">
+          <label
+            htmlFor="currency"
+            className="block text-sm font-medium leading-6 text-gray-900"
+          >
             نوع ارز:
           </label>
           <select
@@ -109,7 +134,10 @@ export default function ManualTransaction() {
       {/* مقدار و قیمت */}
       <div className="flex w-full flex-col md:flex-row gap-3 mt-6">
         <div className="w-full md:w-1/2">
-          <label htmlFor="amount" className="block text-sm font-medium leading-6 text-gray-900">
+          <label
+            htmlFor="amount"
+            className="block text-sm font-medium leading-6 text-gray-900"
+          >
             مقدار :
           </label>
           <input
@@ -122,7 +150,10 @@ export default function ManualTransaction() {
           />
         </div>
         <div className="w-full md:w-1/2">
-          <label htmlFor="price" className="block text-sm font-medium leading-6 text-gray-900">
+          <label
+            htmlFor="price"
+            className="block text-sm font-medium leading-6 text-gray-900"
+          >
             قیمت :
           </label>
           <input
@@ -151,7 +182,7 @@ export default function ManualTransaction() {
           لغو
         </button>
         <button
-          onClick={handleSubmit}
+          onClick={handleRegister}
           className="mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded md:px-8"
         >
           ثبت
@@ -159,83 +190,78 @@ export default function ManualTransaction() {
       </div>
 
       {isModalOpen && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-      <h2 className="text-lg font-bold text-center mb-4">نتایج معامله</h2>
-      
-      {/* میزان انجام شده */}
-      <div className="mb-4">
-        <p className="text-gray-600 font-semibold">میزان انجام شده:</p>
-        <p className="text-lg font-bold text-green-600">80%</p>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <div className="flex items-center justify-end">
+              <button className="text-re" onClick={handleCancel2}>
+                x
+              </button>
+            </div>
+            <div className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
+              {[
+                { value: "Newbex", label: "نیوبیکس" },
+                { value: "November Tether", label: "آبان تتر" },
+                { value: "Lidia", label: "لیدیا" },
+                { value: "Tetherland", label: "تترلند" },
+              ].map((option) => (
+                <div key={option.value} className="flex items-center mb-2">
+                  <input
+                    type="checkbox"
+                    id={`exchange-${option.value}`}
+                    name="exchange"
+                    value={option.value}
+                    checked={formData.exchange.includes(option.value)}
+                    onChange={(e) => {
+                      const { value, checked } = e.target;
+                      if (checked) {
+                        handleInputChange({
+                          target: {
+                            name: "exchange",
+                            value: [...formData.exchange, value],
+                          },
+                        });
+                      } else {
+                        handleInputChange({
+                          target: {
+                            name: "exchange",
+                            value: formData.exchange.filter(
+                              (item) => item !== value
+                            ),
+                          },
+                        });
+                      }
+                    }}
+                    className="mr-2"
+                  />
+                  <label
+                    htmlFor={`exchange-${option.value}`}
+                    className="text-sm text-gray-900"
+                  >
+                    {option.label}
+                  </label>
+                </div>
+              ))}
+            </div>
+         <div className="flex items-center justify-end">
+         <button className="bg-green-500 p-1 rounded-md mt-1 text-white" onClick={handleCancel2}>
+                ذخیره 
+              </button>
+         </div>
+          </div>
+        </div>
+      )}
+      {review &&
+      <div className="mt-10">
+      <h1 className="text-lg font-bold mb-4 mt-4">وضعیت بررسی</h1>
+      <TableReview />
       </div>
-      
-      {/* میزان خرید یا فروش */}
-      <div className="mb-4">
-        <p className="text-gray-600 font-semibold">میزان خرید/فروش:</p>
-        <select 
-          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300"
-          value={formData.transaction}
-          onChange={(e) => setFormData({ ...formData, transaction: e.target.value })}
-        >
-          <option value="خرید">خرید</option>
-          <option value="فروش">فروش</option>
-        </select>
+      }
+        {registration &&
+      <div className="mt-10">
+      <h1 className="text-lg font-bold mb-4 mt-4">وضعیت ثبت ها</h1>
+      <TableRegistration />
       </div>
-      
-      {/* صرافی */}
-      <div className="mb-4">
-        <p className="text-gray-600 font-semibold">صرافی:</p>
-        <select 
-          className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300"
-          value={formData.exchange}
-          onChange={(e) => setFormData({ ...formData, exchange: e.target.value })}
-        >
-          <option value="نیوبیکس">نیوبیکس</option>
-          <option value="آبان تتر">آبان تتر</option>
-          <option value="بیت لند">بیت لند</option>
-        </select>
-      </div>
-      
-      {/* محاسبه میانگین قیمت و سود */}
-      <div className="mb-4">
-        <p className="text-gray-600 font-semibold">میانگین قیمت:</p>
-        <p className="text-lg font-bold">
-         ۱۰۰۰۰۰۰۰ ریال
-        </p>
-      </div>
-      <div className="mb-4">
-        <p className="text-gray-600 font-semibold">سود:</p>
-        <p className="text-lg font-bold text-blue-600">
-          ۳۰۰۰۰۰۰ ریال
-        </p>
-      </div>
-      
-      {/* دکمه‌ها */}
-      <div className="flex justify-between mt-6">
-        <button 
-          className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-lg"
-          onClick={() => setIsModalOpen(false)}
-        >
-          بستن
-        </button>
-        <button 
-          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg"
-        >
-          ادامه
-        </button>
-        <button 
-          className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg"
-        >
-          توقف
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-
-
-
+      }
     </div>
   );
 }

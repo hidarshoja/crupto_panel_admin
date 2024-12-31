@@ -1,8 +1,9 @@
 import  { useState } from "react";
 import { LiaSearchSolid } from "react-icons/lia";
+import BoxAccountBot from "../../components/Bot/BoxAccountBot";
 
 export default function Accounting() {
-  const [selectedValue, setSelectedValue] = useState("1");
+  const [selectedValue, setSelectedValue] = useState("3");
   const [selectedCurrencies, setSelectedCurrencies] = useState({});
    const [search, setSearch] = useState("");
   
@@ -180,6 +181,7 @@ export default function Accounting() {
           );
         })}
       </div>
+      <BoxAccountBot />
     </div>
   );
 }

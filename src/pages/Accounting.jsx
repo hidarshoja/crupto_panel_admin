@@ -4,7 +4,7 @@ import Transactions from '../components/Transactions';
 import axios from 'axios';
 
 export default function Accounting() {
-  const [selectedValue, setSelectedValue] = useState("1");
+  const [selectedValue, setSelectedValue] = useState("2");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,7 +59,7 @@ export default function Accounting() {
     <div className="p-4">
       <h1 className="text-lg font-bold mb-4">حسابداری</h1>
       
-     <div className='flex flex-col md:flex-row gap-1 items-start md:items-center'>
+     <div className='flex flex-col gap-2 items-start '>
       <span className='text-sm font-semibold pl-2'>فیلتر براساس :</span>  
      <select
         value={selectedValue}

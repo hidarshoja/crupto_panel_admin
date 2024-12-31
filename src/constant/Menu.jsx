@@ -46,7 +46,12 @@ export const navigation = [
       { name :"وضعیت معاملات" , href :"/bot/transactionStatus"},
       { name :"وضعیت پایداری" , href :"/bot/stableCondition"},
       { name :"نوتیفیکیشن" , href :"/bot/notification"},
-      { name :"نگاه آماری" , href :"/bot/statisticalViewBot"}
+      { name :"نگاه آماری" , href :"/bot/statisticalViewBot"},
+      { name :"مانده صرافی" , href :"/bot/remaining"},
+      { name :"درگاه" , href :"/bot/port"},
+      { name :"لیست حساب‌ها و شناسه‌ها" , href :"/bot/account-list"}
     ],
   }, 
 ];
+
+

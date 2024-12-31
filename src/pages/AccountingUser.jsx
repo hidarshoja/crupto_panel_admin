@@ -3,7 +3,7 @@ import BoxAccountUser from '../components/user/BoxAccountUser';
 import TransactionsUser from '../components/user/TransactionsUser';
 
 export default function AccountingUser() {
-  const [selectedValue, setSelectedValue] = useState("1");
+  const [selectedValue, setSelectedValue] = useState("4");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,7 +55,7 @@ export default function AccountingUser() {
   return (
     <div className="p-4">
       <h1 className="text-lg font-bold mb-4">حسابداری</h1>
-     <div className='flex flex-col md:flex-row gap-1 items-start md:items-center'>
+     <div className='flex flex-col gap-2 items-start'>
       <span className='text-sm font-semibold pl-2'>فیلتر براساس :</span>  
      <select
         value={selectedValue}

@@ -36,21 +36,28 @@ const [userId, setUserId] = useState(null);
     const [pri, setPri] = useState(0);
   const navigate = useNavigate();
 
-  // برای بروزرسانی مقادیر فرم
+ 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    if (name === "amount" ) {
+      const plainValue = value.replace(/,/g, '');
+      const formattedValue = Number(plainValue).toLocaleString('en-US');
+  
+      setFormData((prev) => ({ ...prev, [name]: formattedValue })); 
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
-
   const handleChange2 = (e) => {
     const { name, value } = e.target;
-    setFormData2((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
+    if (name === "amount" ) {
+      const plainValue = value.replace(/,/g, '');
+      const formattedValue = Number(plainValue).toLocaleString('en-US');
+  
+      setFormData2((prev) => ({ ...prev, [name]: formattedValue })); 
+    } else {
+      setFormData2((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   // پاک کردن فرم
