@@ -1,31 +1,15 @@
-import  { useState } from "react";
+import { useState, useEffect } from "react";
 import UserBox from "../components/UserBox4";
+import axiosClient from "../axios-client";
+import axiosClient2 from "../axios-client2";
 
 export default function Transactions() {
-  const transactionsData = [
-    {
-      id: 1,
-      date: "1402/08/15",
-      time: "12:45",
-      name: "علی احمدی",
-      type: "خرید",
-      amount: "123456",
-      currency: "دلار",
-      status: "تایید شده",
-      description: "پرداخت از حساب کاربری",
-    },
-    {
-      id: 2,
-      date: "1402/08/16",
-      time: "14:30",
-      name: "محمد رضایی",
-      type: "فروش",
-      amount: "654321",
-      currency: "یورو",
-      status: "در انتظار بررسی",
-      description: "بازگشت وجه",
-    },
-  ];
+  const [listTransaction, SetListTransaction] = useState([]);
+  const [users , setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState(null);
+  const [isUsersInitialized, setIsUsersInitialized] = useState(false);
+ 
   const tableHeaders = [
     "تاریخ و ساعت",
     "کاربر معامله‌گر",
@@ -36,51 +20,73 @@ export default function Transactions() {
     "وضعیت",
     "توضیحات",
   ];
-  const [userId, setUserId] = useState(null);
-  const [filters, setFilters] = useState({
-    type: "همه",
-    currency: "همه",
-    status: "همه",
-    date: "",
-  });
+  
+  const [filters, setFilters] = useState({ type: "" , status: "" , currency: ""  });
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
-  };
+  
 
-  const filteredData = transactionsData.filter((transaction) => {
-    const isUserMatch = userId ? transaction.id === userId : true;
-    return (
-      isUserMatch &&
-      (filters.type === "همه" || transaction.type === filters.type) &&
-      (filters.currency === "همه" || transaction.currency === filters.currency) &&
-      (filters.status === "همه" || transaction.status === filters.status) &&
-      (filters.date === "" || transaction.date.includes(filters.date))
-    );
-  });
+const handleFilterChange = (e) => {
+  const { name, value } = e.target;
+  setFilters((prevFilters) => ({
+    ...prevFilters,
+    [name]: value,
+  }));
+};
 
  
+
+
+
+useEffect(() => {
+  const fetchTransactions = async () => {
+    try {
+      const endpoint = `/transactions?${userId ? `f[user_id]=${userId}&` : ""}${
+        filters.type ? `f[type]=${filters.type}&` : ""
+      }${filters.status ? `f[status]=${filters.status}&` : ""}${
+        filters.currency ? `f[asset_id]=${filters.currency}` : ""
+      }`;
+
+      const response = await axiosClient2.get(endpoint);
+
+      SetListTransaction(response.data.data);
+
+      if (!isUsersInitialized) {
+        const users = response.data.data.map((item) => item.user);
+        const uniqueUsers = Array.from(
+          new Map(users.map((user) => [user.id, user])).values()
+        );
+        setUsers(uniqueUsers);
+        setIsUsersInitialized(true);
+      }
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchTransactions();
+}, [userId, filters.type, filters.status, isUsersInitialized , filters.currency]);
 
   return (
     <div className="mt-8 flow-root">
       <div className="mb-4 flex flex-col md:flex-row gap-3">
-         {/* فیلتر نام کاربر */}
-         <div className="w-full md:w-1/4 flex flex-col mt-[-3px]">
+        {/* فیلتر نام کاربر */}
+        <div className="w-full md:w-1/4 flex flex-col mt-[-3px]">
           <label
             htmlFor="userFilter"
             className="block text-gray-700 text-sm font-bold pb-2 w-28"
           >
             نام کاربر:
           </label>
-          <UserBox
-            people={transactionsData}
-            setUserId={setUserId}
-          />
+          <UserBox people={users} setUserId={setUserId} />
         </div>
         {/* فیلتر نوع معامله */}
         <div className="w-full md:w-1/4">
-          <label htmlFor="type" className="block mb-1 text-sm font-medium text-gray-700">
+          <label
+            htmlFor="type"
+            className="block mb-1 text-sm font-medium text-gray-700"
+          >
             فیلتر نوع معامله
           </label>
           <select
@@ -90,15 +96,20 @@ export default function Transactions() {
             onChange={handleFilterChange}
             className="p-2 border rounded w-full"
           >
-            <option value="همه">همه</option>
-            <option value="خرید">خرید</option>
-            <option value="فروش">فروش</option>
+            <option value="">همه</option>
+            <option value="1">خرید</option>
+            <option value="2">فروش</option>
+            <option value="4">دریافت</option>
+            <option value="3">برداشت</option>
           </select>
         </div>
 
         {/* فیلتر ارز معامله */}
         <div className="w-full md:w-1/4">
-          <label htmlFor="currency" className="block mb-1 text-sm font-medium text-gray-700">
+          <label
+            htmlFor="currency"
+            className="block mb-1 text-sm font-medium text-gray-700"
+          >
             فیلتر ارز معامله
           </label>
           <select
@@ -108,15 +119,18 @@ export default function Transactions() {
             onChange={handleFilterChange}
             className="p-2 border rounded w-full"
           >
-            <option value="همه">همه</option>
-            <option value="دلار">دلار</option>
-            <option value="یورو">یورو</option>
+            <option value="">همه</option>
+            <option value="2">تتر</option>
+            <option value="1">ریال</option>
           </select>
         </div>
 
         {/* فیلتر وضعیت معامله */}
         <div className="w-full md:w-1/4">
-          <label htmlFor="status" className="block mb-1 text-sm font-medium text-gray-700">
+          <label
+            htmlFor="status"
+            className="block mb-1 text-sm font-medium text-gray-700"
+          >
             فیلتر وضعیت معامله
           </label>
           <select
@@ -126,19 +140,17 @@ export default function Transactions() {
             onChange={handleFilterChange}
             className="p-2 border rounded w-full"
           >
-            <option value="همه">همه</option>
-            <option value="تایید شده">تایید شده</option>
-            <option value="در انتظار بررسی">در انتظار بررسی</option>
-            <option value="لغو شده">لغو شده</option>
+            <option value="">همه</option>
+            <option value="100">تایید شده</option>
+            <option value="0">در انتظار بررسی</option>
+            <option value="-100">لغو شده</option>
           </select>
         </div>
-
-      
       </div>
 
       <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-          <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+          <div className="overflow-auto shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
             <table className="min-w-full divide-y divide-gray-300">
               <thead className="bg-gray-50">
                 <tr>
@@ -153,44 +165,84 @@ export default function Transactions() {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
-                {filteredData.length > 0 ? (
-                  filteredData.map((transaction) => (
-                    <tr key={transaction.id}>
-                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                        {transaction.date} - {transaction.time}
-                      </td>
-                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                        {transaction.name}
-                      </td>
-                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                        {transaction.type}
-                      </td>
-                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                        {transaction.amount}
-                      </td>
-                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                        {transaction.currency}
-                      </td>
-                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                        {transaction.status}
-                      </td>
-                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                        {transaction.description}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
+              {loading ? (
+                <tbody>
                   <tr>
                     <td
                       colSpan={tableHeaders.length}
-                      className="px-3 py-4 text-sm text-gray-500 text-center"
+                      className="py-20 text-center bg-gray-100"
                     >
-                      موردی یافت نشد
+                      <div className="flex justify-center items-center">
+                        <svg
+                          className="animate-spin h-10 w-10 text-blue-500"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v8z"
+                          ></path>
+                        </svg>
+                      </div>
                     </td>
                   </tr>
-                )}
-              </tbody>
+                </tbody>
+              ) : (
+                <tbody className="divide-y divide-gray-200 bg-white">
+                  {listTransaction?.length > 0 ? (
+                    listTransaction?.map((transaction) => (
+                      <tr key={transaction.id}>
+                        <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                          {new Date(transaction.created_at)
+                            .toISOString()
+                            .slice(0, 16)
+                            .replace("T", " ")}
+                        </td>
+                        <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                          {transaction?.user?.name}
+                        </td>
+                        <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                          {transaction?.type_label}
+                        </td>
+                        <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                          {transaction?.txid}
+                        </td>
+                        <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                          {parseInt(transaction?.amount)}
+                        </td>
+                        <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                          {transaction?.asset?.name}
+                        </td>
+                        <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                          {transaction?.status_label}
+                        </td>
+                        <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                          {transaction?.des}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={tableHeaders.length}
+                        className="px-3 py-4 text-sm text-gray-500 text-center"
+                      >
+                        موردی یافت نشد
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              )}
             </table>
           </div>
         </div>

@@ -1,25 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import BoxAccount from '../components/BoxAccount';
 import Transactions from '../components/Transactions';
 import axios from 'axios';
+import axiosClient2 from '../axios-client2';
 
 export default function Accounting() {
   const [selectedValue, setSelectedValue] = useState("2");
+  const [exchange , setExchange] = useState(null)
+  
 
   useEffect(() => {
-    const fetchData = async () => {
-      const url = `https://jsonplaceholder.org/users?filter=${selectedValue}`;
+    const fetchTransactions = async () => {
       try {
-        const response = await fetch(url);
-        const data = await response.json();
-        console.log(data);
+        const response = await axiosClient2.get("/exchanges");
+        setExchange(response.data.data);
+            console.log(`response.data.data`, response.data.data);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching transactions:", error);
       }
     };
-
-    fetchData();
-  }, [selectedValue]);
+    fetchTransactions();
+  }, []);
+ 
 
   const handleSelectChange = (event) => {
     setSelectedValue(event.target.value);

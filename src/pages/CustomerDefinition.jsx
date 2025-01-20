@@ -1,29 +1,53 @@
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import axios from "axios";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import { convertPersianToEnglish } from "../constant/DateJalili";
 import { toast } from "react-hot-toast";
+import axiosClient2 from "../axios-client2";
 
 export default function CustomerDefinition() {
   const [dateBirth, setDateBirth] = useState(null);
+  const [assets , setAssets] = useState([]);
 
   const initialFormState = {
-    firstName: "",
-    nationalCode: "",
-    phoneNumber: "",
-    birthDate: "",
-    fatherName: "",
+    name :"",
+    lastname: "",
+    national_code: "",
+    mobile: "",
+    birthdate: "",
+    father_name: "",
     buyCreditIRR: "",
     sellCreditIRR: "",
-    gmail :"",
-    selectedWallets: [],
+    email :"",
+    assets: [],
     password: "",
+    status: 100,
+    user_api: true,
+    valid_ips : ["192.1.23.36"]
   };
 
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const endpoint = `/assets`;
+  
+        const response = await axiosClient2.get(endpoint);
+          console.log(response.data.data);
+          
+          setAssets(response.data.data);
+  
+       
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      } 
+    };
+  
+    fetchTransactions();
+  }, []);
+
   const [formData, setFormData] = useState(initialFormState);
-  const wallets = ["ریال", "Tether", "BTC", "ETH", "SOL", "DAI", "GOLD"];
 
 
   const handleInputChange = (e) => {
@@ -58,19 +82,24 @@ export default function CustomerDefinition() {
     });
   };
 
-  const handleCheckboxChange = (e, type) => {
-    const { name, checked } = e.target;
-
-    setFormData((prevState) => {
-      const updatedArray = checked
-        ? [...prevState[type], name]
-        : prevState[type].filter((item) => item !== name);
-      return {
-        ...prevState,
-        [type]: updatedArray,
-      };
-    });
+  const handleCheckboxChange = (e, field) => {
+    const { value, checked } = e.target;
+    let updatedSelectedWallets;
+  
+    if (checked) {
+      updatedSelectedWallets = [...formData.assets, value];
+    } else {
+      updatedSelectedWallets = formData.assets.filter(
+        (asset) => asset !== value
+      );
+    }
+  
+    setFormData((prev) => ({
+      ...prev,
+      [field]: updatedSelectedWallets,
+    }));
   };
+  
 
   const handleReset = () => {
     setFormData(initialFormState);
@@ -79,9 +108,9 @@ export default function CustomerDefinition() {
 
   const handleSubmit = async () => {
     if (
-      !formData.firstName ||
-      !formData.nationalCode ||
-      !formData.phoneNumber ||
+      !formData.lastname ||
+      !formData.national_code ||
+      !formData.mobile ||
       !dateBirth
     ) {
       console.log("عررور");
@@ -90,8 +119,8 @@ export default function CustomerDefinition() {
     }
 
     try {
-      const response = await axios.post(
-        "https://jsonplaceholder.org/comments",
+      const response = await axiosClient2.post(
+        "/users",
         formData
       );
       console.log("Response from server:", response.data);
@@ -107,27 +136,41 @@ export default function CustomerDefinition() {
       <h1 className="text-lg font-bold mb-4">تعریف مشتری</h1>
 
       <div className="flex flex-col md:flex-row items-center gap-6">
-        {/* نام و نام خانوادگی */}
-        <div className="mb-4 w-full md:w-1/2">
+         {/* نام */}
+         <div className="mb-4 w-full md:w-1/3">
+          <label className="block text-sm font-medium mb-1">
+          نام  :
+          </label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          />
+        </div>
+        
+        {/*  نام خانوادگی */}
+        <div className="mb-4 w-full md:w-1/3">
           <label className="block text-sm font-medium mb-1">
             نام و نام خانوادگی:
           </label>
           <input
             type="text"
-            name="firstName"
-            value={formData.firstName}
+            name="lastname"
+            value={formData.lastname}
             onChange={handleInputChange}
             className="w-full border border-gray-300 rounded px-3 py-2"
           />
         </div>
 
         {/* کد ملی */}
-        <div className="mb-4 w-full md:w-1/2">
+        <div className="mb-4 w-full md:w-1/3">
           <label className="block text-sm font-medium mb-1">کد ملی:</label>
           <input
             type="text"
-            name="nationalCode"
-            value={formData.nationalCode}
+            name="national_code"
+            value={formData.national_code}
             onChange={handleInputChange}
             className="w-full border border-gray-300 rounded px-3 py-2"
           />
@@ -139,8 +182,8 @@ export default function CustomerDefinition() {
           <label className="block text-sm font-medium mb-1">شماره تماس:</label>
           <input
             type="text"
-            name="phoneNumber"
-            value={formData.phoneNumber}
+            name="mobile"
+            value={formData.mobile}
             onChange={handleInputChange}
             className="w-full border border-gray-300 rounded px-3 py-2"
           />
@@ -158,7 +201,7 @@ export default function CustomerDefinition() {
               setDateBirth(selectedDate);
               setFormData((prev) => ({
                 ...prev,
-                birthDate: convertPersianToEnglish(selectedDate?.toString()),
+                birthdate: convertPersianToEnglish(selectedDate?.toString()),
               }));
             }}
             inputClass="w-full outline-none rounded"
@@ -171,8 +214,8 @@ export default function CustomerDefinition() {
           <label className="block text-sm font-medium mb-1">نام پدر:</label>
           <input
             type="text"
-            name="fatherName"
-            value={formData.fatherName}
+            name="father_name"
+            value={formData.father_name}
             onChange={handleInputChange}
             className="w-full border border-gray-300 rounded px-3 py-2"
           />
@@ -193,8 +236,8 @@ export default function CustomerDefinition() {
           <label className="block text-sm font-medium mb-1" dir="rtl"> ایمیل :</label>
           <input
             type="email"
-            name="gmail"
-            value={formData.gmail}
+            name="email"
+            value={formData.email}
             onChange={handleInputChange}
             className="w-full border border-gray-300 rounded px-3 py-2"
           />
@@ -202,8 +245,7 @@ export default function CustomerDefinition() {
       </div>
 
       {/* حد اعتباری خرید و فروش */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        {/* حد اعتباری خرید (ریال) */}
+      {/* <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="relative">
           <label className="block text-sm font-medium mb-1">
             حد اعتباری  (ریالی):
@@ -222,7 +264,7 @@ export default function CustomerDefinition() {
           </span>
         </div>
 
-        {/* حد اعتباری فروش (ریال) */}
+     
         <div className="relative">
           <label className="block text-sm font-medium mb-1">
             حد اعتباری  (تتری):
@@ -242,51 +284,64 @@ export default function CustomerDefinition() {
         </div>
 
       
-      </div>
+      </div> */}
 
-   
+ 
+
+  {/* دکمه تغییر وضعیت کاربر */}
+  <div className="mb-4 w-full md:w-1/3">
+  <label className="block text-sm font-medium mb-1">وضعیت کاربر (uesr_api):</label>
+    <button
+      onClick={() => setFormData({ ...formData, user_api: !formData.user_api })}
+      className={`w-full py-2 px-4 rounded-md text-white font-medium transition ${formData.user_api ? "bg-green-500 hover:bg-green-400" : "bg-red-500 hover:bg-red-400"}`}
+    >
+      {/* {formData.user_api ? "غیرفعال کردن" : "فعال کردن"} */}
+      {formData.user_api ? "فعال" : "غیرفعال"}
+    </button>
+  </div>
 
       {/* لیست کیف پول */}
       <div className="mb-4">
-        <label className="block text-sm font-medium mb-2">لیست کیف پول:</label>
-        <div className="flex items-center flex-wrap gap-3">
-          {wallets.map((wallet) => (
-            <label
-              key={wallet}
-              className={`flex items-center gap-2 p-3 rounded-md cursor-pointer transition ${
-                formData.selectedWallets.includes(wallet)
-                  ? "bg-green-500 text-white"
-                  : "bg-gray-200 text-gray-800"
-              } hover:bg-green-400 hover:text-white`}
-            >
-              <input
-                type="checkbox"
-                name={wallet}
-                checked={formData.selectedWallets.includes(wallet)}
-                onChange={(e) => handleCheckboxChange(e, "selectedWallets")}
-                className="hidden"
-              />
-              <span className="text-sm">{wallet}</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-                stroke={
-                  formData.selectedWallets.includes(wallet) ? "white" : "gray"
-                }
-                className="w-5 h-5"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </label>
-          ))}
-        </div>
+  <label className="block text-sm font-medium mb-2">لیست کیف پول:</label>
+  <div className="flex items-center flex-wrap gap-3">
+    {assets?.map((wallet) => (
+      <label
+        key={wallet.id}
+        className={`flex items-center gap-2 p-3 rounded-md cursor-pointer transition ${
+          formData.assets.includes(String(wallet.related_asset))
+            ? "bg-green-500 text-white"
+            : "bg-gray-200 text-gray-800"
+        } hover:bg-green-400 hover:text-white`}
+      >
+        <input
+          type="checkbox"
+          value={wallet.related_asset}
+          checked={formData.assets.includes(String(wallet.related_asset))}
+          onChange={(e) => handleCheckboxChange(e, "assets")}
+          className="hidden"
+        />
+        <span className="text-sm">{wallet.name}</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth="2"
+          stroke={formData.assets.includes(String(wallet.related_asset))
+            ? "white"
+            : "gray"}
+          className="w-5 h-5"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M5 13l4 4L19 7"
+          />
+        </svg>
+      </label>
+    ))}
+  </div>
       </div>
+
 
       {/* دکمه‌ها */}
       <div className="flex justify-end gap-4 mt-4">

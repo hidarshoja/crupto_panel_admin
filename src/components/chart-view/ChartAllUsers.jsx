@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import { Bar } from "react-chartjs-2";
 import DatePicker, { DateObject } from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
@@ -11,102 +11,112 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-
-// ثبت المان‌ها برای استفاده در چارت
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+import axiosClient2 from "../../axios-client2";
 
 export default function ChartAllUsers() {
 
   const [dateBirth, setDateBirth] = useState(new DateObject());
   const [dateBirth2, setDateBirth2] = useState(new DateObject());
-  // داده‌های ورودی
-  const defaultData = [
-    { x: "۱۴۰۲/۰۸/۰۱", y: 100, type: "buy", username: "علی", currency: "تتر" },
-    { x: "۱۴۰۲/۰۸/۰۱", y: 150, type: "sell", username: "حسین", currency: "ریال" },
-    { x: "۱۴۰۲/۰۸/۰۲", y: 500, type: "buy", username: "رضا", currency: "بیت کوین" },
-    { x: "۱۴۰۲/۰۸/۰۲", y: 120, type: "sell", username: "فاطمه", currency: "SOL" },
-    { x: "۱۴۰۲/۰۸/۰۳", y: 170, type: "buy", username: "محمد", currency: "تتر" },
-    { x: "۱۴۰۲/۰۸/۰۶", y: 500, type: "buy", username: "زهرا", currency: "BTC" },
-    { x: "۱۴۰۲/۰۸/۰۶", y: 120, type: "sell", username: "مهدی", currency: "SOL" },
-    { x: "۱۴۰۲/۰۸/۰۹", y: 520, type: "sell", username: "سارا", currency: "gold" },
-    { x: "۱۴۰۲/۰۸/۰۹", y: 170, type: "buy", username: "حمید", currency: "ریال" },
-  ];
-
-  const allDates = [
-    "۱۴۰۲/۰۸/۰۱",
-    "۱۴۰۲/۰۸/۰۲",
-    "۱۴۰۲/۰۸/۰۳",
-    "۱۴۰۲/۰۸/۰۴",
-    "۱۴۰۲/۰۸/۰۵",
-    "۱۴۰۲/۰۸/۰۶",
-    "۱۴۰۲/۰۸/۰۷",
-    "۱۴۰۲/۰۸/۰۸",
-    "۱۴۰۲/۰۸/۰۹",
-  ];
-
-  const [filterType, setFilterType] = useState("all"); // فیلتر نوع عملیات
-  const [filterCurrency, setFilterCurrency] = useState("all"); // فیلتر نوع ارز
-
-  // فیلتر داده‌ها بر اساس نوع عملیات و نوع ارز
-  const filteredData = defaultData.filter(
-    (item) =>
-      (filterType === "all" || item.type === filterType) &&
-      (filterCurrency === "all" || item.currency === filterCurrency)
-  );
-
-  // پردازش داده‌ها برای چارت
-  const processedData = allDates.map((date) => {
-    const buyItem = filteredData.find((item) => item.x === date && item.type === "buy");
-    const sellItem = filteredData.find((item) => item.x === date && item.type === "sell");
-
-    return {
-      x: date,
-      buy: buyItem ? buyItem.y : 0,
-      sell: sellItem ? sellItem.y : 0,
-      buyUsername: buyItem?.username || null,
-      sellUsername: sellItem?.username || null,
-    };
+  const [dataChart, setDataChart] = useState(null);
+  const [formData, setFormData] = useState({
+    type: '',
+    asset_id: '',
   });
 
-  const data = {
-    labels: processedData.map((item) => item.x),
-    datasets: [
-      {
-        label: "خرید",
-        data: processedData.map((item) => item.buy),
-        backgroundColor: "rgba(0, 128, 0, 0.6)",
-        borderColor: "#006400",
-        borderWidth: 2,
-      },
-      {
-        label: "فروش",
-        data: processedData.map((item) => item.sell),
-        backgroundColor: "rgba(255, 0, 0, 0.6)",
-        borderColor: "#B22222",
-        borderWidth: 2,
-      },
-    ],
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+  
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    
   };
+
+  const convertPersianToEnglishNumbers = (str) => {
+    const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+    const englishNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+  
+    let result = str;
+    persianNumbers.forEach((persian, index) => {
+      result = result.replace(new RegExp(persian, 'g'), englishNumbers[index]);
+    });
+  
+    return result;
+  };
+  
+  const  handleFilterByDate = () => {
+    const startDate = convertPersianToEnglishNumbers(dateBirth.format("YYYY-MM-DD"));
+    const endDate = convertPersianToEnglishNumbers(dateBirth2.format("YYYY-MM-DD"));
+  
+  
+    let endpoint = `/statistics/total?start_date=${startDate}&end_date=${endDate}`;
+  
+    const response = axiosClient2.get(endpoint);
+    console.log("response.data.data", response.data.data);
+    
+  };
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        let endpoint = `/statistics/total`;
+  
+        const queryParams = [];
+        if (formData.type) queryParams.push(`type=${formData.type}`);
+        if (formData.asset_id) queryParams.push(`asset_id=${formData.asset_id}`);
+  
+        // اضافه کردن query parameters به URL به صورت ایمن
+        if (queryParams.length > 0) {
+          endpoint += `?${queryParams.join("&")}`;
+        }
+  
+        const response = await axiosClient2.get(endpoint);
+        console.log("response.data.data", response.data.data);
+  
+        if (Array.isArray(response.data.data)) {
+          const buyData = response.data.data.filter(item => item.type === 1);
+          const sellData = response.data.data.filter(item => item.type === 2);
+  
+          const buyLabels = buyData.map(item => item.asset.name);
+          const sellLabels = sellData.map(item => item.asset.name);
+  
+          const buyValues = buyData.map(item => parseFloat(item.total_price));
+          const sellValues = sellData.map(item => parseFloat(item.total_price));
+  
+          setDataChart({
+            labels: [...buyLabels, ...sellLabels],
+            datasets: [
+              {
+                label: 'خرید',
+                data: buyValues,
+                backgroundColor: 'rgba(0, 255, 0, 0.8)', 
+                borderColor: 'rgba(0, 255, 0, 3)',
+                borderWidth: 1,
+              },
+              {
+                label: 'فروش',
+                data: sellValues,
+                backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                borderColor: 'rgba(255, 0, 0, 3)',
+                borderWidth: 1,
+              },
+            ],
+          });
+        } else {
+          console.error("Invalid data structure:", response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      }
+    };
+  
+    fetchTransactions();
+  }, [formData.type, formData.asset_id]);
+  
+
+
 
   const options = {
     plugins: {
-      tooltip: {
-        callbacks: {
-          label: function (context) {
-            const index = context.dataIndex;
-            const datasetIndex = context.datasetIndex;
-            const currentData = processedData[index];
-            const username =
-              datasetIndex === 0 ? currentData.buyUsername : currentData.sellUsername;
-            const currency =
-              datasetIndex === 0
-                ? filteredData.find((item) => item.x === currentData.x && item.type === "buy")?.currency
-                : filteredData.find((item) => item.x === currentData.x && item.type === "sell")?.currency;
-  
-            return `مقدار: ${context.raw} - کاربر: ${username || "نامشخص"} - ارز: ${currency || "نامشخص"}`;
-          },
-        },
-      },
       legend: {
         labels: {
           font: {
@@ -128,14 +138,16 @@ export default function ChartAllUsers() {
         },
         title: {
           display: true,
-          
-          padding: { bottom: 10 },
+          text: "",
+          padding: {
+            bottom: 10,
+          },
           font: {
             size: 14,
             family: "vazir",
           },
         },
-        beginAtZero: true,
+        min: 50,
       },
       x: {
         ticks: {
@@ -147,8 +159,10 @@ export default function ChartAllUsers() {
         },
         title: {
           display: true,
-         
-          padding: { top: 10 },
+          text: "",
+          padding: {
+            top: 10,
+          },
           font: {
             size: 14,
             family: "vazir",
@@ -157,38 +171,9 @@ export default function ChartAllUsers() {
       },
     },
   };
-  
 
-  // تمام ارزهای یکتا برای نمایش در سلکت
-  const uniqueCurrencies = [...new Set(defaultData.map((item) => item.currency))];
 
-  const convertPersianToEnglishNumbers = (str) => {
-    const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-    const englishNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-  
-    let result = str;
-    persianNumbers.forEach((persian, index) => {
-      result = result.replace(new RegExp(persian, 'g'), englishNumbers[index]);
-    });
-  
-    return result;
-  };
-  
-  const handleFilterByDate = () => {
-    const startDate = convertPersianToEnglishNumbers(dateBirth.format("YYYY-MM-DD"));
-    const endDate = convertPersianToEnglishNumbers(dateBirth2.format("YYYY-MM-DD"));
-  
-    const url = `/admin/statistics/time-frame?start_date=${startDate} 00:00:00&end_date=${endDate} 23:59:59`;
-    console.log(`url`, url);
-  
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Data received: ", data);
-        // می‌توانید داده‌های جدید را ذخیره یا پردازش کنید
-      })
-      .catch((error) => console.error("Error fetching data: ", error));
-  };
+ 
   
 
   return (
@@ -200,13 +185,14 @@ export default function ChartAllUsers() {
         </label>
         <select
           id="operationFilter"
+           name="type"
           className="border border-gray-300 rounded px-2 py-1"
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
+          value={formData.type}
+          onChange={handleChange}
         >
-          <option value="all">همه</option>
-          <option value="buy">خرید</option>
-          <option value="sell">فروش</option>
+          <option value="">همه</option>
+          <option value="1">خرید</option>
+          <option value="2">فروش</option>
         </select>
       </div>
 
@@ -216,16 +202,14 @@ export default function ChartAllUsers() {
         </label>
         <select
           id="currencyFilter"
+          name="asset_id" 
           className="border border-gray-300 rounded px-2 py-1"
-          value={filterCurrency}
-          onChange={(e) => setFilterCurrency(e.target.value)}
+          value={formData.asset_id}
+          onChange={handleChange}
         >
-          <option value="all">همه</option>
-          {uniqueCurrencies.map((currency, index) => (
-            <option key={index} value={currency}>
-              {currency}
-            </option>
-          ))}
+            <option value="">انتخاب کنید</option>
+              <option value="1">ریال</option>
+              <option value="2">تتر</option>
         </select>
       </div>
       </div>
@@ -264,7 +248,19 @@ export default function ChartAllUsers() {
             </button>
       </div>
       <h1 className="text-center font-bold text-lg mt-6">نمودار آمار کلی خرید و فروش   </h1>
-      <Bar data={data} options={options} />
+      {/* <Bar data={dataChart} options={options} /> */}
+      <div>
+      {dataChart ? (
+        <Bar data={dataChart} options={options} />
+      ) : (
+        <div>در حال بارگذاری داده‌ها...</div>
+      )}
+    </div>
     </div>
   );
 }
+
+
+
+
+

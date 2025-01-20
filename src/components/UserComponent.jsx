@@ -3,7 +3,6 @@ import UserBox from './UserBox'
 
 export default function UserComponent({ formData2, handleSubmit2, handleChange2 , handleCancel2 , navigate , people , setUserId , setPri , handleFinalSubmit }) {
  
-
     
   return (
     <div className="p-4 bg-green-50 border w-full flex flex-wrap gap-6 border-green-300 rounded-lg">
@@ -24,16 +23,17 @@ export default function UserComponent({ formData2, handleSubmit2, handleChange2 
           className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
             <option value="">انتخاب کنید</option>
-          <option value="1">برداشت</option>
-          <option value="2">واریز</option>
+          <option value="4">برداشت</option>
+          <option value="3">واریز</option>
+          <option value="5">اصلاحی</option>
         </select>
       </div>
 
       <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
         <span className="text-sm font-semibold pl-2">نوع ارز:</span>
         <select
-          name="currencyType"
-          value={formData2.currencyType}
+          name="asset_id"
+          value={formData2.asset_id}
           onChange={handleChange2}
           className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
@@ -63,8 +63,8 @@ export default function UserComponent({ formData2, handleSubmit2, handleChange2 
         <span className="text-sm font-semibold pl-2">شماره سند بدل:</span>
         <input
           type="text"
-          name="documentNumber"
-          value={formData2.documentNumber}
+          name="bank_txid"
+          value={formData2.bank_txid}
           onChange={handleChange2}
           placeholder="شماره سند را وارد کنید"
           className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -76,8 +76,8 @@ export default function UserComponent({ formData2, handleSubmit2, handleChange2 
       <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
         <span className="text-sm font-semibold pl-2">از محل:</span>
         <select
-          name="source"
-          value={formData2.source}
+          name="coefficient"
+          value={formData2.coefficient}
           onChange={handleChange2}
           className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
@@ -91,25 +91,15 @@ export default function UserComponent({ formData2, handleSubmit2, handleChange2 
       </div>
 
       <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
-        <span className="text-sm font-semibold pl-2">کلیت سند:</span>
-        <select
-          name="documentType"
-          value={formData2.documentType}
-          onChange={handleChange2}
-          className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-           <option value="">انتخاب کنید</option>
-          <option value="1">اصلاحی</option>
-          <option value="2">قطعی</option>
-        </select>
+      
       </div>
     </div>
 
     <div className="flex flex-col gap-1 items-start w-full">
       <span className="text-sm font-semibold pl-2">توضیحات:</span>
       <textarea
-        name="description"
-        value={formData2.description}
+        name="des"
+        value={formData2.des}
         onChange={handleChange2}
         placeholder="توضیحات را وارد کنید"
         rows="4"

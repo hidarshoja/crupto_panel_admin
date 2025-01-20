@@ -1,32 +1,39 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import axiosClient2 from "../axios-client2";
 
 export default function StatusPage() {
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [userDetails, setUserDetails] = useState(null);
-
+  const [userDetails, setUserDetails] = useState([]);
+  const [status, setStatus] = useState(null);
+  const [listUsers, setListUsers] = useState(null);
   const [lightsStatus, setLightsStatus] = useState({
     customers: [
-      { id: 1, color: 'green', isActive: true },
-      { id: 2, color: 'red', isActive: false },
-      { id: 3, color: 'amber', isActive: false },
+      { id: 1, color: "green", isActive: true },
+      { id: 2, color: "red", isActive: false },
+      { id: 3, color: "amber", isActive: false },
     ],
     suppliers: [
-      { id: 1, color: 'green', isActive: false },
-      { id: 2, color: 'red', isActive: true },
-      { id: 3, color: 'amber', isActive: true },
+      { id: 1, color: "green", isActive: false },
+      { id: 2, color: "red", isActive: true },
+      { id: 3, color: "amber", isActive: true },
     ],
     sustainability: [
-      { id: 1, color: 'green', isActive: true },
-      { id: 2, color: 'red', isActive: false },
-      { id: 3, color: 'amber', isActive: false },
+      { id: 1, color: "green", isActive: true },
+      { id: 2, color: "red", isActive: false },
+      { id: 3, color: "amber", isActive: false },
     ],
   });
 
+  const UserType = {
+    USER: "user",
+    EXCHANGE: "exchange",
+  };
+  
+
   const categories = [
-    { name: 'مشتریان', key: 'customers' },
-    { name: 'تامین‌کنندگان', key: 'suppliers' },
-    { name: 'وضعیت پایداری', key: 'sustainability' },
+    { name: "مشتریان", key: "customers" },
+    { name: "تامین‌کنندگان", key: "suppliers" },
+    { name: "وضعیت پایداری", key: "sustainability" },
   ];
 
   const handleCategoryClick = (categoryKey) => {
@@ -34,42 +41,43 @@ export default function StatusPage() {
     setUserDetails([
       {
         id: 1,
-        name: 'کاربر اول',
-        issue: 'فعال',
-        date: '1402/09/13',
+        name: "کاربر اول",
+        issue: "فعال",
+        date: "1402/09/13",
       },
       {
         id: 2,
-        name: 'کاربر دوم',
-        issue: 'غیر فعال',
-        date: '1402/09/12',
+        name: "کاربر دوم",
+        issue: "غیر فعال",
+        date: "1402/09/12",
       },
     ]);
   };
 
-  const handleRetry = (user) => {
-    console.log(`user`, user);
-    // axios.post('/api/retry', {
-    //   userId: user.id,
-    //   name: user.name,
-    //   issue: user.issue,
-    //   date: user.date,
-    // })
-    //   .then((response) => {
-    //     alert('اطلاعات با موفقیت ارسال شد');
-    //   })
-    //   .catch((error) => {
-    //     console.error('خطا در ارسال اطلاعات:', error);
-    //   });
+  const handleRetry = (user, type) => {
+    const exchangeId = type === UserType.USER ? user.id : user.exchange_id;
+  
+    axiosClient2.patch("/exchanges/update-balance", {
+      exchange_id: exchangeId, 
+      // status_text: user.status_text,  
+    })
+    .then((response) => {
+      console.log(`response`, response);
+      alert('اطلاعات با موفقیت ارسال شد');
+    })
+    .catch((error) => {
+      console.error('خطا در ارسال اطلاعات:', error);
+    });
   };
-
-  const handleIssueChange = (userId, newIssue) => {
+  
+  const handleIssueChange = (userId, newStatus) => {
     setUserDetails((prevUsers) =>
       prevUsers.map((user) =>
-        user.id === userId ? { ...user, issue: newIssue } : user
+        user.id === userId ? { ...user, status_text: newStatus } : user
       )
     );
   };
+  
 
   const renderLights = (categoryKey, filterColor) =>
     lightsStatus[categoryKey]
@@ -78,64 +86,93 @@ export default function StatusPage() {
         <div
           key={light.id}
           className={`w-4 h-4 rounded-full cursor-pointer inline-block mx-1 ${
-            light.isActive ? `bg-${light.color}-500` : 'bg-gray-200'
+            light.isActive ? `bg-${light.color}-500` : "bg-gray-200"
           }`}
         />
       ));
 
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await axiosClient2.get("/exchanges/status");
+        console.log(`response.data`, response.data);
+        setStatus(response.data);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      }
+    };
+    fetchTransactions();
+  }, []);
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await axiosClient2.get("/users");
+        setListUsers(response.data.data);
+        setUserDetails(response.data.data);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      }
+    };
+    fetchTransactions();
+  }, []);
+
+  
   return (
     <div>
       <h1 className="text-xl font-bold mb-4">وضعیت کاربران</h1>
       <div>
-    <div className="overflow-x-auto">
-      <table className="table-auto border-collapse w-full text-right">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="border px-4 py-2">#</th>
-            <th className="border px-4 py-2">فعال</th>
-            <th className="border px-4 py-2">غیر فعال</th>
-            <th className="border px-4 py-2">مشکل در کاربر</th>
-            <th className="border px-4 py-2">عملیات</th>
-          </tr>
-        </thead>
-        <tbody>
-          {categories.map((category) => (
-            <tr key={category.key} className="hover:bg-gray-100">
-              <td className="border px-4 py-2">{category.name}</td>
-              <td className="border px-4 py-2">{renderLights(category.key, 'green')}</td>
-              <td className="border px-4 py-2">{renderLights(category.key, 'red')}</td>
-              <td className="border px-4 py-2">{renderLights(category.key, 'amber')}</td>
-              <td className="border px-4 py-2">
-                <button
-                  className="text-blue-500 underline flex items-center"
-                  onClick={() => handleCategoryClick(category.key)}
-                >
-                <span className='px-1'>
-                مشاهده لیست 
-                </span>
-                  <span className='px-1'>
-                  {category.name}
-                  </span>
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
+        <div className="overflow-x-auto">
+          <table className="table-auto border-collapse w-full text-right">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="border px-4 py-2">#</th>
+                <th className="border px-4 py-2">فعال</th>
+                <th className="border px-4 py-2">غیر فعال</th>
+                <th className="border px-4 py-2">مشکل در کاربر</th>
+                <th className="border px-4 py-2">عملیات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {categories.map((category) => (
+                <tr key={category.key} className="hover:bg-gray-100">
+                  <td className="border px-4 py-2">{category.name}</td>
+                  <td className="border px-4 py-2">
+                    {renderLights(category.key, "green")}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {renderLights(category.key, "red")}
+                  </td>
+                  <td className="border px-4 py-2">
+                    {renderLights(category.key, "amber")}
+                  </td>
+                  <td className="border px-4 py-2">
+                    <button
+                      className="text-blue-500 underline flex items-center"
+                      onClick={() => handleCategoryClick(category.key)}
+                    >
+                      <span className="px-1">مشاهده لیست</span>
+                      <span className="px-1">{category.name}</span>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {selectedCategory && (
         <div className="mt-6">
           <h2 className="text-lg font-bold mb-2">
-  جدول {selectedCategory === "customers" 
-    ? "مشتریان" 
-    : selectedCategory === "suppliers" 
-    ? "تامین کنندگان" 
-    : selectedCategory === "sustainability" 
-    ? "وضعیت پایداری" 
-    : selectedCategory}
-</h2>
+            جدول{" "}
+            {selectedCategory === "customers"
+              ? "مشتریان"
+              : selectedCategory === "suppliers"
+              ? "تامین کنندگان"
+              : selectedCategory === "sustainability"
+              ? "وضعیت پایداری"
+              : selectedCategory}
+          </h2>
           <table className="w-full border">
             <thead>
               <tr>
@@ -145,36 +182,117 @@ export default function StatusPage() {
                 <th className="border px-4 py-2">بررسی مجدد</th>
               </tr>
             </thead>
-            <tbody>
-              {userDetails?.map((user) => (
-                <tr key={user.id}>
-                  <td className="border px-4 py-2">{user.name}</td>
-                  <td className="border px-4 py-2">
-                    <select
-                      value={user.issue}
-                      onChange={(e) => handleIssueChange(user.id, e.target.value)}
-                      className="border px-2 py-1 rounded"
-                    >
-                      <option value="فعال">فعال</option>
-                      <option value="غیر فعال">غیر فعال</option>
-                      <option value="مشکل در کاربر">مشکل در کاربر</option>
-                    </select>
-                  </td>
-                  <td className="border px-4 py-2">{user.date}</td>
-                  <td className="border px-4 py-2">
-                    <button
-                      className="bg-blue-500 text-white px-3 py-1 rounded"
-                      onClick={() => handleRetry(user)}
-                    >
-                      ارسال
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+            {selectedCategory === "suppliers" && (
+              <>
+                <tbody>
+                  {status && status.length > 0 ? (
+                    status.map((user) => (
+                      <tr key={user.exchange_id}>
+                        {/* نمایش نام */}
+                        <td className="border px-4 py-2">
+                          {user.exchange.name}
+                        </td>
+
+                        {/* نمایش وضعیت با انتخاب فعال/غیر فعال */}
+                        <td className="border px-4 py-2">
+                          <select
+                           // value={user.status ? "فعال" : "غیر فعال"}
+                            onChange={(e) =>
+                              handleIssueChange(
+                                user.exchange_id,
+                                e.target.value
+                              )
+                            }
+                            className="border px-2 py-1 rounded"
+                          >
+                            <option value="فعال">فعال</option>
+                            <option value="غیر فعال">غیر فعال</option>
+                            <option value="مشکل در کاربر">مشکل در کاربر</option>
+                          </select>
+                        </td>
+
+                        {/* نمایش تاریخ */}
+                        <td className="border px-4 py-2">
+                          {user.last_updated_at}
+                        </td>
+
+                        {/* دکمه ارسال */}
+                        <td className="border px-4 py-2">
+                          <button
+                            className="bg-blue-500 text-white px-3 py-1 rounded"
+                            onClick={() => handleRetry(user, UserType.EXCHANGE)} 
+                          >
+                            ارسال
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="border px-4 py-2 text-center">
+                        داده‌ای برای نمایش موجود نیست.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </>
+            )}
+            {selectedCategory === "customers" && (
+              <>
+                <tbody>
+                  {listUsers && listUsers.length > 0 ? (
+                    listUsers?.map((user) => (
+                      <tr key={user.exchange_id}>
+                        <td className="border px-4 py-2">
+                          {user.name}
+                        </td>
+                        <td className="border px-4 py-2">
+            <select
+             // value={user.status_text} 
+              onChange={(e) =>
+                handleIssueChange(user.id, e.target.value) // به‌روزرسانی وضعیت
+              }
+              className="border px-2 py-1 rounded"
+            >
+              <option value="فعال">فعال</option>
+              <option value="غیر فعال">غیر فعال</option>
+              <option value="مشکل در کاربر">مشکل در کاربر</option>
+            </select>
+          </td>
+
+                        {/* نمایش تاریخ */}
+                        <td className="border px-4 py-2">
+                          {user.updated_at}
+                        </td>
+
+                        {/* دکمه ارسال */}
+                        <td className="border px-4 py-2">
+                          <button
+                            className="bg-blue-500 text-white px-3 py-1 rounded"
+                            onClick={() => handleRetry(user, UserType.USER)}
+                          >
+                            ارسال
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="4" className="border px-4 py-2 text-center">
+                        داده‌ای برای نمایش موجود نیست.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </>
+            )}
+       
           </table>
         </div>
       )}
     </div>
   );
 }
+
+
+

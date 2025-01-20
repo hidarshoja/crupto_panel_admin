@@ -3,6 +3,7 @@ import MobileSidebar from "./components/MobileSidbar";
 import DesktopSidebar from "./components/DesktopSidebar";
 import MainContent from "./components/MainContent";
 import { Toaster } from "react-hot-toast";
+import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 
 function App() {

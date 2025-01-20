@@ -1,20 +1,44 @@
-import  { useState } from "react";
+import  { useState , useEffect } from "react";
 import DocumentComponent from "../components/DoucumentComponent";
 import { CiSearch } from "react-icons/ci";
 import UserBox from "../components/UserBox4";
+import axiosClient2 from "../axios-client2";
 import axios from "axios";
 
 export default function DocumentPage() {
   const [filters, setFilters] = useState({});
-
   const [filteredData, setFilteredData] = useState([]);
+  const [users , setUsers] = useState([]);
+  const [isUsersInitialized, setIsUsersInitialized] = useState(false);
    const [userId, setUserId] = useState(null);
-   const people = [
-    { id: 1, name: 'علی شجاع' },
-    { id: 2, name: 'رضا محمدی' },
-    { id: 3, name: 'مریم کریمی' },
-    { id: 4, name: 'سارا حسینی' },
-];
+
+useEffect(() => {
+  const fetchTransactions = async () => {
+    try {
+      const endpoint = `/users?${userId ? `${userId}` : ""}`;
+
+      const response = await axiosClient2.get(endpoint);
+        console.log(response.data.data);
+        
+      setUsers(response.data.data);
+
+      if (!isUsersInitialized) {
+        const users = response.data.data.map((item) => item.user);
+        const uniqueUsers = Array.from(
+          new Map(users.map((user) => [user.id, user])).values()
+        );
+        setUsers(uniqueUsers);
+        setIsUsersInitialized(true);
+      }
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } 
+  };
+
+  fetchTransactions();
+}, [userId , isUsersInitialized]);
+
+
 
 const handleExportExcel = async () => {
   const payload = {
@@ -64,7 +88,7 @@ const handleExportExcel = async () => {
             نام کاربر:
           </label>
           <UserBox
-            people={people}
+            people={users}
             setUserId={setUserId}
           />
         </div>

@@ -8,7 +8,7 @@ import { Combobox } from '@headlessui/react'
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
-const UserBox = ({ people, setUserId,setPri }) => {
+const UserBox = ({ people, setUserId }) => {
 
     const [query, setQuery] = useState('')
     const [selectedPerson, setSelectedPerson] = useState(null)
@@ -16,7 +16,7 @@ const UserBox = ({ people, setUserId,setPri }) => {
     const filteredPeople =
         query === ''
             ? people
-            : people.filter((person) => {
+            : people?.filter((person) => {
                 return person.name.toLowerCase().includes(query.toLowerCase())
             })
 
@@ -25,7 +25,7 @@ const UserBox = ({ people, setUserId,setPri }) => {
         if (person) {
             setSelectedPerson(person);
             setUserId(person.id);
-            setPri(1) 
+            
         }
     };
 

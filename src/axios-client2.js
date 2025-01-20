@@ -2,17 +2,17 @@ import axios from "axios";
 
 
 
-const axiosClient = axios.create({
-  baseURL: `${import.meta.env.VITE_API_BASE_URL}/`
+const axiosClient2 = axios.create({
+  baseURL: `${import.meta.env.VITE_API_BASE_URL2}/`
 })
 
-axiosClient.interceptors.request.use((config) => {
+axiosClient2.interceptors.request.use((config) => {
   const token = localStorage.getItem('ACCESS_TOKEN');
   config.headers.Authorization = `Bearer ${token}`
   return config;
 })
 
-axiosClient.interceptors.response.use((response) => {
+axiosClient2.interceptors.response.use((response) => {
   return response
 }, (error) => {
   const {response} = error;
@@ -31,4 +31,4 @@ axiosClient.interceptors.response.use((response) => {
 
 
 
-export default axiosClient
+export default axiosClient2
