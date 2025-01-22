@@ -1,43 +1,43 @@
 import { useState } from "react";
-import { AiOutlinePercentage } from "react-icons/ai";
-import axios from "axios";
 import Modal from "../../components/Bot/ModalStrategy";
 import StrategyFormComponent from "../../components/Bot/StrategyFormComponent";
+import { toast } from "react-hot-toast";
+import axiosClient2 from "../../axios-client2";
 
 export default function Strategy() {
   const [isSupplierModalOpen, setSupplierModalOpen] = useState(false);
   const [isBuyerModalOpen, setBuyerModalOpen] = useState(false);
   const [formData, setFormData] = useState({
-    strategy: "",
-    transactionAmount: "",
+    title: "",
+    amount: "",
     currency: "USDT",
     suppliers: [],
     buyers: [], 
     strategyName: "", 
-    desiredProfit: "", 
-    lowerLimit: "", 
-    trailingStop: "",
+    diff_percent: "", 
+    lower_diff_percent: "", 
+    stop_loss: "",
     shopping : "",
-    Purchase : "",
+    type : "",
   });
 
   const [supplierExchanges, setSupplierExchanges] = useState([
-    { id: 1, name: "نیوبیکس", selected: true },
-    { id: 2, name: "آبان تتر", selected: true },
-    { id: 3, name: "exch", selected: true },
-    { id: 4, name: "لیدیا", selected: true },
-    { id: 5, name: "تترلند", selected: true },
-    { id: 6, name: "DAI", selected: true },
-    { id: 7, name: "همه", selected: true },
+    { id: 1, name: "نیوبیکس", selected: false },
+    { id: 2, name: "آبان تتر", selected: false },
+    { id: 3, name: "exch", selected: false },
+    { id: 4, name: "لیدیا", selected: false },
+    { id: 5, name: "تترلند", selected: false },
+    { id: 6, name: "DAI", selected: false },
+    { id: 7, name: "همه", selected: false },
   ]);
   const [buyerExchanges, setBuyerExchanges] = useState([
-    { id: 1, name: "نیوبیکس", selected: true },
-    { id: 2, name: "آبان تتر", selected: true },
-    { id: 3, name: "exch", selected: true },
-    { id: 4, name: "لیدیا", selected: true },
-    { id: 5, name: "تترلند", selected: true },
-    { id: 6, name: "DAI", selected: true },
-    { id: 7, name: "همه", selected: true },
+    { id: 1, name: "نیوبیکس", selected: false },
+    { id: 2, name: "آبان تتر", selected: false },
+    { id: 3, name: "exch", selected: false },
+    { id: 4, name: "لیدیا", selected: false },
+    { id: 5, name: "تترلند", selected: false },
+    { id: 6, name: "DAI", selected: false },
+    { id: 7, name: "همه", selected: false },
   ]);
 
   const toggleSelection = (index, type) => {
@@ -56,7 +56,7 @@ export default function Strategy() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "shopping" || name === "Purchase" || name === "transactionAmount") {
+    if (name === "shopping" || name === "amount" || name === "amount") {
       const plainValue = value.replace(/,/g, '');
       const formattedValue = Number(plainValue).toLocaleString('en-US');
   
@@ -66,48 +66,92 @@ export default function Strategy() {
     }
   };
   
-  const handleSubmit = () => {
-    // افزودن تامین‌کنندگان و خریداران انتخاب‌شده به فرم
-    const suppliers = supplierExchanges.filter((item) => item.selected).map((item) => item.name);
-    const buyers = buyerExchanges.filter((item) => item.selected).map((item) => item.name);
+  const handleSubmit = async () => {
+    try {
+      const amountWithoutCommas = formData.amount 
+        ? parseInt(formData.amount.replace(/,/g, '')) 
+        : 0; 
   
-    const finalFormData = {
-      ...formData,
-      suppliers,
-      buyers,
-    };
+      const suppliers = supplierExchanges
+        .filter((item) => item.selected)
+        .map((item) => ({
+          id: item.id,
+          min_in_transaction: parseInt(item.min_in_transaction),
+          max: parseInt(item.max),
+        }));
   
-    // لاگ آبجکت نهایی فرم
-    console.log("Final Form Data:", finalFormData);
+      const buyers = buyerExchanges
+        .filter((item) => item.selected)
+        .map((item) => ({
+          id: item.id,
+          min_in_transaction: item.min_in_transaction,
+          max: item.max,
+        }));
   
-    // ارسال به سرور (در صورت نیاز)
-    /*
-    axios.post("https://jsonplaceholder.typicode.com/posts", finalFormData)
-      .then((response) => {
-        console.log("Response:", response.data);
-        alert("فرم با موفقیت ارسال شد!");
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-        alert("خطا در ارسال فرم. لطفاً دوباره تلاش کنید.");
-      });
-    */
+      const finalFormData = {
+        ...formData,
+        amount: amountWithoutCommas,
+        suppliers,
+        buyers,
+      };
+  
+      const response = await axiosClient2.post("/strategies", finalFormData);
+      console.log("Response from server:", response.data);
+      toast.success("اطلاعات با موفقیت ثبت شد!");
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      if (error.response) {
+        console.error("Server error:", error.response.data);
+        toast.error("خطا در ارسال اطلاعات!");
+      } else {
+        toast.error("خطای داخلی! لطفا دوباره تلاش کنید.");
+      }
+    }
   };
+  
+
+
   
 
   const handleReset = () => {
     setFormData({
-      strategy: "",
-      transactionAmount: "",
+      title: "",
+      amount: "",
       currency: "USDT",
       suppliers: [],
       buyers: [],
       strategyName: "",
-      desiredProfit: "",
-      lowerLimit: "",
-      trailingStop: "",
+      diff_percent: "",
+      lower_diff_percent: "",
+      stop_loss: "",
     });
   };
+
+
+  // const handleSubmit = async () => {
+  //   if (
+  //     !formData.lastname ||
+  //     !formData.national_code ||
+  //     !formData.mobile ||
+      
+  //   ) {
+  //     console.log("عررور");
+  //     toast.error("لطفاً تمام فیلدهای ضروری را پر کنید.");
+  //     return;
+  //   }
+
+  //   try {
+  //     const response = await axiosClient2.post(
+  //       "/users",
+  //       formData
+  //     );
+  //     console.log("Response from server:", response.data);
+  //     toast.success("اطلاعات با موفقیت ثبت شد!");
+  //   } catch (error) {
+  //     console.error("Error submitting data:", error);
+  //     toast.error("خطا در ارسال اطلاعات!");
+  //   }
+  // };
 
   return (
     <div>

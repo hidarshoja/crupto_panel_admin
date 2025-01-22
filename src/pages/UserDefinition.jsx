@@ -1,36 +1,58 @@
-import { useState } from "react";
-import DatePicker, { DateObject } from "react-multi-date-picker";
+import { useState , useEffect } from "react";
+import axios from "axios";
+import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import { convertPersianToEnglish } from "../constant/DateJalili";
 import { toast } from "react-hot-toast";
-import axios from "axios";
+import axiosClient2 from "../axios-client2";
 
-export default function UserDefinition() {
-  const [dateBirth, setDateBirth] = useState(new DateObject());
-  const [formData, setFormData] = useState({
-    fullName: "",
-    nationalCode: "",
-    fatherName: "",
-    phone: "",
+export default function CustomerDefinition() {
+  const [dateBirth, setDateBirth] = useState(null);
+  const [assets , setAssets] = useState([]);
+
+  const initialFormState = {
+    name :"",
+    lastname: "",
+    national_code: "",
+    mobile: "",
+    birthdate: "",
+    father_name: "",
+    buyCreditIRR: "",
+    sellCreditIRR: "",
+    email :"",
+    assets: [],
     password: "",
-    wallets: [],
-  });
+    status: 100,
+    user_api: true,
+    valid_ips : ["192.1.23.36"]
+  };
 
-  const people = [
-    { id: 1, name: "ریال" },
-    { id: 2, name: "تتر" },
-    { id: 3, name: "BTC" },
-    { id: 4, name: "ETH" },
-    { id: 5, name: "SOL" },
-    { id: 6, name: "DAI" },
-    { id: 7, name: "GOLD" },
-  ];
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const endpoint = `/assets`;
+  
+        const response = await axiosClient2.get(endpoint);
+          console.log(response.data.data);
+          
+          setAssets(response.data.data);
+  
+       
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      } 
+    };
+  
+    fetchTransactions();
+  }, []);
 
- 
+  const [formData, setFormData] = useState(initialFormState);
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "Rial" || name === "tether" ) {
+    if (name === "buyCreditIRR" || name === "sellCreditIRR" ) {
       const plainValue = value.replace(/,/g, '');
       const formattedValue = Number(plainValue).toLocaleString('en-US');
   
@@ -40,258 +62,301 @@ export default function UserDefinition() {
     }
   };
 
-  const handleCheckboxChange = (id) => {
-    setFormData((prev) => {
-      const newWallets = prev.wallets.includes(id)
-        ? prev.wallets.filter((wallet) => wallet !== id)
-        : [...prev.wallets, id];
-      return { ...prev, wallets: newWallets };
+  const handleBlur = (e, currency) => {
+    const { name, value } = e.target;
+
+    // فرمت کردن اعداد بر اساس نوع واحد
+    let formattedValue = value.replace(/,/g, "");
+    if (currency === "IRR") {
+      formattedValue = Number(formattedValue).toLocaleString("fa-IR");
+    } else if (currency === "USD") {
+      formattedValue = Number(formattedValue).toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+    }
+
+    setFormData({
+      ...formData,
+      [name]: formattedValue,
     });
+  };
+
+  const handleCheckboxChange = (e, field) => {
+    const { value, checked } = e.target;
+    let updatedSelectedWallets;
+  
+    if (checked) {
+      updatedSelectedWallets = [...formData.assets, value];
+    } else {
+      updatedSelectedWallets = formData.assets.filter(
+        (asset) => asset !== value
+      );
+    }
+  
+    setFormData((prev) => ({
+      ...prev,
+      [field]: updatedSelectedWallets,
+    }));
+  };
+  
+
+  const handleReset = () => {
+    setFormData(initialFormState);
+    toast.error(" تمام اطلاعات ریست شد!");
   };
 
   const handleSubmit = async () => {
+    if (
+      !formData.lastname ||
+      !formData.national_code ||
+      !formData.mobile ||
+      !dateBirth
+    ) {
+      console.log("عررور");
+      toast.error("لطفاً تمام فیلدهای ضروری را پر کنید.");
+      return;
+    }
+
     try {
-      const payload = {
-        ...formData,
-        dateBirth: dateBirth.format("YYYY-MM-DD"),
-      };
-      const response = await axios.post("https://jsonplaceholder.org/posts", payload);
-      console.log("Data submitted successfully:", response.data);
-    console.log(`payload`, payload);
-      toast.success("اطلاعات با موفقیت ارسال شد")
+      const response = await axiosClient2.post(
+        "/users",
+        formData
+      );
+      console.log("Response from server:", response.data);
+      toast.success("اطلاعات با موفقیت ثبت شد!");
     } catch (error) {
       console.error("Error submitting data:", error);
-      
-      toast.error("ارسال اطلاعات با خطا مواجه شد");
+      toast.error("خطا در ارسال اطلاعات!");
     }
   };
 
-  const handleCancel = () => {
-    setFormData({
-      fullName: "",
-      nationalCode: "",
-      fatherName: "",
-      phone: "",
-      password: "",
-      wallets: [],
-      Rial :"",
-      tether : ""
-    });
-    setDateBirth(new DateObject());
-  };
-
   return (
-    <div>
-      <h1 className="text-xl font-bold mb-4">تعریف کاربر</h1>
-      <div>
-        <div className="flex flex-col gap-4 w-full md:flex-row mt-8">
-          <div className="w-full md:w-1/3">
-            <label htmlFor="fullName" className="block text-sm font-medium leading-6 text-gray-900">
-              نام و نام خانوادگی
-            </label>
-            <div className="relative mt-2">
-              <input
-                id="fullName"
-                name="fullName"
-                type="text"
-                value={formData.fullName}
-                onChange={handleInputChange}
-                placeholder="نام  را وارد کنید"
-                className="peer block w-full border-0 pr-2 bg-gray-50 py-1.5 text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-              />
-              <div
-                aria-hidden="true"
-                className="absolute inset-x-0 bottom-0 border-t border-gray-300 peer-focus:border-t-2 peer-focus:border-indigo-600"
-              />
-            </div>
-          </div>
-          <div className="w-full md:w-1/3">
-            <label htmlFor="nationalCode" className="block text-sm font-medium leading-6 text-gray-900">
-              کدملی
-            </label>
-            <div className="relative mt-2">
-              <input
-                id="nationalCode"
-                name="nationalCode"
-                type="text"
-                value={formData.nationalCode}
-                onChange={handleInputChange}
-                placeholder="کد ملی  را وارد کنید"
-                className="peer block w-full pr-2 border-0 bg-gray-50 py-1.5 text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-              />
-              <div
-                aria-hidden="true"
-                className="absolute inset-x-0 bottom-0 border-t border-gray-300 peer-focus:border-t-2 peer-focus:border-indigo-600"
-              />
-            </div>
-          </div>
-          <div className="w-full md:w-1/3">
-            <label htmlFor="fatherName" className="block text-sm font-medium leading-6 text-gray-900">
-              نام پدر
-            </label>
-            <div className="relative mt-2">
-              <input
-                id="fatherName"
-                name="fatherName"
-                type="text"
-                value={formData.fatherName}
-                onChange={handleInputChange}
-                placeholder=" نام پدر  را وارد کنید"
-                className="peer block w-full pr-2 border-0 bg-gray-50 py-1.5 text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-              />
-              <div
-                aria-hidden="true"
-                className="absolute inset-x-0 bottom-0 border-t border-gray-300 peer-focus:border-t-2 peer-focus:border-indigo-600"
-              />
-            </div>
-          </div>
-        </div>
+    <div className="p-4">
+      <h1 className="text-lg font-bold mb-4">تعریف کاربر </h1>
 
-        <div className="flex flex-col gap-4 w-full md:flex-row mt-8">
-          <div className="w-full md:w-1/3">
-            <label htmlFor="phone" className="block text-sm font-medium leading-6 text-gray-900">
-              شماره تماس
-            </label>
-            <div className="relative mt-2">
-              <input
-                id="phone"
-                name="phone"
-                type="text"
-                value={formData.phone}
-                onChange={handleInputChange}
-                placeholder="شماره تماس کاربر را وارد کنید"
-                className="peer block w-full pr-2 border-0 bg-gray-50 py-1.5 text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-              />
-              <div
-                aria-hidden="true"
-                className="absolute inset-x-0 bottom-0 border-t border-gray-300 peer-focus:border-t-2 peer-focus:border-indigo-600"
-              />
-            </div>
-          </div>
-          <div className="w-full md:w-1/3">
-            <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
-              رمز کاربر
-            </label>
-            <div className="relative mt-2">
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                placeholder=" رمز  را وارد کنید"
-                className="peer block pr-2 w-full border-0 bg-gray-50 py-1.5 text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-              />
-              <div
-                aria-hidden="true"
-                className="absolute inset-x-0 bottom-0 border-t border-gray-300 peer-focus:border-t-2 peer-focus:border-indigo-600"
-              />
-            </div>
-          </div>
-          <div className="w-full md:w-1/3 flex flex-col gap-1">
-            <label htmlFor="dateBirth" className="block text-sm font-medium leading-6 text-gray-900">
-              تاریخ تولد
-            </label>
-            <DatePicker
-              calendar={persian}
-              locale={persian_fa}
-              value={dateBirth}
-              onChange={setDateBirth}
-              calendarPosition="bottom-right"
-               inputClass="w-full outline-none rounded"
-            />
-          </div>
-        </div>
-        <div className="flex flex-col gap-4 w-full md:flex-row mt-8">
-       
-          <div className="w-full md:w-1/2">
-            <label htmlFor="Rial" className="block text-sm font-medium leading-6 text-gray-900">
-              حد اعتباری ریالی
-            </label>
-            <div className="relative mt-2">
-              <input
-                id="Rial"
-                name="Rial"
-                type="text"
-                value={formData.Rial}
-                onChange={handleInputChange}
-                placeholder=" حد اعتبار ریالی  را وارد کنید"
-                className="peer block w-full pr-2 border-0 bg-gray-50 py-1.5 text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-              />
-              <div
-                aria-hidden="true"
-                className="absolute inset-x-0 bottom-0 border-t border-gray-300 peer-focus:border-t-2 peer-focus:border-indigo-600"
-              />
-            </div>
-          </div>
-          <div className="w-full md:w-1/2">
-            <label htmlFor="tether" className="block text-sm font-medium leading-6 text-gray-900">
-               حد اعتباری تتری
-            </label>
-            <div className="relative mt-2">
-              <input
-                id="tether"
-                name="tether"
-                type="text"
-                value={formData.tether}
-                onChange={handleInputChange}
-                placeholder="  حد اعتبار تتری  را وارد کنید"
-                className="peer block w-full pr-2 border-0 bg-gray-50 py-1.5 text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
-              />
-              <div
-                aria-hidden="true"
-                className="absolute inset-x-0 bottom-0 border-t border-gray-300 peer-focus:border-t-2 peer-focus:border-indigo-600"
-              />
-            </div>
-          </div>
+      <div className="flex flex-col md:flex-row items-center gap-6">
+         {/* نام */}
+         <div className="mb-4 w-full md:w-1/3">
+          <label className="block text-sm font-medium mb-1">
+          نام  :
+          </label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          />
         </div>
         
-
-        <fieldset className="mt-8">
-          <legend className="text-md leading-6 text-gray-900">کیف های پول</legend>
-          <div className="mt-4 flex flex-wrap items-center gap-4">
-            {people.map((person) => (
-              <div
-                key={person.id}
-                className="relative w-full md:w-1/6 border hover:bg-slate-200 border-gray-300 rounded-lg flex items-start py-3 px-2"
-              >
-                <div className="min-w-0 flex-1 text-sm leading-6">
-                  <label
-                    htmlFor={`person-${person.id}`}
-                    className="select-none font-medium text-gray-900"
-                  >
-                    {person.name}
-                  </label>
-                </div>
-                <div className="ml-3 flex h-6 items-center">
-                  <input
-                    id={`person-${person.id}`}
-                    name={`person-${person.id}`}
-                    type="checkbox"
-                    checked={formData.wallets.includes(person.id)}
-                    onChange={() => handleCheckboxChange(person.id)}
-                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </fieldset>
-
-        <div className="flex justify-end gap-4 mt-8">
-          <button
-            onClick={handleCancel}
-            className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-          >
-            انصراف
-          </button>
-          <button
-            onClick={handleSubmit}
-            className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-          >
-            ثبت
-          </button>
+        {/*  نام خانوادگی */}
+        <div className="mb-4 w-full md:w-1/3">
+          <label className="block text-sm font-medium mb-1">
+            نام  خانوادگی:
+          </label>
+          <input
+            type="text"
+            name="lastname"
+            value={formData.lastname}
+            onChange={handleInputChange}
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          />
         </div>
+
+        {/* کد ملی */}
+        <div className="mb-4 w-full md:w-1/3">
+          <label className="block text-sm font-medium mb-1">کد ملی:</label>
+          <input
+            type="text"
+            name="national_code"
+            value={formData.national_code}
+            onChange={handleInputChange}
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          />
+        </div>
+      </div>
+      <div className="flex flex-col md:flex-row items-center gap-6">
+        {/* شماره تماس */}
+        <div className="mb-4 w-full md:w-1/2">
+          <label className="block text-sm font-medium mb-1">شماره تماس:</label>
+          <input
+            type="text"
+            name="mobile"
+            value={formData.mobile}
+            onChange={handleInputChange}
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          />
+        </div>
+
+        {/* تاریخ تولد */}
+
+        <div className="mb-4 w-full md:w-1/2">
+          <label className="block text-sm font-medium mb-1">تاریخ تولد:</label>
+          <DatePicker
+            calendar={persian}
+            locale={persian_fa}
+            value={dateBirth}
+            onChange={(selectedDate) => {
+              setDateBirth(selectedDate);
+              setFormData((prev) => ({
+                ...prev,
+                birthdate: convertPersianToEnglish(selectedDate?.toString()),
+              }));
+            }}
+            inputClass="w-full outline-none rounded"
+          />
+        </div>
+      </div>
+      <div className="flex flex-col md:flex-row items-center gap-6">
+        {/* نام پدر */}
+        <div className="mb-4 w-full md:w-1/3">
+          <label className="block text-sm font-medium mb-1">نام پدر:</label>
+          <input
+            type="text"
+            name="father_name"
+            value={formData.father_name}
+            onChange={handleInputChange}
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          />
+        </div>
+        {/* رمز عبور */}
+        <div className="mb-4 w-full md:w-1/3">
+          <label className="block text-sm font-medium mb-1">رمز عبور:</label>
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleInputChange}
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          />
+        </div>
+         {/* نام ایمیل */}
+         <div className="mb-4 w-full md:w-1/3" dir="ltr">
+          <label className="block text-sm font-medium mb-1" dir="rtl"> ایمیل :</label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            className="w-full border border-gray-300 rounded px-3 py-2"
+          />
+        </div>
+      </div>
+
+      {/* حد اعتباری خرید و فروش */}
+      {/* <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="relative">
+          <label className="block text-sm font-medium mb-1">
+            حد اعتباری  (ریالی):
+          </label>
+          <input
+            type="text"
+            name="buyCreditIRR"
+            value={formData.buyCreditIRR.toLocaleString("fa-IR")}
+            onChange={(e) => handleInputChange(e, "IRR")}
+            onBlur={(e) => handleBlur(e, "IRR")}
+            className="w-full border border-gray-300 rounded px-3 py-2 pr-10 text-right"
+            dir="rtl"
+          />
+          <span className="absolute left-3 top-2/3 transform -translate-y-1/2 text-gray-500">
+            ریال
+          </span>
+        </div>
+
+     
+        <div className="relative">
+          <label className="block text-sm font-medium mb-1">
+            حد اعتباری  (تتری):
+          </label>
+          <input
+            type="text"
+            name="sellCreditIRR"
+            value={formData.sellCreditIRR.toLocaleString("fa-IR")}
+            onChange={(e) => handleInputChange(e, "IRR")}
+            onBlur={(e) => handleBlur(e, "IRR")}
+            className="w-full border border-gray-300 rounded px-3 py-2 pr-10 text-right"
+            dir="rtl"
+          />
+          <span className="absolute left-3 top-2/3 transform -translate-y-1/2 text-gray-500">
+            ریال
+          </span>
+        </div>
+
+      
+      </div> */}
+
+ 
+
+  {/* دکمه تغییر وضعیت کاربر */}
+  <div className="mb-4 w-full md:w-1/3">
+  <label className="block text-sm font-medium mb-1">وضعیت کاربر (uesr_api):</label>
+    <button
+      onClick={() => setFormData({ ...formData, user_api: !formData.user_api })}
+      className={`w-full py-2 px-4 rounded-md text-white font-medium transition ${formData.user_api ? "bg-green-500 hover:bg-green-400" : "bg-red-500 hover:bg-red-400"}`}
+    >
+      {/* {formData.user_api ? "غیرفعال کردن" : "فعال کردن"} */}
+      {formData.user_api ? "فعال" : "غیرفعال"}
+    </button>
+  </div>
+
+      {/* لیست کیف پول */}
+      <div className="mb-4">
+  <label className="block text-sm font-medium mb-2">لیست کیف پول:</label>
+  <div className="flex items-center flex-wrap gap-3">
+    {assets?.map((wallet) => (
+      <label
+        key={wallet.id}
+        className={`flex items-center gap-2 p-3 rounded-md cursor-pointer transition ${
+          formData.assets.includes(String(wallet.related_asset))
+            ? "bg-green-500 text-white"
+            : "bg-gray-200 text-gray-800"
+        } hover:bg-green-400 hover:text-white`}
+      >
+        <input
+          type="checkbox"
+          value={wallet.related_asset}
+          checked={formData.assets.includes(String(wallet.related_asset))}
+          onChange={(e) => handleCheckboxChange(e, "assets")}
+          className="hidden"
+        />
+        <span className="text-sm">{wallet.name}</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth="2"
+          stroke={formData.assets.includes(String(wallet.related_asset))
+            ? "white"
+            : "gray"}
+          className="w-5 h-5"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M5 13l4 4L19 7"
+          />
+        </svg>
+      </label>
+    ))}
+  </div>
+      </div>
+
+
+      {/* دکمه‌ها */}
+      <div className="flex justify-end gap-4 mt-4">
+        <button
+          onClick={handleReset}
+          className="px-4 py-2 bg-red-600 text-gray-100 rounded hover:bg-red-700 transition"
+        >
+          انصراف
+        </button>
+        <button
+          onClick={handleSubmit}
+          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-۷00 transition"
+        >
+          ثبت
+        </button>
       </div>
     </div>
   );

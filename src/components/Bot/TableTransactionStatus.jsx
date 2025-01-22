@@ -25,7 +25,7 @@ const Accounts = [
   },
 ];
 
-export default function TableTransactionStatus() {
+export default function TableTransactionStatus({autoOrders}) {
   const [userId, setUserId] = useState(null);
    const [filteredData, setFilteredData] = useState(Accounts);
     const [filters2, setFilters2] = useState({});
@@ -58,6 +58,8 @@ export default function TableTransactionStatus() {
       alert("مشکلی در ارتباط با سرور رخ داده است");
     }
   };
+
+  console.log(`autoOrders`, autoOrders);
   return (
     <>
     <div className='flex items-center justify-between py-5'>
@@ -114,18 +116,20 @@ export default function TableTransactionStatus() {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {filteredData?.length > 0 ? (
-            filteredData?.map((account, index) => (
+          {autoOrders?.length > 0 ? (
+            autoOrders?.map((account, index) => (
               <tr key={index}>
                 <td className="px-6 py-4 text-center text-sm text-gray-900">{index + 1}</td>
                 <td className="px-6 py-4 text-center text-sm text-gray-900">{account.documentNumber}</td>
-                <td className="px-6 py-4 text-center text-sm text-gray-900">{account.date}</td>
+                <td className="px-6 py-4 text-center text-sm text-gray-900">
+                {new Date(account.created_at).toISOString().split('T')[0]}
+                </td>
                 <td className="px-6 py-4 text-center text-sm text-gray-900">{account.name}</td>
                 <td className="px-6 py-4 text-center text-sm text-gray-900">{account.exchangeName}</td>
+                <td className="px-6 py-4 text-center text-sm text-gray-900">{account.type_label}</td>
                 <td className="px-6 py-4 text-center text-sm text-gray-900">{account.transactionType}</td>
-                <td className="px-6 py-4 text-center text-sm text-gray-900">{account.currencyType}</td>
-                <td className="px-6 py-4 text-center text-sm text-gray-900">{account.amount}</td>
-                <td className="px-6 py-4 text-center text-sm text-gray-900">{account.profit}</td>
+                <td className="px-6 py-4 text-center text-sm text-gray-900">{parseInt(account.amount)}</td>
+                <td className="px-6 py-4 text-center text-sm text-gray-900">{account.sell_amount}</td>
               </tr>
             ))
           ) : (

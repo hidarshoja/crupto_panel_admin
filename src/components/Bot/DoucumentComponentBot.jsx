@@ -1,57 +1,28 @@
 
-import { useState } from 'react';
-import axios from 'axios';
+import { useState , useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "react-hot-toast";
 import UsersComponent from '../UserComponent';
 import ExchangeComponent from '../ExchangeComponent';
+import axiosClient2 from '../../axios-client2';
 
-export default function DocumentComponentBot() {
+export default function DocumentComponentBot({assets}) {
   const [userType, setUserType] = useState("کاربر"); 
-  const [formData, setFormData] = useState({
-    type: '',
-    currencyType: '',
-    amount: '',
-    documentNumber: '',
-    source: '',
-    documentType: '',
-    description: '',
-  });
-  const [formData2, setFormData2] = useState({
-    type: '',
-    currencyType: '',
-    amount: '',
-    documentNumber: '',
-    source: '',
-    documentType: '',
-    description: '',
-  });
-  const people = [
-    { id: 1, name: 'علی شجاع'},
-    { id: 2, name: 'رضا رحیمی'},
-    { id: 3, name: 'مریم کریمی' },
-    { id: 4, name: 'سارا حسینی' },
-];
-const [userId, setUserId] = useState(null);
+  const [users , setUsers] = useState([]);
+  const [userId, setUserId] = useState(null);
     const [pri, setPri] = useState(0);
   const navigate = useNavigate();
-
-  // برای بروزرسانی مقادیر فرم
-  // const handleChange = (e) => {
-  //   const { name, value } = e.target;
-  //   setFormData((prevState) => ({
-  //     ...prevState,
-  //     [name]: value,
-  //   }));
-  // };
-
-  // const handleChange2 = (e) => {
-  //   const { name, value } = e.target;
-  //   setFormData2((prevState) => ({
-  //     ...prevState,
-  //     [name]: value,
-  //   }));
-  // };
+  const [isUsersInitialized, setIsUsersInitialized] = useState(false);
+  const [exchange , setExchange] = useState([]);
+  const [formData, setFormData] = useState({
+    type: '',
+    asset_id: '',
+    amount: '',
+    bank_txid: '',
+    coefficient: '1',
+    des: '',
+    user_id : userId
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -64,90 +35,73 @@ const [userId, setUserId] = useState(null);
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
-  const handleChange2 = (e) => {
-    const { name, value } = e.target;
-    if (name === "amount" ) {
-      const plainValue = value.replace(/,/g, '');
-      const formattedValue = Number(plainValue).toLocaleString('en-US');
-  
-      setFormData2((prev) => ({ ...prev, [name]: formattedValue })); 
-    } else {
-      setFormData2((prev) => ({ ...prev, [name]: value }));
-    }
-  };
-
-  // پاک کردن فرم
+ 
   const handleCancel = () => {
     toast.error(" تمام اطلاعات ریست شد!");
     setFormData({
       type: '',
-      currencyType: '',
+      asset_id: '',
       amount: '',
-      documentNumber: '',
-      source: '',
+      bank_txid: '',
+      coefficient: '',
       documentType: '',
-      description: '',
+      des: '',
     });
   };
-  const handleCancel2 = () => {
-    toast.error(" تمام اطلاعات ریست شد!");
-    setFormData2({
-      type: '',
-      currencyType: '',
-      amount: '',
-      documentNumber: '',
-      source: '',
-      documentType: '',
-      description: '',
-    });
-  };
-  // ارسال اطلاعات به API
-  const handleSubmit = async () => {
-    if (
-        !formData.type ||
-        !formData.currencyType ||
-        !formData.amount 
-       
-      ) {
-       
-        toast.error("لطفاً تمام فیلدهای ضروری را پر کنید.");
-        return;
-      }
-    try {
-      await axios.post('https://jsonplaceholder.org/users', formData);
-      toast.success("اطلاعات با موفقیت ثبت شد!");
-     console.log(`formData`, formData);
-    } catch (error) {
-      console.error('ارسال اطلاعات با مشکل مواجه شد', error);
-    }
-  };
-
-  const handleSubmit2 = async () => {
-    // بررسی فیلدهای ضروری
-    if (!formData2.type || !formData2.currencyType || !formData2.amount) {
-      toast.error("لطفاً تمام فیلدهای ضروری را پر کنید.");
-      return;
-    }
-    const selectedPerson = people.filter((person) => person.id === userId)[0];
-   
-    // افزودن اطلاعات کاربر انتخاب‌شده به داده‌های فرم
+ 
+  const handleSubmit = async () => { 
+    const plainAmount = parseFloat(formData.amount.replace(/,/g, ''));
     const finalFormData = {
-      ...formData2,
-      userId: userId || null,
-      userName: selectedPerson ? selectedPerson.name : null,
-      userLastName: selectedPerson ? selectedPerson.lastname : null,
+      ...formData,
+      amount: plainAmount, 
+      user_id: userId || null,
     };
   
     try {
-      // ارسال داده‌ها به سرور
-      await axios.post('https://jsonplaceholder.org/users', finalFormData);
+      await axiosClient2.post('/transactions', finalFormData);
       toast.success("اطلاعات با موفقیت ثبت شد!");
-      console.log(`ارسال شده:`, finalFormData);
     } catch (error) {
-      console.error('ارسال اطلاعات با مشکل مواجه شد', error);
       toast.error('خطا در ارسال اطلاعات.');
     }
   };
+  
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const endpoint = `/users?${userId ? `${userId}` : ""}`;
+  
+        const response = await axiosClient2.get(endpoint);
+        setUsers(response.data.data);
+  
+        if (!isUsersInitialized) {
+          const users = response.data.data.map((item) => item.user);
+          const uniqueUsers = Array.from(
+            new Map(users.map((user) => [user.id, user])).values()
+          );
+          setUsers(uniqueUsers);
+          setIsUsersInitialized(true);
+        }
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      } 
+    };
+  
+    fetchTransactions();
+  }, []);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await axiosClient2.get("/exchanges");
+        setExchange(response.data.data);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      }
+    };
+    fetchTransactions();
+  }, []);
+
+
   
 
   return (
@@ -168,26 +122,30 @@ const [userId, setUserId] = useState(null);
       {userType === "کاربر" ? (
         <div className="border rounded-lg p-4 shadow-md">
           <UsersComponent
-            formData2={formData2}
-            handleChange2={handleChange2}
-            handleCancel2={handleCancel2}
-            handleSubmit2={handleSubmit2}
-            navigate={navigate}
-            userId={userId}
-            pri={pri}
-            setUserId={setUserId}
-            setPri={setPri}
-            people={people}
-          />
-        </div>
-      ) : (
-        <div className="border rounded-lg p-4 shadow-md">
-          <ExchangeComponent
             formData={formData}
             handleChange={handleChange}
             handleCancel={handleCancel}
             handleSubmit={handleSubmit}
             navigate={navigate}
+            assets = {assets}
+            userId={userId}
+            pri={pri}
+            setUserId={setUserId}
+            setPri={setPri}
+            people={users}
+          />
+        </div>
+      ) : (
+        <div className="border rounded-lg p-4 shadow-md">
+          <ExchangeComponent
+             formData={formData}
+             handleChange={handleChange}
+             handleCancel={handleCancel}
+             handleSubmit={handleSubmit}
+             navigate={navigate}
+             setUserId={setUserId}
+             people={exchange}
+             assets = {assets}
           />
         </div>
       )}

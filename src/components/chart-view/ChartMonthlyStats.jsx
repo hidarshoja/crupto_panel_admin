@@ -1,8 +1,5 @@
 import { useState , useEffect } from "react";
 import { Line } from "react-chartjs-2";
-import DatePicker, { DateObject } from "react-multi-date-picker";
-import persian from "react-date-object/calendars/persian";
-import persian_fa from "react-date-object/locales/persian_fa";
 import UserBox from "../UserBox";
 import {
   Chart,
@@ -16,9 +13,6 @@ Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 import axiosClient2 from "../../axios-client2";
 
 export default function ChartAllUsers() {
-
-  const [dateBirth, setDateBirth] = useState(new DateObject());
-  const [dateBirth2, setDateBirth2] = useState(new DateObject());
   const [dataChart, setDataChart] = useState(null);
   const [formData, setFormData] = useState({
     type: '',
@@ -75,14 +69,16 @@ const[users , setUsers] = useState([]);
                 data: buyValues,
                 backgroundColor: 'rgba(0, 255, 0, 0.8)', 
                 borderColor: 'rgba(0, 255, 0, 3)',
-                borderWidth: 1,
+                borderWidth: 3,
+                tension: 0.4,
               },
               {
                 label: 'فروش',
                 data: sellValues,
                 backgroundColor: 'rgba(255, 0, 0, 0.8)',
                 borderColor: 'rgba(255, 0, 0, 3)',
-                borderWidth: 1,
+                borderWidth: 3,
+                tension: 0.4,
               },
             ],
           });
@@ -211,7 +207,35 @@ const[users , setUsers] = useState([]);
       {dataChart ? (
         <Line data={dataChart} options={options} />
       ) : (
-        <div>در حال بارگذاری داده‌ها...</div>
+        <div>
+        <p
+                    
+                    className="py-20 text-center bg-gray-100"
+                  >
+                    <div className="flex justify-center items-center">
+                      <svg
+                        className="animate-spin h-20 w-20 text-blue-500"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8z"
+                        ></path>
+                      </svg>
+                    </div>
+                  </p>
+      </div>
       )}
     </div>
     </div>

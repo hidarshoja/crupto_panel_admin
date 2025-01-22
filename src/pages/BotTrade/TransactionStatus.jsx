@@ -1,26 +1,63 @@
-import  { useState } from "react";
+import  { useState , useEffect } from "react";
 import TableTransactionStatus from "../../components/Bot/TableTransactionStatus";
 import DatePicker, { DateObject } from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import axiosClient2 from "../../axios-client2";
+import { toast } from "react-hot-toast";
+import convertPersianNumbersToEnglish from "../../utils/convertPersianNumbersToEnglish";
 
 export default function TransactionStatus() {
   const [selectedValue, setSelectedValue] = useState("3");
   const [dateBirth, setDateBirth] = useState(new DateObject());
   const [dateBirth2, setDateBirth2] = useState(new DateObject());
+  const [autoOrders, setAutoOrders] = useState([]);
 
   const handleSelectChange = (event) => {
     setSelectedValue(event.target.value);
   };
 
-  const handleSubmit = () => {
-    const data = {
+  
+
+  const handleSubmit = async () => {
+ const data = {
       selectedValue,
-      fromDate: dateBirth.format("YYYY-MM-DD"), // فرمت تاریخ
+      fromDate: dateBirth.format("YYYY-MM-DD"), 
       toDate: dateBirth2.format("YYYY-MM-DD"),
     };
-    console.log(data);
+
+    const fromDateInEnglish = convertPersianNumbersToEnglish(data.fromDate);
+    const toDateInEnglish = convertPersianNumbersToEnglish(data.toDate);
+
+    let endpoint = "/auto-orders";  
+console.log(`fromDate`, fromDateInEnglish);
+
+if (data.fromDate || data.toDate || data.id) {
+  endpoint = `/statistics/total?start_date=${fromDateInEnglish || ''}&end_date=${toDateInEnglish || ''}`;
+}
+
+    try {
+      const response = await axiosClient2.get(endpoint);
+      setAutoOrders(response.data.data);
+      toast.success("اطلاعات با موفقیت ثبت شد!");
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      toast.error("خطا در ارسال اطلاعات!");
+    }
   };
+
+    useEffect(() => {
+      const fetchAutoOrders = async () => {
+        try {
+          const response = await axiosClient2.get("/auto-orders");
+          setAutoOrders(response.data.data);
+        } catch (error) {
+          console.error("Error fetching auto orders:", error);
+        }
+      };
+  
+      fetchAutoOrders();
+    }, []);
 
   return (
     <div>
@@ -74,7 +111,7 @@ export default function TransactionStatus() {
         </button>
       </div>
       <div className="mt-8">
-        <TableTransactionStatus />
+        <TableTransactionStatus autoOrders={autoOrders} />
       </div>
     </div>
   );

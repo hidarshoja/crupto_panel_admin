@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import axiosClient2 from "../axios-client2";
+import { toast } from "react-hot-toast";
 
 export default function StatusPage() {
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [userDetails, setUserDetails] = useState([]);
   const [status, setStatus] = useState(null);
   const [listUsers, setListUsers] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10); 
   const [lightsStatus, setLightsStatus] = useState({
     customers: [
       { id: 1, color: "green", isActive: true },
@@ -38,32 +40,17 @@ export default function StatusPage() {
 
   const handleCategoryClick = (categoryKey) => {
     setSelectedCategory(categoryKey);
-    setUserDetails([
-      {
-        id: 1,
-        name: "کاربر اول",
-        issue: "فعال",
-        date: "1402/09/13",
-      },
-      {
-        id: 2,
-        name: "کاربر دوم",
-        issue: "غیر فعال",
-        date: "1402/09/12",
-      },
-    ]);
+    setCurrentPage(1);
   };
 
   const handleRetry = (user, type) => {
     const exchangeId = type === UserType.USER ? user.id : user.exchange_id;
   
     axiosClient2.patch("/exchanges/update-balance", {
-      exchange_id: exchangeId, 
-      // status_text: user.status_text,  
+      exchange_id: exchangeId,  
     })
     .then((response) => {
-      console.log(`response`, response);
-      alert('اطلاعات با موفقیت ارسال شد');
+      toast.success('اطلاعات با موفقیت ارسال شد')
     })
     .catch((error) => {
       console.error('خطا در ارسال اطلاعات:', error);
@@ -71,8 +58,8 @@ export default function StatusPage() {
   };
   
   const handleIssueChange = (userId, newStatus) => {
-    setUserDetails((prevUsers) =>
-      prevUsers.map((user) =>
+    setListUsers((prev) =>
+      prev.map((user) =>
         user.id === userId ? { ...user, status_text: newStatus } : user
       )
     );
@@ -91,30 +78,56 @@ export default function StatusPage() {
         />
       ));
 
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        const response = await axiosClient2.get("/exchanges/status");
-        console.log(`response.data`, response.data);
-        setStatus(response.data);
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-      }
-    };
-    fetchTransactions();
-  }, []);
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        const response = await axiosClient2.get("/users");
-        setListUsers(response.data.data);
-        setUserDetails(response.data.data);
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-      }
-    };
-    fetchTransactions();
-  }, []);
+      const fetchTransactions = async () => {
+        try {
+          const response = await axiosClient2.get("/exchanges/status");
+          setStatus(response.data);
+        } catch (error) {
+          console.error("Error fetching transactions:", error);
+        }
+      };
+    
+      const fetchUsers = async () => {
+        try {
+          const response = await axiosClient2.get("/users");
+          setListUsers(response.data.data);
+        } catch (error) {
+          console.error("Error fetching users:", error);
+        }
+      };
+    
+      useEffect(() => {
+        fetchTransactions();
+        fetchUsers();
+      }, []);
+
+       // محاسبه آیتم‌های فعلی در صفحه
+  const paginateData = (data) => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return data.slice(startIndex, endIndex);
+  };
+
+  const renderPagination = (dataLength) => {
+    const totalPages = Math.ceil(dataLength / itemsPerPage);
+    return (
+      <div className="flex justify-center mt-4">
+        {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+          (page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`px-3 py-1 mx-1 rounded border ${
+                currentPage === page ? "bg-blue-500 text-white" : "bg-white"
+              }`}
+            >
+              {page}
+            </button>
+          )
+        )}
+      </div>
+    );
+  };
 
   
   return (
@@ -158,20 +171,14 @@ export default function StatusPage() {
               ))}
             </tbody>
           </table>
+         
         </div>
       </div>
 
       {selectedCategory && (
         <div className="mt-6">
           <h2 className="text-lg font-bold mb-2">
-            جدول{" "}
-            {selectedCategory === "customers"
-              ? "مشتریان"
-              : selectedCategory === "suppliers"
-              ? "تامین کنندگان"
-              : selectedCategory === "sustainability"
-              ? "وضعیت پایداری"
-              : selectedCategory}
+          جدول {categories.find((cat) => cat.key === selectedCategory)?.name}
           </h2>
           <table className="w-full border">
             <thead>
@@ -186,28 +193,23 @@ export default function StatusPage() {
               <>
                 <tbody>
                   {status && status.length > 0 ? (
-                    status.map((user) => (
+                     paginateData(status || [])?.map((user) => (
                       <tr key={user.exchange_id}>
-                        {/* نمایش نام */}
                         <td className="border px-4 py-2">
                           {user.exchange.name}
                         </td>
 
-                        {/* نمایش وضعیت با انتخاب فعال/غیر فعال */}
                         <td className="border px-4 py-2">
                           <select
-                           // value={user.status ? "فعال" : "غیر فعال"}
+                            value={user.status ? "فعال" : "غیر فعال"}
                             onChange={(e) =>
-                              handleIssueChange(
-                                user.exchange_id,
-                                e.target.value
-                              )
+                              handleIssueChange(user.exchange_id, e.target.value)
                             }
                             className="border px-2 py-1 rounded"
                           >
-                            <option value="فعال">فعال</option>
-                            <option value="غیر فعال">غیر فعال</option>
-                            <option value="مشکل در کاربر">مشکل در کاربر</option>
+                            <option value="1">فعال</option>
+                            <option value="-1">غیر فعال</option>
+                            <option value="0">مشکل در کاربر</option>
                           </select>
                         </td>
 
@@ -240,17 +242,17 @@ export default function StatusPage() {
             {selectedCategory === "customers" && (
               <>
                 <tbody>
-                  {listUsers && listUsers.length > 0 ? (
-                    listUsers?.map((user) => (
+                {listUsers && listUsers.length > 0 ? (
+               paginateData(listUsers)?.map((user) => (
                       <tr key={user.exchange_id}>
                         <td className="border px-4 py-2">
                           {user.name}
                         </td>
                         <td className="border px-4 py-2">
             <select
-             // value={user.status_text} 
+              value={user.status_text} 
               onChange={(e) =>
-                handleIssueChange(user.id, e.target.value) // به‌روزرسانی وضعیت
+                handleIssueChange(user.id, e.target.value) 
               }
               className="border px-2 py-1 rounded"
             >
@@ -288,8 +290,15 @@ export default function StatusPage() {
             )}
        
           </table>
+          {renderPagination(
+  selectedCategory === "suppliers"
+    ? status?.length || 0
+    : listUsers?.length || 0
+)}
+           
         </div>
       )}
+      
     </div>
   );
 }

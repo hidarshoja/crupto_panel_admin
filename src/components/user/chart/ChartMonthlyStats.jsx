@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import { Bar } from "react-chartjs-2";
+import UserBox from "../../UserBox1";
 import {
   Chart,
   BarElement,
@@ -8,91 +9,111 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+import axiosClient2 from "../../../axios-client2";
 
 export default function ChartAllUsers() {
-  const defaultData = [
-    { x: "۱۴۰۲/۰۸/۰۱", y: 100, type: "buy", username: "علی", currency: "تتر", exchange: "نیوبیکس" },
-    { x: "۱۴۰۲/۰۸/۰۱", y: 150, type: "sell", username: "حسین", currency: "ریال", exchange: "نیما" },
-    { x: "۱۴۰۲/۰۸/۰۲", y: 500, type: "buy", username: "رضا", currency: "بیت کوین", exchange: "باران" },
-    { x: "۱۴۰۲/۰۸/۰۲", y: 120, type: "sell", username: "فاطمه", currency: "SOL", exchange: "نیوبیکس" },
-    { x: "۱۴۰۲/۰۸/۰۳", y: 170, type: "buy", username: "محمد", currency: "تتر", exchange: "نیما" },
-    { x: "۱۴۰۲/۰۸/۰۴", y: 420, type: "sell", username: "مهدی", currency: "SOL", exchange: "باران" },
-    { x: "۱۴۰۲/۰۸/۰۶", y: 500, type: "buy", username: "زهرا", currency: "BTC", exchange: "نیوبیکس" },
-    { x: "۱۴۰۲/۰۸/۰۶", y: 120, type: "sell", username: "مهدی", currency: "SOL", exchange: "نیما" },
-    { x: "۱۴۰۲/۰۸/۰۹", y: 520, type: "sell", username: "سارا", currency: "gold", exchange: "باران" },
-    { x: "۱۴۰۲/۰۸/۰۹", y: 170, type: "buy", username: "حمید", currency: "ریال", exchange: "نیوبیکس" },
-  ];
-
-  const allDates = [
-    "۱۴۰۲/۰۸/۰۱",
-    "۱۴۰۲/۰۸/۰۲",
-    "۱۴۰۲/۰۸/۰۳",
-    "۱۴۰۲/۰۸/۰۴",
-    "۱۴۰۲/۰۸/۰۵",
-    "۱۴۰۲/۰۸/۰۶",
-    "۱۴۰۲/۰۸/۰۷",
-    "۱۴۰۲/۰۸/۰۸",
-    "۱۴۰۲/۰۸/۰۹",
-  ];
-
-  const [filterCurrency, setFilterCurrency] = useState("all");
-  const [filterExchange, setFilterExchange] = useState("all");
-
-  const filteredData = defaultData.filter(
-    (item) =>
-      (filterCurrency === "all" || item.currency === filterCurrency) &&
-      (filterExchange === "all" || item.exchange === filterExchange)
-  );
-
-  const processedData = allDates.map((date) => {
-    const buyItem = filteredData.find((item) => item.x === date && item.type === "buy");
-    const sellItem = filteredData.find((item) => item.x === date && item.type === "sell");
-
-    return {
-      x: date,
-      buy: buyItem ? buyItem.y : 0,
-      sell: sellItem ? sellItem.y : 0,
-      buyUsername: buyItem?.username || null,
-      sellUsername: sellItem?.username || null,
-    };
+  const [dataChart, setDataChart] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [exchange , setExchange] = useState([]);
+  const [formData, setFormData] = useState({
+    type: '',
+    asset_id: '',
   });
 
-  const data = {
-    labels: processedData.map((item) => item.x),
-    datasets: [
-      {
-        label: "خرید",
-        data: processedData.map((item) => item.buy),
-        backgroundColor: "rgba(0, 128, 0, 0.3)",
-        borderColor: "#006400",
-        borderWidth: 2,
-      },
-      {
-        label: "فروش",
-        data: processedData.map((item) => item.sell),
-        backgroundColor: "rgba(255, 0, 0, 0.3)",
-        borderColor: "#B22222",
-        borderWidth: 2,
-      },
-    ],
+
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+  
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    
   };
+
+
+  
+ 
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        let endpoint = `/statistics/total`;
+  
+        const queryParams = [];
+        if (formData.type) queryParams.push(`type=${formData.type}`);
+        if (formData.asset_id) queryParams.push(`asset_id=${formData.asset_id}`);
+        if (userId) queryParams.push(`user_id=${userId}`);
+  
+   
+        if (queryParams.length > 0) {
+          endpoint += `?${queryParams.join("&")}`;
+        }
+  
+        const response = await axiosClient2.get(endpoint);
+         console.log(`response`, response);
+        if (Array.isArray(response.data.data)) {
+          const buyData = response.data.data.filter(item => item.type === 1);
+          const sellData = response.data.data.filter(item => item.type === 2);
+  
+          const buyLabels = buyData.map(item => item.asset.name);
+          const sellLabels = sellData.map(item => item.asset.name);
+  
+          const buyValues = buyData.map(item => parseFloat(item.total_price));
+          const sellValues = sellData.map(item => parseFloat(item.total_price));
+  
+          setDataChart({
+            labels: [...buyLabels, ...sellLabels],
+            datasets: [
+              {
+                label: 'خرید',
+                data: buyValues,
+                backgroundColor: 'rgba(0, 255, 0, 0.8)', 
+                borderColor: 'rgba(0, 255, 0, 3)',
+                borderWidth: 3,
+                tension: 0.4,
+              },
+              {
+                label: 'فروش',
+                data: sellValues,
+                backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                borderColor: 'rgba(255, 0, 0, 3)',
+                borderWidth: 3,
+                tension: 0.4,
+              },
+            ],
+          });
+        } else {
+          console.error("Invalid data structure:", response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      }
+    };
+  
+    fetchTransactions();
+  }, [formData.type, formData.asset_id , userId]);
+
+
+  
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await axiosClient2.get("/exchanges");
+        setExchange(response.data.data);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      }
+    };
+    fetchTransactions();
+  }, []);
+  
+  
+
+
 
   const options = {
     plugins: {
-      tooltip: {
-        callbacks: {
-          label: function (context) {
-            const index = context.dataIndex;
-            const datasetIndex = context.datasetIndex;
-            const currentData = processedData[index];
-            const username =
-              datasetIndex === 0 ? currentData.buyUsername : currentData.sellUsername;
-            return `مقدار: ${context.raw} - کاربر: ${username || "نامشخص"}`;
-          },
-        },
-      },
       legend: {
         labels: {
           font: {
@@ -105,58 +126,120 @@ export default function ChartAllUsers() {
     responsive: true,
     scales: {
       y: {
-        beginAtZero: true,
+        ticks: {
+          font: {
+            size: 12,
+            weight: "bold",
+            family: "vazir",
+          },
+        },
+        title: {
+          display: true,
+          text: "",
+          padding: {
+            bottom: 10,
+          },
+          font: {
+            size: 14,
+            family: "vazir",
+          },
+        },
+        min: 50,
+      },
+      x: {
+        ticks: {
+          font: {
+            size: 12,
+            weight: "bold",
+            family: "vazir",
+          },
+        },
+        title: {
+          display: true,
+          text: "",
+          padding: {
+            top: 10,
+          },
+          font: {
+            size: 14,
+            family: "vazir",
+          },
+        },
       },
     },
   };
 
-  const uniqueCurrencies = [...new Set(defaultData.map((item) => item.currency))];
-  const uniqueExchanges = [...new Set(defaultData.map((item) => item.exchange))];
 
+ 
+ 
   return (
     <div>
-      <div className="flex flex-col md:flex-row mt-6 gap-4 w-full">
-        <div className="w-full md:w-1/2 flex flex-col gap-1">
-          <label htmlFor="currencyFilter" className="block text-gray-700 text-sm font-bold">
-            نوع ارز:
-          </label>
-          <select
-            id="currencyFilter"
-            className="border border-gray-300 rounded px-2 py-1"
-            value={filterCurrency}
-            onChange={(e) => setFilterCurrency(e.target.value)}
-          >
-            <option value="all">همه</option>
-            {uniqueCurrencies.map((currency, index) => (
-              <option key={index} value={currency}>
-                {currency}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="w-full md:w-1/2 flex flex-col gap-1">
-          <label htmlFor="exchangeFilter" className="block text-gray-700 text-sm font-bold">
-            نام صرافی:
-          </label>
-          <select
-            id="exchangeFilter"
-            className="border border-gray-300 rounded px-2 py-1"
-            value={filterExchange}
-            onChange={(e) => setFilterExchange(e.target.value)}
-          >
-            <option value="all">همه</option>
-            {uniqueExchanges.map((exchange, index) => (
-              <option key={index} value={exchange}>
-                {exchange}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div className="flex flex-col md:flex-row gap-4 w-full mt-6">
+      
+       <div className="w-full md:w-1/2 flex flex-col mt-[-3px]">
+        <label htmlFor="operationFilter" className="block text-gray-700 text-sm font-bold  w-28">
+           نوع صرافی:
+        </label>
+      
+          <UserBox
+                people={exchange}
+                 setUserId={setUserId}
+             />
+       </div>
+      <div className="w-full md:w-1/2 flex flex-col gap-1">
+        <label htmlFor="currencyFilter" className="block text-gray-700 text-sm font-bold  w-28">
+          نوع ارز:
+        </label>
+        <select
+          id="currencyFilter"
+          name="asset_id" 
+          className="border border-gray-300 rounded px-2 py-1"
+          value={formData.asset_id}
+          onChange={handleChange}
+        >
+            <option value="">انتخاب کنید</option>
+              <option value="1">ریال</option>
+              <option value="2">تتر</option>
+        </select>
       </div>
-
-      <h1 className="text-center font-bold text-lg mt-6">نمودار    نگاه آماری صرافی</h1>
-      <Bar data={data} options={options} />
+      </div>
+      
+      <h1 className="text-center font-bold text-lg mt-6">نمودار آمار کلی خرید و فروش   </h1>
+      <div>
+      {dataChart ? (
+        <Bar data={dataChart} options={options} />
+      ) : (
+        <div>
+        <p
+                    
+                    className="py-20 text-center bg-gray-100"
+                  >
+                    <div className="flex justify-center items-center">
+                      <svg
+                        className="animate-spin h-20 w-20 text-blue-500"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8z"
+                        ></path>
+                      </svg>
+                    </div>
+                  </p>
+      </div>
+      )}
+    </div>
     </div>
   );
 }

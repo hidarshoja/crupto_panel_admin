@@ -1,4 +1,5 @@
-import React from "react";
+import  { useEffect } from "react";
+import axiosClient2 from "../../axios-client2";
 
 export default function ChartRemainingStats() {
   const exchanges = [
@@ -100,6 +101,40 @@ export default function ChartRemainingStats() {
     },
    
   ];
+
+
+  useEffect(() => {
+
+    const fetchTransactions = async () => {
+      try {
+        const endpoint = `/exchanges/liabilities`;
+
+        const response = await axiosClient2.get(endpoint);
+        console.log("Response data:", response.data.data);
+      } catch (error) {
+        console.log("Error fetching data:", error);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
+
+  useEffect(() => {
+
+    const fetchTransactions2 = async () => {
+      try {
+        const endpoint = `/exchanges/balance`;
+
+        const response = await axiosClient2.get(endpoint);
+        console.log("Response data:", response.data.data);
+      } catch (error) {
+        console.log("Error fetching data:", error);
+      }
+    };
+
+    fetchTransactions2();
+  }, []);
+  
 
   return (
     <div className="flex flex-wrap gap-6 p-6 justify-center ">

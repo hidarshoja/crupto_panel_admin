@@ -1,32 +1,24 @@
-import React from "react";
+import { useEffect , useState } from "react";
+import axiosClient2 from "../../axios-client2";
 
 export default function Remaining() {
-  const RemainData = [
-    {
-      name: "صرافی احمدی",
-      currency: "دلار",
-      buyAmount: "1500",
-      sellAmount: "1300",
-      rialPayment: "7500000",
-      currencyPayment: "200 دلار",
-    },
-    {
-      name: "صرافی سمیه",
-      currency: "یورو",
-      buyAmount: "800",
-      sellAmount: "600",
-      rialPayment: "4500000",
-      currencyPayment: "150 یورو",
-    },
-    {
-      name: "صرافی هانیه",
-      currency: "بیت‌کوین",
-      buyAmount: "2",
-      sellAmount: "1.5",
-      rialPayment: "950000000",
-      currencyPayment: "0.5 بیت‌کوین",
-    },
-  ];
+  const [remainData, setRemainData] = useState([]);
+  const [isloading, setIsloading] = useState(true);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await axiosClient2.get("/exchanges/balance");
+        setRemainData(response.data.data);
+        console.log(`response.data.data`, response.data.data);
+        setIsloading(false);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      }
+    };
+    fetchTransactions();
+  }, [])
+ 
 
   const handleDetailsClick = (data) => {
     console.log("جزئیات ردیف:", data);
@@ -63,11 +55,11 @@ export default function Remaining() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {RemainData.length > 0 ? (
-              RemainData.map((exchange, index) => (
+            {remainData?.length > 0 ? (
+              remainData?.map((exchange, index) => (
                 <tr key={index}>
-                  <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange.name}</td>
-                  <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange.currency}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange?.exchange?.name_fa}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange?.asset?.name_fa}</td>
                   <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange.buyAmount}</td>
                   <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange.sellAmount}</td>
                   <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange.rialPayment}</td>

@@ -38,9 +38,9 @@ const StrategyFormComponent = ({
               <span className="text-gray-500 sm:text-sm">$</span>
             </div>
             <input
-              name="transactionAmount"
+              name="amount"
               type="text"
-              value={formData.transactionAmount}
+              value={formData.amount}
               onChange={handleInputChange}
               placeholder="000"
               className="block w-full rounded-md border-0 py-2.5 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -80,7 +80,7 @@ const StrategyFormComponent = ({
       </div>
 
       <div className="flex flex-col md:flex-row items-center gap-3 border-b-2 border-gray-300 py-3">
-        <div className="w-full md:w-1/2">
+        <div className="w-full md:w-1/3">
           <label
             htmlFor="strategyName"
             className="block text-sm font-medium leading-6 text-gray-900"
@@ -90,9 +90,9 @@ const StrategyFormComponent = ({
           <div className="relative mt-2">
             <input
               id="strategyName"
-              name="strategyName"
+              name="title"
               type="text"
-              value={formData.strategyName}
+              value={formData.title}
               onChange={handleInputChange}
               placeholder="نام استراتژی را وارد کنید"
               className="peer block w-full border-0 pr-2 bg-gray-50 py-1.5 text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
@@ -103,19 +103,19 @@ const StrategyFormComponent = ({
             />
           </div>
         </div>
-        <div className="w-full md:w-1/2">
+        <div className="w-full md:w-1/3">
           <label
-            htmlFor="desiredProfit"
+            htmlFor="diff_percent"
             className="block text-sm font-medium leading-6 text-gray-900"
           >
             سود مطلوب(به درصد)
           </label>
           <div className="relative mt-2">
             <input
-              id="desiredProfit"
-              name="desiredProfit"
+              id="diff_percent"
+              name="diff_percent"
               type="text"
-              value={formData.desiredProfit}
+              value={formData.diff_percent}
               onChange={(e) => {
                 const value = e.target.value;
                 if (/^\d{0,2}$/.test(value)) {
@@ -132,23 +132,39 @@ const StrategyFormComponent = ({
             />
           </div>
         </div>
+        <div className="w-full md:w-1/3 flex flex-col gap-1">
+        <label htmlFor="operationFilter" className="block text-gray-700 text-sm font-bold  w-28">
+          نوع عملیات:
+        </label>
+        <select
+          id="operationFilter"
+           name="type"
+          className="border border-gray-300 rounded px-2 py-1"
+          value={formData.type}
+          onChange={handleInputChange}
+        >
+          <option value="">همه</option>
+          <option value="1">خرید</option>
+          <option value="2">فروش</option>
+        </select>
+      </div>
       </div>
       <div className="flex flex-col md:flex-row items-center gap-3 border-b-2 border-gray-300 py-3">
         <div className="w-full md:w-1/2">
           <label
-            htmlFor="Purchase"
+            htmlFor="amount"
             className="block text-sm font-medium leading-6 text-gray-900"
           >
-            سقف خرید
+            مبلغ خرید
           </label>
           <div className="relative mt-2">
             <input
-              id="Purchase"
-              name="Purchase"
+              id="amount"
+              name="amount"
               type="text"
-              value={formData?.Purchase}
+              value={formData?.amount}
               onChange={handleInputChange}
-              placeholder=" سقف خرید را وارد کنید"
+              placeholder=" مبلغ خرید را وارد کنید"
               className="peer block w-full border-0 pr-2 bg-gray-50 py-1.5 text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
             />
             <div
@@ -185,17 +201,17 @@ const StrategyFormComponent = ({
       <div className="flex flex-col md:flex-row items-center gap-3 border-b-2 border-gray-300 py-3">
         <div className="w-full md:w-1/2">
           <label
-            htmlFor="lowerLimit"
+            htmlFor="lower_diff_percent"
             className="block text-sm font-medium leading-6 text-gray-900"
           >
             حد پایین (به درصد)
           </label>
           <div className="relative mt-2">
             <input
-              id="lowerLimit"
-              name="lowerLimit"
+              id="lower_diff_percent"
+              name="lower_diff_percent"
               type="text"
-              value={formData.lowerLimit}
+              value={formData.lower_diff_percent}
               onChange={(e) => {
                 const value = e.target.value;
                 if (/^\d{0,2}$/.test(value)) {
@@ -214,17 +230,17 @@ const StrategyFormComponent = ({
         </div>
         <div className="w-full md:w-1/2">
           <label
-            htmlFor="trailingStop"
+            htmlFor="stop_loss"
             className="block text-sm font-medium leading-6 text-gray-900"
           >
             استاپ ترلینگ(به درصد)
           </label>
           <div className="relative mt-2">
             <input
-              id="trailingStop"
-              name="trailingStop"
+              id="stop_loss"
+              name="stop_loss"
               type="text"
-              value={formData.trailingStop}
+              value={formData.stop_loss}
               onChange={(e) => {
                 const value = e.target.value;
                 if (/^\d{0,2}$/.test(value)) {

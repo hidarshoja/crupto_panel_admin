@@ -1,8 +1,28 @@
-import React from 'react'
+import { useState , useEffect } from 'react';
 import { CiSearch } from "react-icons/ci";
 import DocumentComponentBot from '../../components/Bot/DoucumentComponentBot';
+import axiosClient2 from '../../axios-client2';
 
 export default function BotDocument() {
+  const [assets , setAssets] = useState([]);
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const endpoint = `/assets`;
+  
+        const response = await axiosClient2.get(endpoint);
+          console.log(response.data.data);
+          
+          setAssets(response.data.data);
+  
+       
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      } 
+    };
+  
+    fetchTransactions();
+  }, []);
   return (
      <div>
           <h1 className="text-md md:text-lg font-bold mb-4 mt-4">سند واریز / سند برداشت (بات ترید)</h1>
@@ -36,7 +56,7 @@ export default function BotDocument() {
             </div>
           </div>
     
-         <DocumentComponentBot />
+         <DocumentComponentBot assets={assets} />
         </div>
   )
 }

@@ -11,6 +11,7 @@ export default function DocumentPage() {
   const [users , setUsers] = useState([]);
   const [isUsersInitialized, setIsUsersInitialized] = useState(false);
    const [userId, setUserId] = useState(null);
+   const [assets , setAssets] = useState([]);
 
 useEffect(() => {
   const fetchTransactions = async () => {
@@ -37,8 +38,6 @@ useEffect(() => {
 
   fetchTransactions();
 }, [userId , isUsersInitialized]);
-
-
 
 const handleExportExcel = async () => {
   const payload = {
@@ -67,6 +66,25 @@ const handleExportExcel = async () => {
     alert("مشکلی در ارتباط با سرور رخ داده است");
   }
 };
+
+useEffect(() => {
+  const fetchTransactions = async () => {
+    try {
+      const endpoint = `/assets`;
+
+      const response = await axiosClient2.get(endpoint);
+        console.log(response.data.data);
+        
+        setAssets(response.data.data);
+
+     
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } 
+  };
+
+  fetchTransactions();
+}, []);
 
   return (
     <div>
@@ -121,7 +139,7 @@ const handleExportExcel = async () => {
         </div>
       </div>
 
-      <DocumentComponent />
+      <DocumentComponent assets={assets}/>
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import UserBox from "../components/UserBox4";
-import axiosClient from "../axios-client";
 import axiosClient2 from "../axios-client2";
 
 export default function Transactions() {
@@ -9,7 +8,9 @@ export default function Transactions() {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
   const [isUsersInitialized, setIsUsersInitialized] = useState(false);
- 
+  const [filters, setFilters] = useState({ type: "" , status: "" , currency: ""  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const tableHeaders = [
     "تاریخ و ساعت",
     "کاربر معامله‌گر",
@@ -21,10 +22,6 @@ export default function Transactions() {
     "توضیحات",
   ];
   
-  const [filters, setFilters] = useState({ type: "" , status: "" , currency: ""  });
-
-  
-
 const handleFilterChange = (e) => {
   const { name, value } = e.target;
   setFilters((prevFilters) => ({
@@ -33,12 +30,9 @@ const handleFilterChange = (e) => {
   }));
 };
 
- 
-
-
-
 useEffect(() => {
   const fetchTransactions = async () => {
+    setLoading(true);
     try {
       const endpoint = `/transactions?${userId ? `f[user_id]=${userId}&` : ""}${
         filters.type ? `f[type]=${filters.type}&` : ""
@@ -58,6 +52,7 @@ useEffect(() => {
         setUsers(uniqueUsers);
         setIsUsersInitialized(true);
       }
+      setCurrentPage(1);
     } catch (error) {
       console.error("Error fetching transactions:", error);
     } finally {
@@ -67,6 +62,11 @@ useEffect(() => {
 
   fetchTransactions();
 }, [userId, filters.type, filters.status, isUsersInitialized , filters.currency]);
+
+const indexOfLastItem = currentPage * itemsPerPage;
+const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+const currentItems = listTransaction.slice(indexOfFirstItem, indexOfLastItem);
+const totalPages = Math.ceil(listTransaction.length / itemsPerPage);
 
   return (
     <div className="mt-8 flow-root">
@@ -199,8 +199,8 @@ useEffect(() => {
                 </tbody>
               ) : (
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {listTransaction?.length > 0 ? (
-                    listTransaction?.map((transaction) => (
+                  {currentItems?.length > 0 ? (
+                    currentItems?.map((transaction) => (
                       <tr key={transaction.id}>
                         <td className="px-3 py-4 text-sm text-gray-500 text-center">
                           {new Date(transaction.created_at)
@@ -246,6 +246,25 @@ useEffect(() => {
             </table>
           </div>
         </div>
+      </div>
+      <div className="flex justify-between items-center mt-4">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
+        >
+          صفحه قبل
+        </button>
+        <span>
+          صفحه {currentPage} از {totalPages}
+        </span>
+        <button
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
+        >
+          صفحه بعد
+        </button>
       </div>
     </div>
   );

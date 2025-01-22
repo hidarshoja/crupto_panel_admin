@@ -1,74 +1,46 @@
-import { useState } from "react";
-import axios from "axios";
-import { toast } from "react-hot-toast";
+import { useState, useEffect } from "react";
+import axiosClient2 from "../axios-client2";
 import { AiFillPicture } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { FaWallet } from "react-icons/fa";
+import LoadingTable from "../components/LoadingTable";
 
 export default function KycUser() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ wallets: [] });
-
-  const initialData = [
-    {
-      id: 1,
-      fullName: "علی احمدی",
-      nationalCode: "1234567890",
-      birthDate: "1370/01/01",
-      phone: "09123456789",
-      link: "/download",
-      status: 2,
-      wallet: [],
-    },
-    {
-      id: 2,
-      fullName: "زهرا محمدی",
-      nationalCode: "9876543210",
-      birthDate: "1375/02/15",
-      phone: "09345678901",
-      link: "/download",
-      status: 1,
-      wallet: [],
-    },
-  ];
-
-  const [data, setData] = useState(initialData);
-
+  const [users, setUsers] = useState([]);
+const [isloading , setIsloading] = useState(true);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const handleChangeStatus = (id, newStatus) => {
-    setData((prevData) =>
-      prevData.map((item) =>
-        item.id === id ? { ...item, status: Number(newStatus) } : item
+  // Fetch users data from API
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await axiosClient2.get("/users");
+        setUsers(response.data.data);
+        setIsloading(false);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  // Handle status change (Approved / Rejected)
+  const handleChangeStatus = async (id, newStatus) => {
+    setUsers((prevUsers) =>
+      prevUsers.map((user) =>
+        user.id === id ? { ...user, status: newStatus } : user
       )
     );
-  };
 
-  const handleCheckboxChange = (wallet) => {
-    setFormData((prevData) => {
-      const updatedWallets = prevData.wallets.includes(wallet)
-        ? prevData.wallets.filter((w) => w !== wallet)
-        : [...prevData.wallets, wallet];
-      return { ...prevData, wallets: updatedWallets };
-    });
-  };
-
-  const handleSubmit = async () => {
     try {
-      const response = await axios.post(
-        "https://jsonplaceholder.org/posts",
-        data
-      );
-      toast.success("داده‌ها با موفقیت ثبت شدند");
+      const response = await axiosClient2.put(`/users/${id}`, {
+        status: newStatus,
+      });
     } catch (error) {
-      toast.error("خطا در ارسال داده‌ها");
+      console.error("Error updating status:", error);
     }
-  };
-
-  const handleReset = () => {
-    setData(initialData);
-    toast("تغییرات لغو شدند");
   };
 
   return (
@@ -102,38 +74,53 @@ export default function KycUser() {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
-            {data.map((user) => (
-              <tr key={user.id}>
-                <td className="px-3 py-4 text-center">{user.id}</td>
-                <td className="px-3 py-4 text-center">{user.fullName}</td>
-                <td className="px-3 py-4 text-center">{user.nationalCode}</td>
-                <td className="px-3 py-4 text-center">{user.birthDate}</td>
-                <td className="px-3 py-4 text-center">{user.phone}</td>
-                <td className="px-3 py-4 text-center">
-                  <Link to={user.link}>
-                    <AiFillPicture size={20} />
-                  </Link>
-                </td>
-                <td className="px-3 py-4 text-center">
-                  <button onClick={openModal}>
-                    <FaWallet size={20} />
-                  </button>
-                </td>
-                <td className="px-3 py-4 text-center">
-                  <select
-                    value={user.status}
-                    onChange={(e) =>
-                      handleChangeStatus(user.id, e.target.value)
-                    }
-                  >
-                    <option value={2}>تایید</option>
-                    <option value={1}>رد</option>
-                  </select>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+          {isloading ? (
+    <tbody>
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+          <LoadingTable />
+        
+      </tr>
+    </tbody>
+  ) : (
+    <tbody className="divide-y divide-gray-200 bg-white">
+    {users?.map((user , index) => (
+      <tr key={user.id}>
+        <td className="px-3 py-4 text-center">{index + 1}</td>
+        <td className="px-3 py-4 text-center">
+          {user.name} - {user.lastname}
+        </td>
+        <td className="px-3 py-4 text-center">{user.national_code}</td>
+        <td className="px-3 py-4 text-center">{user.birthdate}</td>
+        <td className="px-3 py-4 text-center">{user.mobile}</td>
+        <td className="px-3 py-4 text-center">
+          <Link to={`/download/${user.id}`}>
+            <AiFillPicture size={20} />
+          </Link>
+        </td>
+        <td className="px-3 py-4 text-center">
+          <button onClick={openModal}>
+            <FaWallet size={20} />
+          </button>
+        </td>
+        <td className="px-3 py-4 text-center">
+          <select
+            value={user.status}
+            onChange={(e) =>
+              handleChangeStatus(user.id, e.target.value)
+            }
+          >
+            <option value={100}>تایید</option>
+            <option value={-100}>رد</option>
+          </select>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+  )}
+         
         </table>
       </div>
 
@@ -154,11 +141,7 @@ export default function KycUser() {
                 "کیف وب مانی",
               ].map((wallet) => (
                 <label key={wallet} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.wallets.includes(wallet)}
-                    onChange={() => handleCheckboxChange(wallet)}
-                  />
+                  <input type="checkbox" />
                   <span>{wallet}</span>
                 </label>
               ))}

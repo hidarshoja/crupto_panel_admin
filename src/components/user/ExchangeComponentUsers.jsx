@@ -1,67 +1,75 @@
 import React from 'react'
+import UserBox from '../UserBox3'
 
-export default function ExchangeComponentUsers({ formData, handleSubmit, handleChange , handleCancel , navigate }) {
+export default function ExchangeComponentUsers({ formData, handleSubmit, handleChange , handleCancel , navigate , assets , people , setUserId }) {
     return (
         <div className="p-4 bg-green-50 border w-full flex flex-wrap gap-6 border-green-300 rounded-lg">
-        <div className="flex flex-col md:flex-row gap-4 w-full">
-          <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
-            <span className="text-sm font-semibold pl-2">نوع:</span>
-            <select
-              name="type"
-              value={formData.type}
-              onChange={handleChange}
-              className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-                <option value="">انتخاب کنید</option>
-              <option value="1">برداشت</option>
-              <option value="2">واریز</option>
-            </select>
-          </div>
-    
-          <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
-            <span className="text-sm font-semibold pl-2">نوع ارز:</span>
-            <select
-              name="currencyType"
-              value={formData.currencyType}
-              onChange={handleChange}
-              className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-                <option value="">انتخاب کنید</option>
-              <option value="1">ریال</option>
-              <option value="2">BTC</option>
-              <option value="3">ETH</option>
-              <option value="4">SOL</option>
-            </select>
-          </div>
+           <div className="w-full">
+        <UserBox people={people} setUserId={setUserId} />
+      </div>
+      <div className="flex flex-col md:flex-row gap-4 w-full">
+        <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
+          <span className="text-sm font-semibold pl-2">نوع:</span>
+          <select
+            name="type"
+            value={formData.type}
+            onChange={handleChange}
+            className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">انتخاب کنید</option>
+            <option value="4">برداشت</option>
+            <option value="3">واریز</option>
+            <option value="5">اصلاحی</option>
+          </select>
         </div>
-    
-        <div className="flex flex-col md:flex-row gap-4 w-full">
-          <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
-            <span className="text-sm font-semibold pl-2">مبلغ بر اساس ارز پایه:</span>
-            <input
-              type="text"
-              name="amount"
-              value={formData.amount}
-              onChange={handleChange}
-              placeholder="مبلغ را وارد کنید"
-              className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-    
-          <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
-            <span className="text-sm font-semibold pl-2">شماره سند بدل:</span>
-            <input
-              type="text"
-              name="documentNumber"
-              value={formData.documentNumber}
-              onChange={handleChange}
-              placeholder="شماره سند را وارد کنید"
-              className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+
+        <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
+          <span className="text-sm font-semibold pl-2">نوع ارز:</span>
+          <select
+            name="asset_id"
+            value={formData.asset_id}
+            onChange={handleChange}
+            className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">انتخاب کنید</option>
+            {assets?.map((wallet) => (
+              <option key={wallet.id} value={wallet.related_asset}>
+                {wallet.name_fa} ({wallet.symbol})
+              </option>
+            ))}
+          </select>
         </div>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-4 w-full">
+        <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
+          <span className="text-sm font-semibold pl-2">
+            مبلغ بر اساس ارز پایه:
+          </span>
+          <input
+            type="text"
+            name="amount"
+            value={formData.amount}
+            onChange={handleChange}
+            placeholder="مبلغ را وارد کنید"
+            className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
+          <span className="text-sm font-semibold pl-2">شماره سند بدل:</span>
+          <input
+            type="text"
+            name="bank_txid"
+            value={formData.documentNumber}
+            onChange={handleChange}
+            placeholder="شماره سند را وارد کنید"
+            className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+      </div>
     
-        <div className="flex flex-col md:flex-row gap-4 w-full">
+        {/* <div className="flex flex-col md:flex-row gap-4 w-full">
           <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
             <span className="text-sm font-semibold pl-2">از محل:</span>
             <select
@@ -92,13 +100,13 @@ export default function ExchangeComponentUsers({ formData, handleSubmit, handleC
               <option value="2">قطعی</option>
             </select>
           </div>
-        </div>
+        </div> */}
     
         <div className="flex flex-col gap-1 items-start w-full">
           <span className="text-sm font-semibold pl-2">توضیحات:</span>
           <textarea
-            name="description"
-            value={formData.description}
+            name="des"
+            value={formData.des}
             onChange={handleChange}
             placeholder="توضیحات را وارد کنید"
             rows="4"

@@ -1,40 +1,19 @@
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import { FaPlay , FaPause , FaRegEye  } from "react-icons/fa";
 import { MdOutlineReplay } from "react-icons/md";
 import { toast } from "react-hot-toast";
-import axios from "axios";
+import axiosClient2 from "../../axios-client2";
+import LoadingTable from "../../components/LoadingTable";
 
 
 const ListStrategy = () => {
   const [modalContent, setModalContent] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [playState, setPlayState] = useState({});
-  
+  const [strategiesList, setStrategiesList] = useState([]);
+  const [isloading, setIsloading] = useState(true);
 
-  const strategies = [
-    {
-      id: 1,
-      name: "استراتژی اول",
-      progress: "75%",
-      buyers: ["علی", "حسین", "زهرا"],
-      suppliers: ["شرکت A", "شرکت B"],
-      profit: "20%",
-      lowerLimit: "1000",
-      trailingStop: "5%",
-      repeat: true,
-    },
-    {
-      id: 2,
-      name: "استراتژی دوم",
-      progress: "50%",
-      buyers: ["محمد", "مریم"],
-      suppliers: ["شرکت C", "شرکت D"],
-      profit: "15%",
-      lowerLimit: "2000",
-      trailingStop: "10%",
-      repeat: false,
-    },
-  ];
+  
 
   const handleView = (list) => {
     setModalContent(list);
@@ -66,20 +45,18 @@ const ListStrategy = () => {
         </div>
       ),
       {
-        duration: Infinity, // پیام تا زمانی که کاربر تصمیم بگیرد باز می‌ماند
+        duration: Infinity, 
       }
     );
   };
   
-  // ارسال مشخصات به API
+
   const repeatStrategy = async (strategyId) => {
     try {
-      const response = await axios.post("/api/repeat-strategy", { id: strategyId });
-      toast.success("استراتژی با موفقیت تکرار شد");
-      console.log("API Response:", response.data);
+      const response = await axiosClient2.post(`/strategies/${strategyId}/run`);
+      toast.success("اطلاعات با موفقیت انجام شد!");
     } catch (error) {
-      toast.error("خطایی رخ داد. لطفاً دوباره تلاش کنید.");
-      console.error("API Error:", error);
+      toast.error("خطا در انجام عملیات!");
     }
   };
 
@@ -94,72 +71,116 @@ const ListStrategy = () => {
    });
  };
 
+ useEffect(() => {
+  const fetchTransactions = async () => {
+    try {
+      const response = await axiosClient2.get("/strategies");
+      setStrategiesList(response.data.data);
+      setIsloading(false);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    }
+  };
+  fetchTransactions();
+}, []);
+
+
   return (
     <div>
       <h1 className="text-lg font-bold mb-4 mt-4">لیست استراتژی‌ها</h1>
       <div className="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-        <table className="min-w-full divide-y divide-gray-300">
-          <thead className="bg-gray-50">
-            <tr>
-              {[
-                "ردیف",
-                "نام استراتژی",
-                "درصد انجام شده",
-                "خریداران",
-                "تامین کنندگان",
-                "سود مطلوب",
-                "حد پایین",
-                "استاپ ترلینگ",
-                "توقف",
-                "تکرار",
-              ].map((header, index) => (
-                <th
-                  key={index}
-                  scope="col"
-                  className="px-3 py-4 text-center text-sm font-semibold text-gray-900"
-                >
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
-            {strategies.map((strategy, index) => (
-              <tr key={strategy.id}>
-                <td className="px-3 py-4 text-sm text-gray-500 text-center">{index + 1}</td>
-                <td className="px-3 py-4 text-sm text-gray-500 text-center">{strategy.name}</td>
-                <td className="px-3 py-4 text-sm text-gray-500 text-center">{strategy.progress}</td>
-                <td className=" text-sm text-gray-500">
-                  <FaRegEye   onClick={() => handleView(strategy.buyers)} className="cursor-pointer mr-10 text-xl"/>
-                
-                </td>
-                <td className="text-sm text-gray-500">
-                <FaRegEye   onClick={() => handleView(strategy.suppliers)}  className="cursor-pointer mr-10 text-xl"/>
-                  
-                </td>
-                <td className="px-3 py-4 text-sm text-gray-500 text-center">{strategy.profit}</td>
-                <td className="px-3 py-4 text-sm text-gray-500 text-center">{strategy.lowerLimit}</td>
-                <td className="px-3 py-4 text-sm text-gray-500 text-center">{strategy.trailingStop}</td>
-                <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                  <button
-                    onClick={() => togglePlayStop(strategy.id)}
-                    className="text-xl text-gray-700 hover:text-gray-900"
-                  >
-                    {playState[strategy.id] ? <FaPlay style={{ color: "red" }} /> : <FaPause style={{ color: "green" }}/>}
-                  </button>
-                </td>
-                <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                  {/* {strategy.repeat ? "بله" : "خیر"} */}
-                  <MdOutlineReplay
-                   size={20}
-                  onClick={() => handleRipet(strategy.id)}
-                  className="cursor-pointer"
-                   />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <table className="min-w-full divide-y divide-gray-300">
+  <thead className="bg-gray-50">
+    <tr>
+      {[
+        "ردیف",
+        "نام استراتژی",
+        "درصد انجام شده",
+        "خریداران",
+        "تامین کنندگان",
+        "نوع استراتژی",
+        "حد پایین",
+        "استاپ ترلینگ",
+        "توقف",
+        "تکرار",
+      ].map((header, index) => (
+        <th
+          key={index}
+          scope="col"
+          className="px-3 py-4 text-center text-sm font-semibold text-gray-900"
+        >
+          {header}
+        </th>
+      ))}
+    </tr>
+  </thead>
+  {isloading ? (
+    <tbody>
+      <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td colSpan={10} className="h-[300px] flex items-center justify-center text-center">
+          <LoadingTable />
+        </td>
+      </tr>
+    </tbody>
+  ) : (
+    <tbody className="divide-y divide-gray-200 bg-white">
+      {strategiesList?.map((strategy, index) => (
+        <tr key={strategy.id}>
+          <td className="px-3 py-4 text-sm text-gray-500 text-center">{index + 1}</td>
+          <td className="px-3 py-4 text-sm text-gray-500 text-center">{strategy.title}</td>
+          <td className="px-3 py-4 text-sm text-gray-500 text-center">
+            {strategy.diff_percent} %
+          </td>
+          <td className="text-sm text-gray-500">
+            <FaRegEye
+              onClick={() => handleView(strategy.buyers)}
+              className="cursor-pointer mr-10 text-xl"
+            />
+          </td>
+          <td className="text-sm text-gray-500">
+            <FaRegEye
+              onClick={() => handleView(strategy.suppliers)}
+              className="cursor-pointer mr-10 text-xl"
+            />
+          </td>
+          <td className="px-3 py-4 text-sm text-gray-500 text-center">
+            {strategy.type === "1" ? "فروش" : "خرید"}
+          </td>
+          <td className="px-3 py-4 text-sm text-gray-500 text-center">
+            {strategy.lower_diff_percent} %
+          </td>
+          <td className="px-3 py-4 text-sm text-gray-500 text-center">
+            {strategy.stop_loss} %
+          </td>
+          <td className="px-3 py-4 text-sm text-gray-500 text-center">
+            <button
+              onClick={() => togglePlayStop(strategy.id)}
+              className="text-xl text-gray-700 hover:text-gray-900"
+            >
+              {playState[strategy.id] ? (
+                <FaPlay style={{ color: "red" }} />
+              ) : (
+                <FaPause style={{ color: "green" }} />
+              )}
+            </button>
+          </td>
+          <td className="px-3 py-4 text-sm text-gray-500 text-center">
+            <MdOutlineReplay
+              size={20}
+              onClick={() => handleRipet(strategy.id)}
+              className="cursor-pointer"
+            />
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  )}
+</table>
+
       </div>
 
       {isModalOpen && (
@@ -168,7 +189,7 @@ const ListStrategy = () => {
             <h2 className="text-lg font-bold mb-4">لیست</h2>
             <ul className="list-disc list-inside">
               {modalContent.map((item, index) => (
-                <li key={index}>{item}</li>
+                <li key={index}>{item.id}</li>
               ))}
             </ul>
             <button

@@ -1,9 +1,11 @@
-import React from "react";
+import  { useState , useEffect } from "react";
+import axiosClient2 from "../../axios-client2";
 
 
 
 
 export default function StableCondition() {
+  const [status , setStatus] = useState(null);
  const exchangeData = [
   { name: "صرافی نوبیتکس", status: "تایید شده", reviewTime: 5 },
   { name: "صرافی والکس", status: "رد شده", reviewTime: 10 },
@@ -14,9 +16,9 @@ export default function StableCondition() {
 
   const getStatusCircle = (status) => {
     switch (status) {
-      case "تایید شده":
+      case true:
         return <span className="inline-block w-3 h-3 rounded-full bg-green-500"></span>;
-      case "رد شده":
+      case false:
         return <span className="inline-block w-3 h-3 rounded-full bg-red-500"></span>;
       case "در انتظار بررسی":
         return <span className="inline-block w-3 h-3 rounded-full bg-yellow-500"></span>;
@@ -24,6 +26,19 @@ export default function StableCondition() {
         return null;
     }
   };
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await axiosClient2.get("/exchanges/status");
+        console.log(`response.data`, response.data);
+        setStatus(response.data);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      }
+    };
+    fetchTransactions();
+  }, []);
 
   return (
     <div className="p-4">
@@ -44,17 +59,19 @@ export default function StableCondition() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {exchangeData.length > 0 ? (
-              exchangeData.map((exchange, index) => (
+            {status?.length > 0 ? (
+              status?.map((exchange, index) => (
                 <tr key={index}>
-                  <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange.name}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange?.exchange.name_fa}</td>
                   <td className="px-6 py-4 text-center text-sm text-gray-900">
                     <div className="flex items-center justify-center space-x-2 space-x-reverse">
                       {getStatusCircle(exchange.status)}
                       <span>{exchange.status}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange.reviewTime}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-900">
+                  {exchange.last_updated_at ? new Date(exchange.last_updated_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) : 'N/A'}
+            </td>
                 </tr>
               ))
             ) : (

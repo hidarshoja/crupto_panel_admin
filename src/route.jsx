@@ -63,8 +63,8 @@ export const route = createBrowserRouter([
                 element: <AccessLevels />
             },
             {
-                path :"/download",
-                element : <DownloadPhoto />
+                path: "/download/:id",
+                element: <DownloadPhoto />
             },
             {
                 path: '/statistical',
