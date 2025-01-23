@@ -1,5 +1,6 @@
 const LoadingTable = () => (
- <div className="flex items-center justify-center h-screen">
+  <div className="flex items-center flex-col justify-center gap-4 py-3">
+ <div className="flex items-center justify-center">
    <svg
      className="animate-spin h-20 w-20 text-blue-500"
      xmlns="http://www.w3.org/2000/svg"
@@ -21,6 +22,8 @@ const LoadingTable = () => (
      ></path>
    </svg>
  </div>
+ <span>منتظر بمانید ...</span>
+  </div>
 );
 
 export default LoadingTable;
