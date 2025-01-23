@@ -11,8 +11,9 @@ export default function KycUser() {
 const [isloading , setIsloading] = useState(true);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  // Fetch users data from API
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -42,6 +43,11 @@ const [isloading , setIsloading] = useState(true);
       console.error("Error updating status:", error);
     }
   };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+const currentItems = users.slice(indexOfFirstItem, indexOfLastItem);
+const totalPages = Math.ceil(users.length / itemsPerPage);
 
   return (
     <div className="p-4">
@@ -86,7 +92,7 @@ const [isloading , setIsloading] = useState(true);
     </tbody>
   ) : (
     <tbody className="divide-y divide-gray-200 bg-white">
-    {users?.map((user , index) => (
+    {currentItems?.map((user , index) => (
       <tr key={user.id}>
         <td className="px-3 py-4 text-center">{index + 1}</td>
         <td className="px-3 py-4 text-center">
@@ -122,6 +128,25 @@ const [isloading , setIsloading] = useState(true);
   )}
          
         </table>
+      </div>
+        <div className="flex justify-between items-center mt-4">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
+        >
+          صفحه قبل
+        </button>
+        <span>
+          صفحه {currentPage} از {totalPages}
+        </span>
+        <button
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
+        >
+          صفحه بعد
+        </button>
       </div>
 
       {isModalOpen && (
