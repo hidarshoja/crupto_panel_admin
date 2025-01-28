@@ -1,7 +1,8 @@
-import  { useEffect } from "react";
+import  { useEffect , useState } from "react";
 import axiosClient2 from "../../axios-client2";
 
 export default function ChartRemainingStats() {
+  const [filteredData, setFilteredData] = useState([]);
   const exchanges = [
     {
       id: 1,
@@ -110,7 +111,10 @@ export default function ChartRemainingStats() {
         const endpoint = `/exchanges/liabilities`;
 
         const response = await axiosClient2.get(endpoint);
-        console.log("Response data:", response.data.data);
+        if (response.data.data) {
+          const arrayData = Object.values(response.data.data).flat();
+          setFilteredData(arrayData);
+        }
       } catch (error) {
         console.log("Error fetching data:", error);
       }
@@ -119,29 +123,29 @@ export default function ChartRemainingStats() {
     fetchTransactions();
   }, []);
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    const fetchTransactions2 = async () => {
-      try {
-        const endpoint = `/exchanges/balance`;
+  //   const fetchTransactions2 = async () => {
+  //     try {
+  //       const endpoint = `/exchanges/balance`;
 
-        const response = await axiosClient2.get(endpoint);
-        console.log("Response data:", response.data.data);
-      } catch (error) {
-        console.log("Error fetching data:", error);
-      }
-    };
+  //       const response = await axiosClient2.get(endpoint);
+  //       console.log("Response data:", response.data.data);
+  //     } catch (error) {
+  //       console.log("Error fetching data:", error);
+  //     }
+  //   };
 
-    fetchTransactions2();
-  }, []);
+  //   fetchTransactions2();
+  // }, []);
   
-
+console.log(`filteredData`, filteredData);
   return (
     <div className="flex flex-wrap gap-6 p-6 justify-center ">
          <div className="flex flex-col md:flex-row gap-4 w-full mb-6">
       <div className="w-full md:w-1/2 flex flex-col gap-1">
         <label htmlFor="operationFilter" className="block text-gray-700 text-sm font-bold  w-28">
-          نوع ارز:
+          نوع مشتریان:
         </label>
         <div className="flex gap-2 items-center">
         <select
@@ -149,9 +153,10 @@ export default function ChartRemainingStats() {
           className="border border-gray-300 w-2/3 rounded px-2 py-1"
         
         >
-          <option value="all">همه</option>
+             <option value="all">همه</option>
           <option value="buy">مشتریان API</option>
           <option value="sell">BTC</option>
+          
         </select>
         <div className="w-1/3 text-green-500">
           <span>خریداری شده :</span>
@@ -169,9 +174,9 @@ export default function ChartRemainingStats() {
           className="border w-2/3 border-gray-300 rounded px-2 py-1"
         
         >
-          <option value="all">همه</option>
-          <option value="buy">مشتریان API</option>
-          <option value="sell">BTC</option>
+       <option value="1">تتر</option>
+          <option value="2">ریال </option>
+          <option value="3">تتر ریالی</option>
         </select>
         <div className="w-1/3 text-red-500">
           <span>فروخته شده :</span>
@@ -180,31 +185,31 @@ export default function ChartRemainingStats() {
          </div>
       </div>
          </div>
-      {exchanges.map((exchange) => (
+      {filteredData?.map((exchange) => (
         <div
           className="group p-6 bg-gradient-to-br from-[#3ABEF9] to-[#3499d9] shadow-xl w-full md:w-[320px] rounded-lg text-center border border-gray-300 hover:shadow-2xl cursor-pointer hover:translate-y-[-5px] transition-all duration-300 hover:scale-105"
-          key={exchange.id}
+          key={exchange.exchange_id}
         >
           <div className="relative">
             <img
               src={exchange.logo}
-              alt={`${exchange.name} Logo`}
-              className="mx-auto mb-4 w-18 h-18 rounded-full border-2  group-hover:rotate-45 group-hover:scale-110 group-hover:border-slate-600 transition-transform duration-300"
+              alt={`${exchange.exchange_id} Logo`}
+              className="mx-auto mb-4 w-18 h-18 rounded-full border-2  group-hover:rotate-15 group-hover:scale-30 group-hover:border-slate-600 transition-transform duration-300"
             />
           
           </div>
-          <h3 className="text-lg  text-gray-100">{exchange.name}</h3>
+          <h3 className="text-lg  text-gray-100">{exchange.exchange_name_fa}</h3>
           <p className="text-gray-100 mt-2">
             <strong>کل ارزش خرید:</strong>{" "}
-            {exchange.totalBuy.toLocaleString("fa-IR")} ریال
+            {exchange?.totalBuy} ریال
           </p>
           <p className="text-gray-100">
             <strong>میزان دارایی:</strong>{" "}
-            {exchange.totalAssets.toLocaleString("fa-IR")} ریال
+            {Number(exchange?.total_amount)} ریال
           </p>
           <p className="text-gray-100">
             <strong>کل ارز فروخته:</strong>{" "}
-            {exchange.totalSell.toLocaleString("fa-IR")} ریال
+            {Number(exchange?.total_price)} ریال
           </p>
         </div>
       ))}

@@ -62,7 +62,6 @@ useEffect(() => {
 
   fetchTransactions();
 }, [userId, filters.type, filters.status, isUsersInitialized , filters.currency]);
-
 const indexOfLastItem = currentPage * itemsPerPage;
 const indexOfFirstItem = indexOfLastItem - itemsPerPage;
 const currentItems = listTransaction.slice(indexOfFirstItem, indexOfLastItem);

@@ -6,28 +6,71 @@ import axiosClient2 from '../axios-client2';
 
 export default function Accounting() {
   const [selectedValue, setSelectedValue] = useState("2");
-  const [exchange , setExchange] = useState(null)
+  const [exchange , setExchange] = useState([]);
+  const [userId, setUserId] = useState(null);
+  const [assets , setAssets] = useState([]);
+  const [filteredData, setFilteredData] = useState([]); 
+
+  const fetchTransactions = async () => {
+    try {
+      const response = await axiosClient2.get("/exchanges");
+      setExchange(response.data.data);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    }
+  };
+
+  const fetchTransactionsAssetes = async () => {
+    try {
+      const endpoint = `/assets`;
+
+      const response = await axiosClient2.get(endpoint);
+        console.log(response.data.data);
+        
+        setAssets(response.data.data);
+
+     
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } 
+  };
   
+  const fetchUsers = async () => {
+    try {
+      let url = "/exchanges/liabilities";
+      if (userId) {
+        url = `/exchanges/liabilities?exchanges[0]=${userId}`;
+      }
+  
+      const response = await axiosClient2.get(url);
+  
+      if (response.data.data) {
+        const arrayData = Object.values(response.data.data).flat();
+        setFilteredData(arrayData);
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+  
+  
+  useEffect(() => {
+    fetchUsers(); 
+  }, [userId]); 
 
   useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        const response = await axiosClient2.get("/exchanges");
-        setExchange(response.data.data);
-            console.log(`response.data.data`, response.data.data);
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-      }
-    };
+   
     fetchTransactions();
+    fetchTransactionsAssetes();
   }, []);
+
+
  
 
   const handleSelectChange = (event) => {
     setSelectedValue(event.target.value);
   };
   const [filters, setFilters] = useState({});
-  const [filteredData, setFilteredData] = useState([]);
   const handleExportExcel = async () => {
     const payload = {
       filters,  
@@ -56,7 +99,6 @@ export default function Accounting() {
     }
   };
 
-
   return (
     <div className="p-4">
       <h1 className="text-lg font-bold mb-4">حسابداری</h1>
@@ -73,8 +115,13 @@ export default function Accounting() {
         <option value="4">کاربران</option>
       </select>
      </div>
-     <BoxAccount />
-     <div className='flex items-center justify-between'>
+     <BoxAccount 
+     exchangeWallet={filteredData}  
+     assets={assets}
+     exchange ={exchange}
+     setUserId = {setUserId}
+     />
+     <div className='flex items-center justify-between mt-6'>
      <h1 className="text-lg font-bold mb-4 mt-4">لیست معاملات</h1>
         <button
           onClick={handleExportExcel}
@@ -83,7 +130,9 @@ export default function Accounting() {
           خروجی اکسل
         </button>
      </div>
+     <div className='mt-8'>
      <Transactions />
+     </div>
     </div>
   );
 }

@@ -1,187 +1,139 @@
-import  { useState } from "react";
-import { LiaSearchSolid } from "react-icons/lia";
-import BoxAccountBot from "../../components/Bot/BoxAccountBot";
+import  { useState, useEffect } from 'react';
+import BoxAccount from '../../components/Bot/BoxAccountingBot';
+import Transactions from '../../components/Transactions';
+import axios from 'axios';
+import axiosClient2 from '../../axios-client2';
 
 export default function Accounting() {
-  const [selectedValue, setSelectedValue] = useState("3");
-  const [selectedCurrencies, setSelectedCurrencies] = useState({});
-   const [search, setSearch] = useState("");
-  
-   
-  
-   
-  
+  const [selectedValue, setSelectedValue] = useState("2");
+  const [exchange , setExchange] = useState([]);
+  const [userId, setUserId] = useState(null);
+  const [assets , setAssets] = useState([]);
+  const [filteredData, setFilteredData] = useState([]); 
 
-  const handleCurrencyChange = (exchangeId, currency) => {
-    setSelectedCurrencies((prevState) => ({
-      ...prevState,
-      [exchangeId]: currency,
-    }));
-  };
-  const formatNumber = (num) => {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const fetchTransactions = async () => {
+    try {
+      const response = await axiosClient2.get("/exchanges");
+      setExchange(response.data.data);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    }
   };
 
-  const exchanges = [
-    {
-      id: 1,
-      name: "کویین",
-      logo: "/img/coin.png",
-      rial: { debt: 1000, credit: 500 },
-      tether: { debt: 50, credit: 30 },
-      btc: { debt: 0.5, credit: 0.2 },
-      eth: { debt: 1, credit: 0.5 },
-      sol: { debt: 20, credit: 10 },
-      gold: { debt: 10, credit: 5 },
-    },
-    {
-      id: 2,
-      name: "دجیتال",
-      logo: "/img/digital.png",
-      rial: { debt: 2000, credit: 1500 },
-      tether: { debt: 70, credit: 40 },
-      btc: { debt: 0.8, credit: 0.3 },
-      eth: { debt: 1.5, credit: 0.7 },
-      sol: { debt: 25, credit: 15 },
-      gold: { debt: 12, credit: 6 },
-    },
-    {
-      id: 3,
-      name: "فد",
-      logo: "/img/feed.png",
-      rial: { debt: 1000, credit: 500 },
-      tether: { debt: 50, credit: 30 },
-      btc: { debt: 0.5, credit: 0.2 },
-      eth: { debt: 1, credit: 0.5 },
-      sol: { debt: 20, credit: 10 },
-      gold: { debt: 10, credit: 5 },
-    },
-    {
-      id: 4,
-      name: "حسینی",
-      logo: "/img/hosseini.png",
-      rial: { debt: 2000, credit: 1500 },
-      tether: { debt: 70, credit: 40 },
-      btc: { debt: 0.8, credit: 0.3 },
-      eth: { debt: 1.5, credit: 0.7 },
-      sol: { debt: 25, credit: 15 },
-      gold: { debt: 12, credit: 6 },
-    },
-  ];
+  const fetchTransactionsAssetes = async () => {
+    try {
+      const endpoint = `/assets`;
+
+      const response = await axiosClient2.get(endpoint);
+        console.log(response.data.data);
+        
+        setAssets(response.data.data);
+
+     
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } 
+  };
+  
+  const fetchUsers = async () => {
+    try {
+      let url = "/exchanges/liabilities";
+      if (userId) {
+        url = `/exchanges/liabilities?exchanges[0]=${userId}`;
+      }
+  
+      const response = await axiosClient2.get(url);
+  
+      if (response.data.data) {
+        const arrayData = Object.values(response.data.data).flat();
+        setFilteredData(arrayData);
+      }
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+  
+  
+  useEffect(() => {
+    fetchUsers(); 
+  }, [userId]); 
+
+  useEffect(() => {
+   
+    fetchTransactions();
+    fetchTransactionsAssetes();
+  }, []);
+
+
+ 
 
   const handleSelectChange = (event) => {
     setSelectedValue(event.target.value);
   };
+  const [filters, setFilters] = useState({});
+  const handleExportExcel = async () => {
+    const payload = {
+      filters,  
+      data: filteredData,
+    };
 
-  const filteredExchanges = exchanges.filter((exchange) =>
-   exchange.name.includes(search)
- );
+    try {
+      const response = await axios.post("/api/export-excel", payload, {
+        responseType: "blob", 
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const blob = response.data;
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "transactions.xlsx"); 
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (error) {
+      console.error("Error exporting Excel:", error);
+      alert("مشکلی در ارتباط با سرور رخ داده است");
+    }
+  };
 
   return (
-    <div>
+    <div className="p-4">
       <h1 className="text-lg font-bold mb-4">حسابداری</h1>
-      <div className="flex flex-col md:flex-row gap-1 items-start md:items-center">
-        <span className="text-sm font-semibold pl-2">فیلتر براساس :</span>
-        <select
-          value={selectedValue}
-          onChange={handleSelectChange}
-          className="bg-gray-100 border w-[250px] border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+     <div className='flex flex-col gap-2 items-start '>
+      <span className='text-sm font-semibold pl-2'>فیلتر براساس :</span>  
+     <select
+        value={selectedValue}
+        onChange={handleSelectChange}
+        className="bg-gray-100 border w-[250px] border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="1">همه</option>
+        <option value="2">کاربران API</option>
+        <option value="3">  بات ترید</option>
+        <option value="4">کاربران</option>
+      </select>
+     </div>
+     <BoxAccount 
+     exchangeWallet={filteredData}  
+     assets={assets}
+     exchange ={exchange}
+     setUserId = {setUserId}
+     />
+     <div className='flex items-center justify-between mt-6'>
+     <h1 className="text-lg font-bold mb-4 mt-4">لیست معاملات</h1>
+        <button
+          onClick={handleExportExcel}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
-          <option value="1">همه</option>
-          <option value="2">کاربران API</option>
-          <option value="3"> بات ترید</option>
-          <option value="4">کاربران</option>
-        </select>
-      </div>
-      {/* filter */}
-        <div className='flex flex-col md:flex-row items-center gap-4 mt-8 '>
-             <div className="mb-4 flex justify-center relative w-full md:w-1/3 border rounded-lg">
-               <input
-                 type="text"
-                 placeholder="نام صرافی را وارد کنید..."
-                 value={search}
-                 onChange={(e) => setSearch(e.target.value)}
-                 className=" p-2 w-full text-right"
-               />
-               <LiaSearchSolid className='absolute left-1 top-3 cursor-pointer' />
-             </div>
-             <div className="mb-4 flex justify-center relative w-full md:w-1/3 border rounded-lg">
-               <input
-                 type="text"
-                 placeholder="نام سند را وارد کنید..."
-                 className=" p-2 w-full text-right"
-               />
-               <LiaSearchSolid className='absolute left-1 top-3 cursor-pointer' />
-             </div>
-             <div className="mb-4 flex justify-center relative w-full md:w-1/3 border rounded-lg">
-               <input
-                 type="text"
-                 placeholder="نام txid را وارد کنید..."
-                 className=" p-2 w-full text-right"
-               />
-               <LiaSearchSolid className='absolute left-1 top-3 cursor-pointer' />
-             </div>
-             </div>
-      {/* طرح یک */}
-      <div className="flex flex-wrap justify-center gap-6 mt-10">
-        {filteredExchanges.map((exchange) => {
-          const selectedCurrency = selectedCurrencies[exchange.id] || "rial";
-
-          return (
-            <div
-              key={exchange.id}
-              className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 w-full sm:w-1/3 lg:w-[260px] border border-gray-300"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-800">
-                  {exchange.name}
-                </h2>
-                <img
-                  src={exchange.logo}
-                  alt={exchange.name}
-                  className="w-10 h-10 rounded-full border-2 border-gray-200"
-                />
-              </div>
-
-              <select
-                value={selectedCurrency}
-                onChange={(e) =>
-                  handleCurrencyChange(exchange.id, e.target.value)
-                }
-                className="w-full border p-3 rounded-md mb-4 bg-gray-50 text-gray-700"
-              >
-                {["rial", "tether", "btc", "eth", "sol", "gold"].map(
-                  (currency) => (
-                    <option key={currency} value={currency}>
-                      {currency}
-                    </option>
-                  )
-                )}
-              </select>
-
-              <div className="text-gray-700">
-                ارز انتخاب‌شده: {selectedCurrency}
-              </div>
-
-              <div className="space-y-2 mt-4 text-center">
-                <div className="text-red-500">
-                  میزان طلب:{" "}
-                  <span className="font-semibold">
-                    {formatNumber(exchange[selectedCurrency].credit)} ت
-                  </span>
-                </div>
-                <div className="text-green-500">
-                  میزان بدهی:{" "}
-                  <span className="font-semibold">
-                    {formatNumber(exchange[selectedCurrency].debt)} ت
-                  </span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <BoxAccountBot />
+          خروجی اکسل
+        </button>
+     </div>
+     <div className='mt-8'>
+     <Transactions />
+     </div>
     </div>
   );
 }
+

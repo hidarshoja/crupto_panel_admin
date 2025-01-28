@@ -1,37 +1,13 @@
-import { useState } from 'react';
+import { useState , useEffect } from 'react';
 import Modal from './Modal';  
 import LicenseModal from './LicenseModal';
 import { FaWallet, FaLock } from "react-icons/fa";
-
+import axiosClient2 from "../../axios-client2";
+import { toast } from 'react-toastify';
 
 const TableAccessLevels = () => {
-  const initialData = [
-    {
-      id: 1,
-      fullName: 'علی رضایی',
-      phone: '09121234567',
-      nationalCode: '1234567890',
-      customerType: 'حقیقی',
-      wallet: 'کیف ریال',
-      permission: 'خرید',
-      access: 'فعال',
-      api: '1234509',
-      token: 'r43ik8',
-    },
-    {
-      id: 2,
-      fullName: 'زهرا محمدی',
-      phone: '09351234567',
-      nationalCode: '9876543210',
-      customerType: 'حقوقی',
-      wallet: 'کیف تتر',
-      permission: 'فروش',
-      access: 'غیر فعال',
-      api: '1234509',
-      token: 'r43ik8',
-    },
-  ];
 
+  const [accessLevels , setAccessLevels] = useState([]);
   const tableHeaders = [
     'نام و نام خانوادگی',
     'شماره',
@@ -44,10 +20,9 @@ const TableAccessLevels = () => {
     'دسترسی',
     'عملیات',
   ];
-
-  const [data, setData] = useState(initialData);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     transaction: "100000",
     exchange: "30000",
@@ -56,41 +31,54 @@ const TableAccessLevels = () => {
     CustomerType:"1"
     
   });
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
   const openModal2 = () => setIsModalOpen2(true);
   const closeModal2 = () => setIsModalOpen2(false);
 
   const handleChange = (id, field, value) => {
-    const updatedData = data.map((item) =>
-      item.id === id ? { ...item, [field]: value } : item
+    setAccessLevels((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, [field]: value } : item
+      )
     );
-    setData(updatedData);
   };
 
-  const handleFormSubmit = (id) => {
-    const updatedData = data.map((item) =>
-      item.id === id
-        ? {
-            ...item,
-            wallet: formData.wallets,
-            permission: formData.permission,
-            customerType: formData.CustomerType, 
-            access: formData.access,  
-          }
-        : item
-    );
-    setData(updatedData);
-  
-    console.log('Updated Data:', {
-      ...formData,
-      id,
-    });
+  const handleFormSubmit = async (transaction) => {
+    const updatedItem = accessLevels.find((item) => item.id === transaction.id);
+    try {
+      const response = await axiosClient2.put(`/users/${transaction.id}`, {
+        ...transaction,
+        customerType: updatedItem.customerType,
+        access: updatedItem.access,
+      });
+      toast.success('تغییرات با موفقیت ثبت شد')
+    } catch (error) {
+      toast.error("خطا در اعمال تغییرات")
+    }
   };
   
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await axiosClient2.get(`/users`);
+          setLoading(true);
+          setAccessLevels(response.data.data);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
   
-  
+    fetchTransactions();
+  }, []);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = accessLevels.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(accessLevels.length / itemsPerPage);
 
   return (
     <div className="mt-8 flow-root">
@@ -112,17 +100,50 @@ const TableAccessLevels = () => {
                   ))}
                 </tr>
               </thead>
+              {loading ? (
+                <tbody>
+                  <tr>
+                    <td
+                      colSpan={tableHeaders.length}
+                      className="py-20 text-center bg-gray-100"
+                    >
+                      <div className="flex justify-center items-center">
+                        <svg
+                          className="animate-spin h-10 w-10 text-blue-500"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v8z"
+                          ></path>
+                        </svg>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              ) : (
               <tbody className="divide-y divide-gray-200 bg-white">
-                {data?.map((transaction) => (
+                {currentItems?.map((transaction) => (
                   <tr key={transaction.id}>
                     <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      {transaction.fullName}
+                      {transaction.name} -  {transaction.lastname}
                     </td>
                     <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      {transaction.phone}
+                      {transaction.mobile}
                     </td>
                     <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      {transaction.nationalCode}
+                      {transaction.national_code}
                     </td>
                     <td className="px-3 py-4 text-sm text-gray-500 text-center">
                       <select
@@ -131,8 +152,9 @@ const TableAccessLevels = () => {
                           handleChange(transaction.id, 'customerType', e.target.value)
                         }
                       >
-                        <option value="حقیقی">حقیقی</option>
-                        <option value="حقوقی">حقوقی</option>
+                        <option value="1">کاربر</option>
+                        <option value="3">مشتری api</option>
+                        <option value="2">صرافی</option>
                       </select>
                     </td>
                     <td className="px-3 py-4 text-sm text-gray-500 text-center">
@@ -158,14 +180,14 @@ const TableAccessLevels = () => {
                           handleChange(transaction.id, 'access', e.target.value)
                         }
                       >
-                        <option value="فعال">فعال</option>
-                        <option value="غیر فعال">غیر فعال</option>
+                        <option value="100">فعال</option>
+                        <option value="-100">غیر فعال</option>
                       </select>
                     </td>
                     <td className="px-3 py-4 text-sm text-gray-500 text-center">
                       <button
                        className="bg-blue-500 text-white px-4 py-2 rounded"
-                       onClick={() => handleFormSubmit(transaction.id)}
+                       onClick={() => handleFormSubmit(transaction)}
                        >
                         ثبت
                       </button>
@@ -173,11 +195,31 @@ const TableAccessLevels = () => {
                   </tr>
                 ))}
               </tbody>
+               )}
             </table>
           </div>
         </div>
       </div>
-
+      {/* صفحه بندی */}
+      <div className="flex justify-between items-center mt-4">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
+        >
+          صفحه قبل
+        </button>
+        <span>
+          صفحه {currentPage} از {totalPages}
+        </span>
+        <button
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
+        >
+          صفحه بعد
+        </button>
+      </div>
       {/* نمایش مدال */}
       <Modal isOpen={isModalOpen} closeModal={closeModal} formData={formData} setFormData={setFormData} />
       <LicenseModal isOpen2={isModalOpen2} closeModal2={closeModal2} formData={formData} setFormData={setFormData} />

@@ -2,12 +2,15 @@ import { useState } from "react";
 import axios from "axios";
 import TableReview from "../../components/Bot/TableReview";
 import TableRegistration from "../../components/Bot/TableRegistration";
+import axiosClient2 from "../../axios-client2";
+import { toast } from "react-hot-toast";
+
 export default function ManualTransaction() {
   const[review , setReview] = useState(false);
   const[registration , setRegistration] = useState(false);
   const [formData, setFormData] = useState({
-    transaction: "",
-    exchange: "",
+    type: "",
+    user_id: "",
     currency: "",
     amount: "",
     price: "",
@@ -27,11 +30,15 @@ const handleInputChange = (e) => {
 
   const handleCancel = () => {
     setFormData({
-      transaction: "",
-      exchange: "",
+      type: "",
+      user_id: "",
       currency: "",
       amount: "",
       price: "",
+      coefficient: 1,
+      des: "de",
+      bank_txid: "85T",
+      reference_num: 123
     });
   };
 
@@ -59,10 +66,15 @@ const handleInputChange = (e) => {
     setIsModalOpen(false);
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     setRegistration(true)
     console.log("ثبت شد:", formData);
-    // در اینجا می‌توانید عملیات دیگری برای ذخیره داده انجام دهید
+    try {
+      await axiosClient2.post('/transactions', formData);
+      toast.success("اطلاعات با موفقیت ثبت شد!");
+    } catch (error) {
+      toast.error('خطا در ارسال اطلاعات.');
+    }
   };
   
 
@@ -74,27 +86,28 @@ const handleInputChange = (e) => {
         {/* نوع معامله */}
         <div className="w-full md:w-1/3">
           <label
-            htmlFor="transaction"
+            htmlFor="type"
             className="block text-sm font-medium leading-6 text-gray-900"
           >
             نوع معامله :
           </label>
           <select
-            id="transaction"
-            name="transaction"
-            value={formData.transaction}
+            id="type"
+            name="type"
+            value={formData.type}
             onChange={handleInputChange}
             className="mt-2 block w-full rounded-md border-0 py-1.5 pr-2 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
           >
             <option value="">انتخاب کنید ...</option>
-            <option value="buy">خرید</option>
-            <option value="sell">فروش</option>
+            <option value="4">واریز</option>
+            <option value="3">برداشت</option>
+            <option value="5">اصلاحی</option>
           </select>
         </div>
 
         <div className="w-full md:w-1/3">
           <label
-            htmlFor="exchange"
+            htmlFor="user_id"
             className="block text-sm font-medium leading-6 text-gray-900"
           >
             نام صرافی :
@@ -199,32 +212,32 @@ const handleInputChange = (e) => {
             </div>
             <div className="mt-2 block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6">
               {[
-                { value: "Newbex", label: "نیوبیکس" },
-                { value: "November Tether", label: "آبان تتر" },
-                { value: "Lidia", label: "لیدیا" },
-                { value: "Tetherland", label: "تترلند" },
+                { value: "1", label: "نیوبیکس" },
+                { value: "2", label: "آبان تتر" },
+                { value: "3", label: "لیدیا" },
+                { value: "4", label: "تترلند" },
               ].map((option) => (
                 <div key={option.value} className="flex items-center mb-2">
                   <input
                     type="checkbox"
-                    id={`exchange-${option.value}`}
-                    name="exchange"
+                    id={`user_id-${option.value}`}
+                    name="user_id"
                     value={option.value}
-                    checked={formData.exchange.includes(option.value)}
+                    checked={formData.user_id.includes(option.value)}
                     onChange={(e) => {
                       const { value, checked } = e.target;
                       if (checked) {
                         handleInputChange({
                           target: {
-                            name: "exchange",
-                            value: [...formData.exchange, value],
+                            name: "user_id",
+                            value: [...formData.user_id, value],
                           },
                         });
                       } else {
                         handleInputChange({
                           target: {
-                            name: "exchange",
-                            value: formData.exchange.filter(
+                            name: "user_id",
+                            value: formData.user_id.filter(
                               (item) => item !== value
                             ),
                           },
@@ -234,7 +247,7 @@ const handleInputChange = (e) => {
                     className="mr-2"
                   />
                   <label
-                    htmlFor={`exchange-${option.value}`}
+                    htmlFor={`user_id-${option.value}`}
                     className="text-sm text-gray-900"
                   >
                     {option.label}

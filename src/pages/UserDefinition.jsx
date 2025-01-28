@@ -1,5 +1,4 @@
 import { useState , useEffect } from "react";
-import axios from "axios";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
@@ -25,6 +24,7 @@ export default function CustomerDefinition() {
     password: "",
     status: 100,
     user_api: true,
+    type : "",
     valid_ips : ["192.1.23.36"]
   };
 
@@ -62,25 +62,7 @@ export default function CustomerDefinition() {
     }
   };
 
-  const handleBlur = (e, currency) => {
-    const { name, value } = e.target;
 
-    // فرمت کردن اعداد بر اساس نوع واحد
-    let formattedValue = value.replace(/,/g, "");
-    if (currency === "IRR") {
-      formattedValue = Number(formattedValue).toLocaleString("fa-IR");
-    } else if (currency === "USD") {
-      formattedValue = Number(formattedValue).toLocaleString("en-US", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      });
-    }
-
-    setFormData({
-      ...formData,
-      [name]: formattedValue,
-    });
-  };
 
   const handleCheckboxChange = (e, field) => {
     const { value, checked } = e.target;
@@ -178,7 +160,7 @@ export default function CustomerDefinition() {
       </div>
       <div className="flex flex-col md:flex-row items-center gap-6">
         {/* شماره تماس */}
-        <div className="mb-4 w-full md:w-1/2">
+        <div className="mb-4 w-full md:w-1/3">
           <label className="block text-sm font-medium mb-1">شماره تماس:</label>
           <input
             type="text"
@@ -188,10 +170,30 @@ export default function CustomerDefinition() {
             className="w-full border border-gray-300 rounded px-3 py-2"
           />
         </div>
-
+        {/* نوع */}
+        <div className="mb-4 w-full md:w-1/3">
+          <label
+            htmlFor="type"
+            className="block text-sm font-medium leading-6 text-gray-900"
+          >
+            نوع مشتری :
+          </label>
+          <select
+            id="type"
+            name="type"
+            value={formData.type}
+            onChange={handleInputChange}
+            className=" block w-full rounded-md border-0 py-2 pr-2 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          >
+            <option value="">انتخاب کنید ...</option>
+            <option value="1">کاربر عادی</option>
+            <option value="2">صرافی</option>
+            <option value="3">مشتری api</option>
+          </select>
+        </div>
         {/* تاریخ تولد */}
 
-        <div className="mb-4 w-full md:w-1/2">
+        <div className="mb-4 w-full md:w-1/3">
           <label className="block text-sm font-medium mb-1">تاریخ تولد:</label>
           <DatePicker
             calendar={persian}
@@ -289,16 +291,16 @@ export default function CustomerDefinition() {
  
 
   {/* دکمه تغییر وضعیت کاربر */}
-  <div className="mb-4 w-full md:w-1/3">
+  {/* <div className="mb-4 w-full md:w-1/3">
   <label className="block text-sm font-medium mb-1">وضعیت کاربر (uesr_api):</label>
     <button
       onClick={() => setFormData({ ...formData, user_api: !formData.user_api })}
       className={`w-full py-2 px-4 rounded-md text-white font-medium transition ${formData.user_api ? "bg-green-500 hover:bg-green-400" : "bg-red-500 hover:bg-red-400"}`}
     >
-      {/* {formData.user_api ? "غیرفعال کردن" : "فعال کردن"} */}
+    
       {formData.user_api ? "فعال" : "غیرفعال"}
     </button>
-  </div>
+  </div> */}
 
       {/* لیست کیف پول */}
       <div className="mb-4">

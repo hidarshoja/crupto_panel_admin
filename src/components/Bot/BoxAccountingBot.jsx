@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import UserBox from "../components/UserBox3";
+import UserBox from "../../components/UserBox3";
 
 function formatNumber(numberStr) {
   const integerPart = Math.floor(parseFloat(numberStr));
@@ -10,7 +10,8 @@ export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId
   const [selectedCurrencies, setSelectedCurrencies] = useState({});
   const [loading, setLoading] = useState(true);
 
- useEffect(() => {
+ 
+  useEffect(() => {
     const timer = setTimeout(() => {
       const initialCurrencies = {};
       exchangeWallet?.forEach((exchange, index) => {
@@ -22,14 +23,13 @@ export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId
       });
       setSelectedCurrencies(initialCurrencies);
       setLoading(false); 
-    }, 2000);
+    }, 2000); 
 
     return () => clearTimeout(timer);
   }, [exchangeWallet, assets]);
 
   const handleCurrencyChange = (index, value) => {
     setSelectedCurrencies((prev) => ({ ...prev, [index]: value }));
-    console.log(`Selected currency for index ${index}:`, value);
   };
 
   if (loading) {
@@ -59,10 +59,10 @@ export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId
         {exchangeWallet?.map((exchange, index) => (
           <div
             key={`${index}`}
-            className="bg-[#090580] p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 w-full sm:w-1/3 lg:w-[260px]"
+            className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 w-full sm:w-1/3 lg:w-[260px] border border-gray-300"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-md font-semibold text-gray-100">
+              <h2 className="text-md font-semibold text-gray-800">
                 {exchange?.exchange_name_fa}
               </h2>
             </div>
@@ -70,7 +70,7 @@ export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId
             <select
               value={selectedCurrencies[index] || ""}
               onChange={(e) => handleCurrencyChange(index, e.target.value)}
-              className="w-full border p-2 rounded-md mb-4 text-right"
+              className="w-full border p-3 rounded-md mb-4 bg-gray-50 text-gray-700"
             >
               {assets?.map((currency) => (
                 <option key={currency.id} value={currency.name_fa}>
@@ -78,7 +78,7 @@ export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId
                 </option>
               ))}
             </select>
-            <div className="text-gray-100">
+            <div className="text-gray-700">
               ارز انتخاب‌شده: {selectedCurrencies[index]}
             </div>
             <div className="space-y-2 text-center">
