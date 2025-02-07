@@ -4,108 +4,22 @@ import axiosClient2 from "../../axios-client2";
 export default function ChartRemainingStats() {
   const [filteredData, setFilteredData] = useState([]);
   const exchanges = [
-    {
-      id: 1,
-      name: "صرافی نوبیتکس",
-      logo: "/img/nobitex.png",
-      totalBuy: 150000000,
-      totalAssets: 50000000,
-      totalSell: 100000000,
-    },
-    {
-      id: 2,
-      name: "صرافی ویکی",
-      logo: "/img/wiki.png",
-      totalBuy: 200000000,
-      totalAssets: 75000000,
-      totalSell: 125000000,
-    },
-    {
-      id: 3,
-      name: "صرافی تبدیل",
-      logo: "/img/tabdil.png",
-      totalBuy: 150000000,
-      totalAssets: 50000000,
-      totalSell: 100000000,
-    },
-    {
-      id: 4,
-      name: "صرافی اوکی اکسچنج",
-      logo: "/img/ok.png",
-      totalBuy: 200000000,
-      totalAssets: 75000000,
-      totalSell: 125000000,
-    },
-    {
-      id: 5,
-      name: "صرافی بیت ",
-      logo: "/img/bit.png",
-      totalBuy: 150000000,
-      totalAssets: 50000000,
-      totalSell: 100000000,
-    },
-    {
-      id: 6,
-      name: "صرافی والکس",
-      logo: "/img/wallex.png",
-      totalBuy: 200000000,
-      totalAssets: 75000000,
-      totalSell: 125000000,
-    },
-    {
-      id: 7,
-      name: "صرافی سرمایکس",
-      logo: "/img/sarmayex.png",
-      totalBuy: 150000000,
-      totalAssets: 50000000,
-      totalSell: 100000000,
-    },
-    {
-      id: 8,
-      name: "صرافی ارز",
-      logo: "/img/sarafi.png",
-      totalBuy: 200000000,
-      totalAssets: 75000000,
-      totalSell: 125000000,
-    },
-    {
-      id: 9,
-      name: "صرافی نوبیتکس",
-      logo: "/img/nobitex.png",
-      totalBuy: 150000000,
-      totalAssets: 50000000,
-      totalSell: 100000000,
-    },
-    {
-      id: 10,
-      name: "صرافی ارز",
-      logo: "/img/exir.png",
-      totalBuy: 200000000,
-      totalAssets: 75000000,
-      totalSell: 125000000,
-    },
-    {
-      id: 11,
-      name: "صرافی والکس",
-      logo: "/img/nobitex.png",
-      totalBuy: 150000000,
-      totalAssets: 50000000,
-      totalSell: 100000000,
-    },
-    {
-      id: 12,
-      name: "صرافی تبدیل",
-      logo: "/img/tabdil.png",
-      totalBuy: 200000000,
-      totalAssets: 75000000,
-      totalSell: 125000000,
-    },
-   
-  ];
+    { logo: "/img/nobitex.png"},
+    {logo: "/img/wiki.png"},
+    {logo: "/img/tabdil.png"},
+    {logo: "/img/ok.png"},
+    {logo: "/img/bit.png"},
+    {logo: "/img/wallex.png"},
+    {logo: "/img/sarmayex.png"},
+    {logo: "/img/sarafi.png" },
+    {logo: "/img/nobitex.png"},
+    {logo: "/img/exir.png"},
+    {logo: "/img/nobitex.png"},
+    {logo: "/img/tabdil.png" },
+   ];
 
 
   useEffect(() => {
-
     const fetchTransactions = async () => {
       try {
         const endpoint = `/exchanges/liabilities`;
@@ -122,24 +36,6 @@ export default function ChartRemainingStats() {
 
     fetchTransactions();
   }, []);
-
-  // useEffect(() => {
-
-  //   const fetchTransactions2 = async () => {
-  //     try {
-  //       const endpoint = `/exchanges/balance`;
-
-  //       const response = await axiosClient2.get(endpoint);
-  //       console.log("Response data:", response.data.data);
-  //     } catch (error) {
-  //       console.log("Error fetching data:", error);
-  //     }
-  //   };
-
-  //   fetchTransactions2();
-  // }, []);
-  
-console.log(`filteredData`, filteredData);
   return (
     <div className="flex flex-wrap gap-6 p-6 justify-center ">
          <div className="flex flex-col md:flex-row gap-4 w-full mb-6">

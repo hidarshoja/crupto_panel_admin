@@ -22,13 +22,8 @@ export default function AccountingUser() {
   const fetchTransactionsAssetes = async () => {
     try {
       const endpoint = `/assets`;
-
       const response = await axiosClient2.get(endpoint);
-        console.log(response.data.data);
-        
         setAssets(response.data.data);
-
-     
     } catch (error) {
       console.error("Error fetching transactions:", error);
     } 
@@ -40,12 +35,34 @@ export default function AccountingUser() {
       if (userId) {
         url = `/exchanges/liabilities?exchanges[0]=${userId}`;
       }
-  
       const response = await axiosClient2.get(url);
-  
       if (response.data.data) {
-        const arrayData = Object.values(response.data.data).flat();
-        setFilteredData(arrayData);
+        let data = response.data.data
+    
+const arrayData = Object.values(data).flat().reduce((acc, item) => {
+  const existingExchange = acc.find((ex) => ex.exchange_id === item.exchange_id);
+  if (existingExchange) {
+    existingExchange.assets.push({
+      asset_name_fa: item.asset_name_fa,
+      total_amount: item.total_amount,
+      total_price: item.total_price,
+    });
+  } else {
+    acc.push({
+      exchange_id: item.exchange_id,
+      exchange_name_fa: item.exchange_name_fa,
+      assets: [
+        {
+          asset_name_fa: item.asset_name_fa,
+          total_amount: item.total_amount,
+          total_price: item.total_price,
+        },
+      ],
+    });
+  }
+  return acc;
+}, []);
+setFilteredData(arrayData);
       }
     } catch (error) {
       console.error("Error fetching users:", error);

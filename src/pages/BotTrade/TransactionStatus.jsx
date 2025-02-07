@@ -33,7 +33,7 @@ export default function TransactionStatus() {
 console.log(`fromDate`, fromDateInEnglish);
 
 if (data.fromDate || data.toDate || data.id) {
-  endpoint = `/statistics/total?start_date=${fromDateInEnglish || ''}&end_date=${toDateInEnglish || ''}`;
+  endpoint = `/statistics/daily-user-asset?start_date=${fromDateInEnglish || ''}&end_date=${toDateInEnglish || ''}`;
 }
 
     try {

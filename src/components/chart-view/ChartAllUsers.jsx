@@ -46,31 +46,24 @@ export default function ChartAllUsers() {
   const  handleFilterByDate = () => {
     const startDate = convertPersianToEnglishNumbers(dateBirth.format("YYYY-MM-DD"));
     const endDate = convertPersianToEnglishNumbers(dateBirth2.format("YYYY-MM-DD"));
-  
-  
-    let endpoint = `/statistics/total?start_date=${startDate}&end_date=${endDate}`;
-  
+    let endpoint = `/statistics/daily-user-asset?start_date=${startDate}&end_date=${endDate}`;
     const response = axiosClient2.get(endpoint);
-    console.log("response.data.data", response.data.data);
-    
   };
 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        let endpoint = `/statistics/total`;
+        let endpoint = `/statistics/daily-user-asset`;
   
         const queryParams = [];
         if (formData.type) queryParams.push(`type=${formData.type}`);
         if (formData.asset_id) queryParams.push(`asset_id=${formData.asset_id}`);
   
-        // اضافه کردن query parameters به URL به صورت ایمن
         if (queryParams.length > 0) {
           endpoint += `?${queryParams.join("&")}`;
         }
   
         const response = await axiosClient2.get(endpoint);
-        console.log("response.data.data", response.data.data);
   
         if (Array.isArray(response.data.data)) {
           const buyData = response.data.data.filter(item => item.type === 1);

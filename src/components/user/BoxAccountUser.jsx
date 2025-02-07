@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react";
 import UserBox from "../../components/UserBox3";
 
-function formatNumber(numberStr) {
-  const integerPart = Math.floor(parseFloat(numberStr));
-  return integerPart.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
 
-export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId }) {
+
+export default function BoxAccountUser({ assets, exchangeWallet, exchange, setUserId }) {
   const [selectedCurrencies, setSelectedCurrencies] = useState({});
+
+  const handleCurrencyChange = (exchangeId, currency) => {
+    setSelectedCurrencies((prev) => ({ ...prev, [exchangeId]: currency }));
+  };
   const [loading, setLoading] = useState(true);
 
-   useEffect(() => {
+ useEffect(() => {
     const timer = setTimeout(() => {
       const initialCurrencies = {};
       exchangeWallet?.forEach((exchange, index) => {
@@ -22,15 +23,12 @@ export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId
       });
       setSelectedCurrencies(initialCurrencies);
       setLoading(false); 
-    }, 1500); 
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, [exchangeWallet, assets]);
 
-  const handleCurrencyChange = (index, value) => {
-    setSelectedCurrencies((prev) => ({ ...prev, [index]: value }));
-    console.log(`Selected currency for index ${index}:`, value);
-  };
+
 
   if (loading) {
     return (
@@ -39,7 +37,33 @@ export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId
       </div>
     );
   }
+  const mergeExchangeAssets = (exchangeWallet) => {
+    return exchangeWallet.map((exchange) => {
+      const mergedAssets = {};
+  
+      exchange.assets.forEach(({ asset_name_fa, total_amount, total_price }) => {
+        if (!mergedAssets[asset_name_fa]) {
+          mergedAssets[asset_name_fa] = {
+            asset_name_fa,
+            total_amount: parseFloat(total_amount),
+            total_price: parseFloat(total_price),
+          };
+        } else {
+          mergedAssets[asset_name_fa].total_amount += parseFloat(total_amount);
+          mergedAssets[asset_name_fa].total_price += parseFloat(total_price);
+        }
+      });
+  
+      return {
+        ...exchange,
+        assets: Object.values(mergedAssets), 
+      };
+    });
+  };
+  
+  const result = mergeExchangeAssets(exchangeWallet);
 
+  
   return (
     <div className="min-h-[400px]">
       <h1 className="text-xl font-bold text-center mb-8 text-gray-800 mt-4">
@@ -56,48 +80,50 @@ export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId
       </div>
 
       <div className="flex flex-wrap justify-center gap-3">
-        {exchangeWallet?.map((exchange, index) => (
+      {result.map((exchange) => {
+        const selectedCurrency = selectedCurrencies[exchange.exchange_id] || exchange.assets[0].asset_name_fa;
+        const selectedAsset = exchange.assets.find((asset) => asset.asset_name_fa === selectedCurrency) || exchange.assets[0];
+
+        return (
           <div
-            key={`${index}`}
+            key={exchange.exchange_id}
             className="bg-[#090580] p-4 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 w-full sm:w-1/3 lg:w-[260px]"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-md font-semibold text-gray-100">
-                {exchange?.exchange_name_fa}
-              </h2>
+              <h2 className="text-md font-semibold text-gray-100">{exchange.exchange_name_fa}</h2>
             </div>
 
             <select
-              value={selectedCurrencies[index] || ""}
-              onChange={(e) => handleCurrencyChange(index, e.target.value)}
+              value={selectedCurrency}
+              onChange={(e) => handleCurrencyChange(exchange.exchange_id, e.target.value)}
               className="w-full border p-2 rounded-md mb-4 text-right"
             >
-              {assets?.map((currency) => (
-                <option key={currency.id} value={currency.name_fa}>
-                  {currency.name_fa}
+              {exchange.assets.map((currency , index) => (
+                <option key={index} value={currency.asset_name_fa}>
+                  {currency.asset_name_fa}
                 </option>
               ))}
             </select>
+
             <div className="text-gray-100">
-              ارز انتخاب‌شده: {selectedCurrencies[index]}
+              ارز انتخاب‌شده: {selectedCurrency}
             </div>
+
             <div className="space-y-2 text-center">
               <div className="text-red-500">
                 میزان طلب:{" "}
-                <span className="font-semibold">
-                  {formatNumber(exchange?.total_amount)} ت
-                </span>
+                <span className="font-semibold">{parseFloat(selectedAsset.total_amount).toLocaleString()} ت</span>
               </div>
               <div className="text-green-500">
                 میزان بدهی:{" "}
-                <span className="font-semibold">
-                  {formatNumber(exchange?.total_price)} ت
-                </span>
+                <span className="font-semibold">{parseFloat(selectedAsset.total_price).toLocaleString()} ت</span>
               </div>
             </div>
           </div>
-        ))}
-      </div>
+        );
+      })}
+    </div>
+
     </div>
   );
 }

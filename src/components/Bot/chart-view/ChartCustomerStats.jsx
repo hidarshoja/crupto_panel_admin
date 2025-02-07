@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState  , useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import {
   Chart,
@@ -9,10 +9,12 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import axiosClient2 from "../../../axios-client2";
 
 Chart.register(PointElement, LineElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export default function ChartAllUsers() {
+  const [filteredData, setFilteredData] = useState([]);
   const hourlyData = [
     { time: "08:00", profit: 100, type: "buy", username: "علی", currency: "تتر" },
     { time: "08:05", profit: 150, type: "sell", username: "رضا", currency: "بیت کوین" },
@@ -131,6 +133,25 @@ export default function ChartAllUsers() {
     },
   };
 
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const endpoint = `/exchanges/liabilities`;
+
+        const response = await axiosClient2.get(endpoint);
+        if (response.data.data) {
+          const arrayData = Object.values(response.data.data).flat();
+          setFilteredData(arrayData);
+        }
+      } catch (error) {
+        console.log("Error fetching data:", error);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
+
+  console.log(`filteredData`, filteredData);
   return (
     <div className="w-full py-10">
       <h1 className="text-center mt-6 font-bold text-lg">نمودار سود ساعتی</h1>

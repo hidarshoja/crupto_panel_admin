@@ -6,15 +6,14 @@ import BuyBots from "./BuyBots";
 import BuyCurrency from "./BuyCurrency";
 import BuyUserCurrency from "./BuyUserCurrency";
 import { Link } from "react-router-dom";
-
 export default function BoxChartHome() {
   let chartItem = [
     { id: 1, name: "فروش api", price: 1000000, chart: <SellingCurrency /> , link :"/home/chart_sell_api" },
     { id: 2, name: "فروش  کاربر", price: 1000000, chart: <SellingUserCurrency /> , link :"/home/chart_sell_user" },
     { id: 3, name: "فروش  بات ترید", price: 1300000, chart: <SellingBots /> , link :"/home/chart_sell_bots" },
-    { id: 4, name: "خرید  بات ترید", price: 1500000, chart: <BuyUserCurrency /> , link :"/home/chart_buy_bots"},
+    { id: 4, name: "خرید  api", price: 1500000, chart: <BuyUserCurrency /> , link :"/home/chart_buy_bots"},
     { id: 5, name: "خرید  کاربر", price: 1060000, chart: <BuyCurrency /> , link :"/home/chart_buy_user"},
-    { id: 6, name: "خرید api ", price: 1007000, chart: <BuyBots />, link :"/home/chart_buy_api" },
+    { id: 6, name: "خرید بات ترید ", price: 1007000, chart: <BuyBots />, link :"/home/chart_buy_api" },
   ];
 
   return (
@@ -31,9 +30,7 @@ export default function BoxChartHome() {
                 {item.name}
               </h3>
          </Link>
-          <p className="text-gray-600 text-sm mt-1 text-center group-hover:text-gray-800 transition-colors duration-300">
-            مجموع: {item.price.toLocaleString()} تومان
-          </p>
+        
         </div>
       ))}
     </div>

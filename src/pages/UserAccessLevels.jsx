@@ -1,11 +1,14 @@
+
+
 import { useState , useEffect } from 'react';
 import Modal from './../components/Api/Modal';  
 import LicenseModal from './../components/Api/LicenseModal';
 import { FaWallet, FaLock } from "react-icons/fa";
-import axiosClient2 from '../axios-client2';
+import axiosClient2 from "../axios-client2";
 import { toast } from 'react-toastify';
 
-const UserAccessLevels = () => {
+const TableAccessLevels = () => {
+
   const [accessLevels , setAccessLevels] = useState([]);
   const tableHeaders = [
     'نام و نام خانوادگی',
@@ -19,14 +22,18 @@ const UserAccessLevels = () => {
   ];
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [assetAll , setAssetAll] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedAssets, setSelectedAssets] = useState([]);
+  const [selectedAssets2, setSelectedAssets2] = useState([]);
   const [formData, setFormData] = useState({
-    transaction: "100000",
-    exchange: "30000",
-    wallets : [],
+    transaction: "",
+    exchange: "",
+    assets : [],
     access :"1",
-    kyc:"1"
-    
+    CustomerType:"1",
+    credit_irr_limit: "",
+    credit_usdt_limit: ""   
   });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -42,46 +49,78 @@ const UserAccessLevels = () => {
       )
     );
   };
- 
 
-  const handleFormSubmit = async (transaction) => {
-    const updatedItem = accessLevels.find((item) => item.id === transaction.id);
-    try {
-      const response = await axiosClient2.put(`/users/${transaction.id}`, {
-        ...transaction,
-        customerType: updatedItem.customerType,
-        access: updatedItem.access,
-      });
-      toast.success('تغییرات با موفقیت ثبت شد')
-    } catch (error) {
-      toast.error("خطا در اعمال تغییرات")
+const handleFormSubmit = async (transaction) => {
+  const updatedItem = accessLevels.find((item) => item.id === transaction.id);
+
+  const dataToSend = {};
+
+  if (updatedItem.customerType) {
+    dataToSend.kyc = updatedItem.customerType;
+  }
+
+  if (updatedItem.access) {
+    dataToSend.status = updatedItem.access;
+  }
+
+  if (formData.assets && formData.assets.length > 0) {
+    dataToSend.assets = formData.assets;
+  }
+  if(formData.transaction) {
+    dataToSend.credit_irr_limit = Number(formData.transaction)
+  }
+  if (formData.exchange) {
+    dataToSend.credit_usdt_limit = Number(formData.exchange)
+  }
+
+  try {
+    const response = await axiosClient2.put(`/users/${transaction.id}`, dataToSend);
+    if (response.status === 200) {
+      toast.success("تغییرات با موفقیت ثبت شد");
+    } else {
+      toast.error("خطا در اعمال تغییرات، لطفاً دوباره تلاش کنید");
     }
+  } catch (error) {
+    toast.error("خطا در اعمال تغییرات");
+  }
+};
+
+
+  const fetchTransactionsAssetes = async () => {
+    try {
+      const endpoint = `/assets`;
+      const response = await axiosClient2.get(endpoint);
+      setAssetAll(response.data.data);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } 
   };
+
+ 
   
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await axiosClient2.get(`/users`);
-        setLoading(true);
-        setAccessLevels(response.data.data);
+        const response = await axiosClient2.get(`/users?include=assets`);
+          setLoading(true);
+          setAccessLevels(response.data.data);
       } catch (error) {
         console.error("Error fetching transactions:", error);
-      }  finally {
+      } finally {
         setLoading(false);
       }
     };
-  
+    fetchTransactionsAssetes();
     fetchTransactions();
   }, []);
-
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = accessLevels.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(accessLevels.length / itemsPerPage);
-
+ 
   return (
     <div className="mt-8 flow-root">
-      <h1 className="text-lg font-bold mb-4 mt-4">سطوح دسترسی کاربر</h1>
+      <h1 className="text-lg font-bold mb-4 mt-4">سطوح دسترسی</h1>
       <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
         <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
           <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
@@ -132,7 +171,7 @@ const UserAccessLevels = () => {
                   </tr>
                 </tbody>
               ) : (
-              <tbody className="divide-y divide-gray-200 bg-white">
+                            <tbody className="divide-y divide-gray-200 bg-white">
                 {currentItems?.map((transaction) => (
                   <tr key={transaction.id}>
                     <td className="px-3 py-4 text-sm text-gray-500 text-center">
@@ -157,12 +196,22 @@ const UserAccessLevels = () => {
                       </select>
                     </td>
                     <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      <button className="cursor-pointer" onClick={openModal}>
+                    <button className="cursor-pointer"
+                       onClick={() => {
+                        setSelectedAssets(transaction.assets); 
+                        openModal();
+                      }}
+                       >
                         <FaWallet size={20} />
                       </button>
                     </td>
                     <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      <button className="cursor-pointer" onClick={openModal2}>
+                    <button className="cursor-pointer"
+                          onClick={() => {
+                            setSelectedAssets2(transaction); 
+                            openModal2();
+                          }}
+                       >
                         <FaLock size={20}/>
                       </button>
                     </td>
@@ -188,13 +237,13 @@ const UserAccessLevels = () => {
                   </tr>
                 ))}
               </tbody>
-              )}
+               )}
             </table>
           </div>
         </div>
       </div>
-     {/* صفحه بندی */}
-     <div className="flex justify-between items-center mt-4">
+      {/* صفحه بندی */}
+      <div className="flex justify-between items-center mt-4">
         <button
           disabled={currentPage === 1}
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -214,10 +263,11 @@ const UserAccessLevels = () => {
         </button>
       </div>
       {/* نمایش مدال */}
-      <Modal isOpen={isModalOpen} closeModal={closeModal} formData={formData} setFormData={setFormData} />
-      <LicenseModal isOpen2={isModalOpen2} closeModal2={closeModal2} formData={formData} setFormData={setFormData} />
+      <Modal isOpen={isModalOpen} closeModal={closeModal} assets={selectedAssets} formData={formData} setFormData={setFormData} assetAll={assetAll} />
+      <LicenseModal isOpen2={isModalOpen2} closeModal2={closeModal2} formData={formData} setFormData={setFormData} currentItems ={selectedAssets2} />
     </div>
   );
 };
 
-export default UserAccessLevels;
+export default TableAccessLevels;
+

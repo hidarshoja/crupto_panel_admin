@@ -2,7 +2,7 @@ import { useState } from "react";
 import MobileSidebar from "./components/MobileSidbar";
 import DesktopSidebar from "./components/DesktopSidebar";
 import MainContent from "./components/MainContent";
-import { Toaster } from "react-hot-toast";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 
@@ -13,7 +13,8 @@ function App() {
 
   return (
     <>
-     <Toaster position="top-right" />
+  
+     <ToastContainer position="top-left" />
       <div className="lg:flex lg:h-screen ">
         {!isAuthPage &&  (
           <MobileSidebar

@@ -36,7 +36,7 @@ const[users , setUsers] = useState([]);
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        let endpoint = `/statistics/total`;
+        let endpoint = `/statistics/daily-user-asset`;
   
         const queryParams = [];
         if (formData.type) queryParams.push(`type=${formData.type}`);

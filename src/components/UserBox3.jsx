@@ -1,4 +1,3 @@
-import React from 'react'
 import { useState } from 'react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 import { Combobox } from '@headlessui/react'
@@ -17,7 +16,7 @@ const UserBox = ({ people, setUserId }) => {
         query === ''
             ? people
             : people?.filter((person) => {
-                return person.name.toLowerCase().includes(query.toLowerCase())
+                return person.name_fa.toLowerCase().includes(query.toLowerCase())
             })
 
 
@@ -40,7 +39,7 @@ const UserBox = ({ people, setUserId }) => {
                         setQuery(event.target.value)
 
                     }}
-                    displayValue={(person) => person?.name ? person?.name : 'انتخاب نام صرافی'}
+                    displayValue={(person) => person?.name_fa ? person?.name_fa : 'انتخاب نام صرافی'}
                 />
                 <Combobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
                     <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -61,7 +60,7 @@ const UserBox = ({ people, setUserId }) => {
                             >
                                 {({ active, selected }) => (
                                     <>
-                                        <span className={classNames('block truncate', selected && 'font-semibold')}>{person.name }</span>
+                                        <span className={classNames('block truncate', selected && 'font-semibold')}>{person.name_fa }</span>
 
                                         {selected && (
                                             <span

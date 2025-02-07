@@ -49,11 +49,20 @@ const ListStrategy = () => {
       }
     );
   };
-  
+  // strategies/STRATEGY_ID/stop
 
-  const repeatStrategy = async (strategyId) => {
+  const repeatStrategy = async (STRATEGY_ID) => {
     try {
-      const response = await axiosClient2.post(`/strategies/${strategyId}/run`);
+      const response = await axiosClient2.post(`/strategies/${STRATEGY_ID}/run`);
+      toast.success("اطلاعات با موفقیت انجام شد!");
+    } catch (error) {
+      toast.error("خطا در انجام عملیات!");
+    }
+  };
+
+  const stopStrategy = async (STRATEGY_ID) => {
+    try {
+      const response = await axiosClient2.post(`/strategies/${STRATEGY_ID}/stop`);
       toast.success("اطلاعات با موفقیت انجام شد!");
     } catch (error) {
       toast.error("خطا در انجام عملیات!");
@@ -63,7 +72,7 @@ const ListStrategy = () => {
   const togglePlayStop = (id) => {
    setPlayState((prevState) => {
      const isPlaying = prevState[id];
-     alert(isPlaying ? "استوپ شد" : "پلی شد");
+ 
      return {
        ...prevState,
        [id]: !isPlaying,
@@ -162,9 +171,13 @@ const ListStrategy = () => {
               className="text-xl text-gray-700 hover:text-gray-900"
             >
               {playState[strategy.id] ? (
-                <FaPlay style={{ color: "red" }} />
+                <FaPlay style={{ color: "red" }} 
+                onClick={() =>  stopStrategy(strategy.id)}
+                />
               ) : (
-                <FaPause style={{ color: "green" }} />
+                <FaPause style={{ color: "green" }}
+                onClick={() => repeatStrategy(strategy.id)}
+                />
               )}
             </button>
           </td>
@@ -189,7 +202,7 @@ const ListStrategy = () => {
             <h2 className="text-lg font-bold mb-4">لیست</h2>
             <ul className="list-disc list-inside">
               {modalContent.map((item, index) => (
-                <li key={index}>{item.id}</li>
+                <li key={index}>{item.name}</li>
               ))}
             </ul>
             <button

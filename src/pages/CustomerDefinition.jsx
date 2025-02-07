@@ -17,8 +17,8 @@ export default function CustomerDefinition() {
     mobile: "",
     birthdate: "",
     father_name: "",
-    buyCreditIRR: "",
-    sellCreditIRR: "",
+    credit_irr_limit: "",
+    credit_usdt_limit: "",
     email :"",
     assets: [],
     password: "",
@@ -52,7 +52,7 @@ export default function CustomerDefinition() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === "buyCreditIRR" || name === "sellCreditIRR" ) {
+    if (name === "credit_irr_limit" || name === "credit_usdt_limit" ) {
       const plainValue = value.replace(/,/g, '');
       const formattedValue = Number(plainValue).toLocaleString('en-US');
   
@@ -100,10 +100,16 @@ export default function CustomerDefinition() {
       return;
     }
 
+    const formattedData = {
+      ...formData,
+      credit_irr_limit: Number(formData.credit_irr_limit.replace(/,/g, "")), 
+      credit_usdt_limit: Number(formData.credit_usdt_limit.replace(/,/g, ""))
+    };
+
     try {
       const response = await axiosClient2.post(
         "/users",
-        formData
+        formattedData
       );
       console.log("Response from server:", response.data);
       toast.success("اطلاعات با موفقیت ثبت شد!");
@@ -161,7 +167,7 @@ export default function CustomerDefinition() {
       <div className="flex flex-col md:flex-row items-center gap-6">
         {/* شماره تماس */}
         <div className="mb-4 w-full md:w-1/3">
-          <label className="block text-sm font-medium mb-1">شماره تماس:</label>
+          <label className="block text-sm font-medium mb-1">شماره تماس (بدون صفر):</label>
           <input
             type="text"
             name="mobile"
@@ -187,7 +193,7 @@ export default function CustomerDefinition() {
           >
             <option value="">انتخاب کنید ...</option>
             <option value="1">کاربر عادی</option>
-            <option value="2">صرافی</option>
+            {/* <option value="2">صرافی</option> */}
             <option value="3">مشتری api</option>
           </select>
         </div>
@@ -247,17 +253,16 @@ export default function CustomerDefinition() {
       </div>
 
       {/* حد اعتباری خرید و فروش */}
-      {/* <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="relative">
           <label className="block text-sm font-medium mb-1">
             حد اعتباری  (ریالی):
           </label>
           <input
             type="text"
-            name="buyCreditIRR"
-            value={formData.buyCreditIRR.toLocaleString("fa-IR")}
+            name="credit_irr_limit"
+            value={formData.credit_irr_limit.toLocaleString("fa-IR")}
             onChange={(e) => handleInputChange(e, "IRR")}
-            onBlur={(e) => handleBlur(e, "IRR")}
             className="w-full border border-gray-300 rounded px-3 py-2 pr-10 text-right"
             dir="rtl"
           />
@@ -273,10 +278,9 @@ export default function CustomerDefinition() {
           </label>
           <input
             type="text"
-            name="sellCreditIRR"
-            value={formData.sellCreditIRR.toLocaleString("fa-IR")}
+            name="credit_usdt_limit"
+            value={formData.credit_usdt_limit.toLocaleString("fa-IR")}
             onChange={(e) => handleInputChange(e, "IRR")}
-            onBlur={(e) => handleBlur(e, "IRR")}
             className="w-full border border-gray-300 rounded px-3 py-2 pr-10 text-right"
             dir="rtl"
           />
@@ -286,21 +290,9 @@ export default function CustomerDefinition() {
         </div>
 
       
-      </div> */}
+      </div>
 
  
-
-  {/* دکمه تغییر وضعیت کاربر */}
-  {/* <div className="mb-4 w-full md:w-1/3">
-  <label className="block text-sm font-medium mb-1">وضعیت کاربر (uesr_api):</label>
-    <button
-      onClick={() => setFormData({ ...formData, user_api: !formData.user_api })}
-      className={`w-full py-2 px-4 rounded-md text-white font-medium transition ${formData.user_api ? "bg-green-500 hover:bg-green-400" : "bg-red-500 hover:bg-red-400"}`}
-    >
-  
-      {formData.user_api ? "فعال" : "غیرفعال"}
-    </button>
-  </div> */}
 
       {/* لیست کیف پول */}
       <div className="mb-4">
@@ -322,7 +314,7 @@ export default function CustomerDefinition() {
           onChange={(e) => handleCheckboxChange(e, "assets")}
           className="hidden"
         />
-        <span className="text-sm">{wallet.name}</span>
+        <span className="text-sm">{wallet.name_fa}</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"

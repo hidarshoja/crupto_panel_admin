@@ -5,6 +5,7 @@ import { FaWallet, FaLock } from "react-icons/fa";
 import axiosClient2 from "../../axios-client2";
 import { toast } from 'react-toastify';
 
+
 const TableAccessLevels = () => {
 
   const [accessLevels , setAccessLevels] = useState([]);
@@ -22,14 +23,18 @@ const TableAccessLevels = () => {
   ];
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [assetAll , setAssetAll] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedAssets, setSelectedAssets] = useState([]);
+  const [selectedAssets2, setSelectedAssets2] = useState([]);
   const [formData, setFormData] = useState({
     transaction: "100000",
     exchange: "30000",
-    wallets : [],
+    assets : [],
     access :"1",
-    CustomerType:"1"
-    
+    CustomerType:"1",
+credit_irr_limit: "",
+credit_usdt_limit: ""   
   });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -46,24 +51,59 @@ const TableAccessLevels = () => {
     );
   };
 
-  const handleFormSubmit = async (transaction) => {
-    const updatedItem = accessLevels.find((item) => item.id === transaction.id);
-    try {
-      const response = await axiosClient2.put(`/users/${transaction.id}`, {
-        ...transaction,
-        customerType: updatedItem.customerType,
-        access: updatedItem.access,
-      });
-      toast.success('تغییرات با موفقیت ثبت شد')
-    } catch (error) {
-      toast.error("خطا در اعمال تغییرات")
+const handleFormSubmit = async (transaction) => {
+  const updatedItem = accessLevels.find((item) => item.id === transaction.id);
+
+  const dataToSend = {};
+
+  if (updatedItem.customerType) {
+    dataToSend.type = updatedItem.customerType;
+  }
+
+  if (updatedItem.access) {
+    dataToSend.status = updatedItem.access;
+  }
+
+  if (formData.assets && formData.assets.length > 0) {
+    dataToSend.assets = formData.assets;
+  }
+  if(formData.transaction) {
+    dataToSend.credit_irr_limit = Number(formData.transaction)
+  }
+  if (formData.exchange) {
+    dataToSend.credit_usdt_limit = Number(formData.exchange)
+  }
+
+  try {
+    const response = await axiosClient2.put(`/users/${transaction.id}`, dataToSend);
+    if (response.status === 200) {
+      toast.success("تغییرات با موفقیت ثبت شد");
+      
+    } else {
+      toast.error("خطا در اعمال تغییرات، لطفاً دوباره تلاش کنید");
     }
+  } catch (error) {
+    toast.error("خطا در اعمال تغییرات");
+  }
+};
+
+
+  const fetchTransactionsAssetes = async () => {
+    try {
+      const endpoint = `/assets`;
+      const response = await axiosClient2.get(endpoint);
+      setAssetAll(response.data.data);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } 
   };
+
+ 
   
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await axiosClient2.get(`/users`);
+        const response = await axiosClient2.get(`/users?include=assets`);
           setLoading(true);
           setAccessLevels(response.data.data);
       } catch (error) {
@@ -72,7 +112,7 @@ const TableAccessLevels = () => {
         setLoading(false);
       }
     };
-  
+    fetchTransactionsAssetes();
     fetchTransactions();
   }, []);
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -134,7 +174,7 @@ const TableAccessLevels = () => {
                 </tbody>
               ) : (
               <tbody className="divide-y divide-gray-200 bg-white">
-                {currentItems?.map((transaction) => (
+                {currentItems?.map((transaction ) => (
                   <tr key={transaction.id}>
                     <td className="px-3 py-4 text-sm text-gray-500 text-center">
                       {transaction.name} -  {transaction.lastname}
@@ -153,17 +193,27 @@ const TableAccessLevels = () => {
                         }
                       >
                         <option value="1">کاربر</option>
-                        <option value="3">مشتری api</option>
-                        <option value="2">صرافی</option>
+                        <option value="2">مشتری api</option>
+                        <option value="">صرافی</option>
                       </select>
                     </td>
                     <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      <button className="cursor-pointer" onClick={openModal}>
+                      <button className="cursor-pointer"
+                       onClick={() => {
+                        setSelectedAssets(transaction.assets); 
+                        openModal();
+                      }}
+                       >
                         <FaWallet size={20} />
                       </button>
                     </td>
                     <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      <button className="cursor-pointer" onClick={openModal2}>
+                      <button className="cursor-pointer"
+                          onClick={() => {
+                            setSelectedAssets2(transaction); 
+                            openModal2();
+                          }}
+                       >
                         <FaLock size={20}/>
                       </button>
                     </td>
@@ -221,8 +271,8 @@ const TableAccessLevels = () => {
         </button>
       </div>
       {/* نمایش مدال */}
-      <Modal isOpen={isModalOpen} closeModal={closeModal} formData={formData} setFormData={setFormData} />
-      <LicenseModal isOpen2={isModalOpen2} closeModal2={closeModal2} formData={formData} setFormData={setFormData} />
+      <Modal isOpen={isModalOpen} closeModal={closeModal} assets={selectedAssets} formData={formData} setFormData={setFormData} assetAll={assetAll} />
+      <LicenseModal isOpen2={isModalOpen2} closeModal2={closeModal2} formData={formData} setFormData={setFormData} currentItems ={selectedAssets2} />
     </div>
   );
 };
