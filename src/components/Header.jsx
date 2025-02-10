@@ -23,7 +23,7 @@ export default function Header({
   const handleLogout = () => {
     localStorage.removeItem("USER_INFO");
     localStorage.removeItem("ACCESS_TOKEN");
-    // navigate("/auth/login");
+     navigate("/auth/login");
   };
 
  
@@ -86,7 +86,10 @@ export default function Header({
                   />
                 </div>
                 <div className="text-white text-[12px]">
-                  <span>خروج</span>
+                  <span>ورود</span>
+                </div>
+                <div className="text-white text-[12px]">
+                  
                 </div>
               </div>
             </div>
