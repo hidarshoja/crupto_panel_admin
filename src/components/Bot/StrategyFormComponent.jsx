@@ -145,7 +145,7 @@ const StrategyFormComponent = ({
         >
           <option value="">همه</option>
           <option value="1">خرید</option>
-          <option value="2">فروش</option>
+          <option value="-1">فروش</option>
         </select>
       </div>
       </div>

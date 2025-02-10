@@ -2,32 +2,19 @@ import  { useEffect , useState } from "react";
 import axiosClient2 from "../../axios-client2";
 
 export default function ChartRemainingStats() {
-  const [filteredData, setFilteredData] = useState([]);
-  const exchanges = [
-    { logo: "/img/nobitex.png"},
-    {logo: "/img/wiki.png"},
-    {logo: "/img/tabdil.png"},
-    {logo: "/img/ok.png"},
-    {logo: "/img/bit.png"},
-    {logo: "/img/wallex.png"},
-    {logo: "/img/sarmayex.png"},
-    {logo: "/img/sarafi.png" },
-    {logo: "/img/nobitex.png"},
-    {logo: "/img/exir.png"},
-    {logo: "/img/nobitex.png"},
-    {logo: "/img/tabdil.png" },
-   ];
+  const [originalData, setOriginalData] = useState([]); // دیتای خام که از API میاد
+  const [groupedData, setGroupedData] = useState([]); // دیتای پردازش شده
 
-
+  // **فراخوانی API فقط یک بار هنگام لود شدن صفحه**
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         const endpoint = `/exchanges/liabilities`;
-
         const response = await axiosClient2.get(endpoint);
+        
         if (response.data.data) {
           const arrayData = Object.values(response.data.data).flat();
-          setFilteredData(arrayData);
+          setOriginalData(arrayData); // فقط مقدار اولیه رو ذخیره می‌کنیم
         }
       } catch (error) {
         console.log("Error fetching data:", error);
@@ -36,6 +23,29 @@ export default function ChartRemainingStats() {
 
     fetchTransactions();
   }, []);
+
+  // **محاسبه groupedData فقط زمانی که originalData تغییر کند**
+  useEffect(() => {
+    if (originalData.length === 0) return;
+
+    const grouped = Object.values(
+      originalData.reduce((acc, item) => {
+        const { exchange_id, total_amount, total_price } = item;
+
+        if (!acc[exchange_id]) {
+          acc[exchange_id] = { ...item, total_amount: 0, total_price: 0 };
+        }
+
+        acc[exchange_id].total_amount += Number(total_amount);
+        acc[exchange_id].total_price += Number(total_price);
+
+        return acc;
+      }, {})
+    );
+
+    setGroupedData(grouped); // مقدار پردازش شده رو تنظیم می‌کنیم
+  }, [originalData]); // این useEffect فقط زمانی اجرا می‌شه که originalData تغییر کنه
+
   return (
     <div className="flex flex-wrap gap-6 p-6 justify-center ">
          <div className="flex flex-col md:flex-row gap-4 w-full mb-6">
@@ -81,16 +91,16 @@ export default function ChartRemainingStats() {
          </div>
       </div>
          </div>
-      {filteredData?.map((exchange) => (
+      {groupedData?.map((exchange , index) => (
         <div
           className="group p-6 bg-gradient-to-br from-[#3ABEF9] to-[#3499d9] shadow-xl w-full md:w-[320px] rounded-lg text-center border border-gray-300 hover:shadow-2xl cursor-pointer hover:translate-y-[-5px] transition-all duration-300 hover:scale-105"
-          key={exchange.exchange_id}
+          key={index}
         >
           <div className="relative">
             <img
-              src={exchange.logo}
+            src={`https://pars-v2.liara.run/${exchange.exchange_logo}`} 
               alt={`${exchange.exchange_id} Logo`}
-              className="mx-auto mb-4 w-18 h-18 rounded-full border-2  group-hover:rotate-15 group-hover:scale-30 group-hover:border-slate-600 transition-transform duration-300"
+              className="mx-auto mb-4 w-16 h-16 rounded-full border-2  group-hover:rotate-15 group-hover:scale-30 group-hover:border-slate-600 transition-transform duration-300"
             />
           
           </div>

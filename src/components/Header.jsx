@@ -15,7 +15,7 @@ export default function Header({
   // چک کردن وضعیت توکن و هدایت به صفحه ورود
   useEffect(() => {
     if (!accessToken) {
-      navigate("/auth/login");
+      // navigate("/auth/login");
     }
   }, [accessToken, navigate]);
 

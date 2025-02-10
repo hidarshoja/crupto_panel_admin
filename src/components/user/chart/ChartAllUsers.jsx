@@ -15,7 +15,6 @@ Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 import axiosClient2 from "../../../axios-client2";
 
 export default function ChartAllUsers() {
-
   const [dateBirth, setDateBirth] = useState(new DateObject());
   const [dateBirth2, setDateBirth2] = useState(new DateObject());
   const [dataChart, setDataChart] = useState(null);

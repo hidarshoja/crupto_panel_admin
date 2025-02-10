@@ -12,205 +12,188 @@ import {
   Legend,
 } from "chart.js";
 import UserBox3 from "../../UserBox3";
-import axios from "axios";
+import axiosClient2 from "../../../axios-client2";
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export default function ChartAllUsers() {
   const [dateBirth, setDateBirth] = useState(new DateObject());
   const [dateBirth2, setDateBirth2] = useState(new DateObject());
-  const people = [
-    { id: 1, name: 'صرافی نیوبیکس' },
-    { id: 2, name: 'صرافی باران' },
-    { id: 3, name: 'صرافی تتر' },
-    { id: 4, name: 'صرافی حسینی' },
-];
-const [userId, setUserId] = useState(null);
-    const [pri, setPri] = useState(0);
-  // داده‌های ورودی
-  const defaultData = [
-    { x: "۱۴۰۲/۰۸/۰۱", y: 100, type: "buy", username: "علی", currency: "تتر" },
-    { x: "۱۴۰۲/۰۸/۰۱", y: 150, type: "sell", username: "حسین", currency: "ریال" },
-    { x: "۱۴۰۲/۰۸/۰۲", y: 500, type: "buy", username: "رضا", currency: "بیت کوین" },
-    { x: "۱۴۰۲/۰۸/۰۲", y: 120, type: "sell", username: "فاطمه", currency: "SOL" },
-    { x: "۱۴۰۲/۰۸/۰۳", y: 170, type: "buy", username: "محمد", currency: "تتر" },
-    { x: "۱۴۰۲/۰۸/۰۴", y: 420, type: "sell", username: "مهدی", currency: "SOL" },
-    { x: "۱۴۰۲/۰۸/۰۶", y: 500, type: "buy", username: "زهرا", currency: "BTC" },
-    { x: "۱۴۰۲/۰۸/۰۶", y: 120, type: "sell", username: "مهدی", currency: "SOL" },
-    { x: "۱۴۰۲/۰۸/۰۹", y: 520, type: "sell", username: "سارا", currency: "gold" },
-    { x: "۱۴۰۲/۰۸/۰۹", y: 170, type: "buy", username: "حمید", currency: "ریال" },
-  ];
-
-  const allDates = [
-    "۱۴۰۲/۰۸/۰۱",
-    "۱۴۰۲/۰۸/۰۲",
-    "۱۴۰۲/۰۸/۰۳",
-    "۱۴۰۲/۰۸/۰۴",
-    "۱۴۰۲/۰۸/۰۵",
-    "۱۴۰۲/۰۸/۰۶",
-    "۱۴۰۲/۰۸/۰۷",
-    "۱۴۰۲/۰۸/۰۸",
-    "۱۴۰۲/۰۸/۰۹",
-  ];
+  const [dataChart, setDataChart] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [exchange , setExchange] = useState([]);
+  const [formData, setFormData] = useState({
+    type: '',
+    asset_id: '',
+  });
+const [pri, setPri] = useState(0);
 
 
-  const [filterCurrency, setFilterCurrency] = useState("all"); 
-  const filteredData = defaultData.filter(
-    (item) =>
-    
-      (filterCurrency === "all" || item.currency === filterCurrency)
-  );
+const handleChange = (e) => {
+  const { name, value } = e.target;
 
+    setFormData((prev) => ({ ...prev, [name]: value }));
   
-  const processedData = allDates.map((date) => {
-    const buyItem = filteredData.find((item) => item.x === date && item.type === "buy");
-    const sellItem = filteredData.find((item) => item.x === date && item.type === "sell");
+};
 
-    return {
-      x: date,
-      buy: buyItem ? buyItem.y : 0,
-      sell: sellItem ? sellItem.y : 0,
-      buyUsername: buyItem?.username || null,
-      sellUsername: sellItem?.username || null,
-    };
+const convertPersianToEnglishNumbers = (str) => {
+  const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+  const englishNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+  let result = str;
+  persianNumbers.forEach((persian, index) => {
+    result = result.replace(new RegExp(persian, 'g'), englishNumbers[index]);
   });
 
-  const data = {
-    labels: processedData.map((item) => item.x),
-    datasets: [
-      {
-        label: "خرید",
-        data: processedData.map((item) => item.buy),
-        backgroundColor: "rgba(0, 128, 0, 0.3)",  
-        borderColor: "#006400",
-        borderWidth: 2,
-        fill: true,  // این ویژگی برای پر کردن فضای زیر خط به کار می‌رود
-        tension: 0.4,  // این ویژگی برای منحنی کردن خط استفاده می‌شود
-      },
-      {
-        label: "فروش",
-        data: processedData.map((item) => item.sell),
-        backgroundColor: "rgba(255, 0, 0, 0.3)",  // سایه زیر خط
-        borderColor: "#B22222",
-        borderWidth: 2,
-        fill: true,  // این ویژگی برای پر کردن فضای زیر خط به کار می‌رود
-        tension: 0.4,  // این ویژگی برای منحنی کردن خط استفاده می‌شود
-      },
-    ],
-  };
-  
-  const options = {
-    plugins: {
-      tooltip: {
-        callbacks: {
-          label: function (context) {
-            const index = context.dataIndex;
-            const datasetIndex = context.datasetIndex;
-            const currentData = processedData[index];
-            const username =
-              datasetIndex === 0 ? currentData.buyUsername : currentData.sellUsername;
-            const currency =
-              datasetIndex === 0
-                ? filteredData.find((item) => item.x === currentData.x && item.type === "buy")?.currency
-                : filteredData.find((item) => item.x === currentData.x && item.type === "sell")?.currency;
-  
-            return `مقدار: ${context.raw} - کاربر: ${username || "نامشخص"} - ارز: ${currency || "نامشخص"}`;
-          },
-        },
-      },
-      legend: {
-        labels: {
-          font: {
-            size: 15,
-            family: "vazir",
-          },
-        },
-      },
-    },
-    responsive: true,
-    scales: {
-      y: {
-        ticks: {
-          font: {
-            size: 12,
-            weight: "bold",
-            family: "vazir",
-          },
-        },
-        title: {
-          display: true,
-          padding: { bottom: 10 },
-          font: {
-            size: 14,
-            family: "vazir",
-          },
-        },
-        beginAtZero: true,
-      },
-      x: {
-        ticks: {
-          font: {
-            size: 12,
-            weight: "bold",
-            family: "vazir",
-          },
-        },
-        title: {
-          display: true,
-          padding: { top: 10 },
-          font: {
-            size: 14,
-            family: "vazir",
-          },
-        },
-      },
-    },
-  };
-  
-  
+  return result;
+};
 
-  
+
+const  handleFilterByDate = () => {
+  const startDate = convertPersianToEnglishNumbers(dateBirth.format("YYYY-MM-DD"));
+  const endDate = convertPersianToEnglishNumbers(dateBirth2.format("YYYY-MM-DD"));
+  let endpoint = `/strategies/status?start_date=${startDate}&end_date=${endDate}`;
+  const response = axiosClient2.get(endpoint);
+};
+
+
+useEffect(() => {
+  const fetchTransactions = async () => {
+    try {
+      let endpoint = `/statistics/daily-user-asset`;
+
+      const queryParams = [];
+      if (formData.type) queryParams.push(`type=${formData.type}`);
+      if (formData.asset_id) queryParams.push(`asset_id=${formData.asset_id}`);
+      if (userId) queryParams.push(`user_id=${userId}`);
 
  
-  
- 
-  useEffect(() => {
-    if (userId) {
-      // اگر userId موجود بود، درخواست به API ارسال شود
-      axios.get(`https://jsonplaceholder.org/posts/?user_id=${userId}`)
-        .then((response) => {
-          console.log("Transactions:", response.data);
-          
-        })
-        .catch((error) => {
-          console.error("Error fetching transactions:", error);
+      if (queryParams.length > 0) {
+        endpoint += `?${queryParams.join("&")}`;
+      }
+
+      const response = await axiosClient2.get(endpoint);
+       console.log(`response`, response);
+      if (Array.isArray(response.data.data)) {
+        const buyData = response.data.data.filter(item => item.type === 1);
+        const sellData = response.data.data.filter(item => item.type === 2);
+
+        const buyLabels = buyData.map(item => item.asset.name);
+        const sellLabels = sellData.map(item => item.asset.name);
+
+        const buyValues = buyData.map(item => parseFloat(item.total_price));
+        const sellValues = sellData.map(item => parseFloat(item.total_price));
+
+        setDataChart({
+          labels: [...buyLabels, ...sellLabels],
+          datasets: [
+            {
+              label: 'خرید',
+              data: buyValues,
+              backgroundColor: 'rgba(0, 255, 0, 0.8)', 
+              borderColor: 'rgba(0, 255, 0, 3)',
+              borderWidth: 3,
+              tension: 0.4,
+            },
+            {
+              label: 'فروش',
+              data: sellValues,
+              backgroundColor: 'rgba(255, 0, 0, 0.8)',
+              borderColor: 'rgba(255, 0, 0, 3)',
+              borderWidth: 3,
+              tension: 0.4,
+            },
+          ],
         });
+      } else {
+        console.error("Invalid data structure:", response.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
     }
-  }, [userId]);
-  const convertPersianToEnglishNumbers = (str) => {
-    const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-    const englishNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-  
-    let result = str;
-    persianNumbers.forEach((persian, index) => {
-      result = result.replace(new RegExp(persian, 'g'), englishNumbers[index]);
-    });
-  
-    return result;
   };
-  const handleFilterByDate = () => {
-    const startDate = convertPersianToEnglishNumbers(dateBirth.format("YYYY-MM-DD"));
-    const endDate = convertPersianToEnglishNumbers(dateBirth2.format("YYYY-MM-DD"));
-  
-    const url = `/admin/statistics/time-frame?start_date=${startDate} 00:00:00&end_date=${endDate} 23:59:59`;
-    console.log(`url`, url);
-  
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Data received: ", data);
-      })
-      .catch((error) => console.error("Error fetching data: ", error));
+
+  fetchTransactions();
+}, [formData.type, formData.asset_id , userId]);
+
+
+
+
+useEffect(() => {
+  const fetchTransactions = async () => {
+    try {
+      const response = await axiosClient2.get("/exchanges");
+      setExchange(response.data.data);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    }
   };
+  fetchTransactions();
+}, []);
+
+
+
+
+
+const options = {
+  plugins: {
+    legend: {
+      labels: {
+        font: {
+          size: 15,
+          family: "vazir",
+        },
+      },
+    },
+  },
+  responsive: true,
+  scales: {
+    y: {
+      ticks: {
+        font: {
+          size: 12,
+          weight: "bold",
+          family: "vazir",
+        },
+      },
+      title: {
+        display: true,
+        text: "",
+        padding: {
+          bottom: 10,
+        },
+        font: {
+          size: 14,
+          family: "vazir",
+        },
+      },
+      min: 50,
+    },
+    x: {
+      ticks: {
+        font: {
+          size: 12,
+          weight: "bold",
+          family: "vazir",
+        },
+      },
+      title: {
+        display: true,
+        text: "",
+        padding: {
+          top: 10,
+        },
+        font: {
+          size: 14,
+          family: "vazir",
+        },
+      },
+    },
+  },
+};
+ 
+  
+  
+
   
 
   return (
@@ -222,7 +205,7 @@ const [userId, setUserId] = useState(null);
         </label>
       
          <UserBox3
-                people={people}
+                people={exchange}
                 setUserId={setUserId}
                 setPri={setPri}
             />
@@ -274,7 +257,39 @@ const [userId, setUserId] = useState(null);
             </button>
       </div>
       <h1 className="text-center font-bold text-lg mt-6">نمودار موجودی</h1>
-      <Bar data={data} options={options} />
+      {dataChart ? (
+        <Bar data={dataChart} options={options} />
+      ) : (
+        <div>
+        <p
+                    
+                    className="py-20 text-center bg-gray-100"
+                  >
+                    <div className="flex justify-center items-center">
+                      <svg
+                        className="animate-spin h-20 w-20 text-blue-500"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8z"
+                        ></path>
+                      </svg>
+                    </div>
+                  </p>
+      </div>
+      )}
     </div>
   );
 }

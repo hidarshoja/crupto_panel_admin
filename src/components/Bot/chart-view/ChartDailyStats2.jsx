@@ -488,7 +488,7 @@ export default function ChartAllUsers() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        let endpoint = `statistics/daily-user-asset?with_profit=1&auto_order=true&strategy_id=1`;
+        let endpoint = `statistics/daily-user-asset?with_profit=1&auto_order=true`;
   
         const queryParams = [];
         if (formData.type) queryParams.push(`type=${formData.type}`);
@@ -618,9 +618,9 @@ export default function ChartAllUsers() {
           value={formData.type}
           onChange={handleChange}
         >
-          <option value="">همه</option>
+      
           <option value="1">خرید</option>
-          <option value="2">فروش</option>
+          <option value="-1">فروش</option>
         </select>
       </div>
 

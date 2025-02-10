@@ -10,6 +10,7 @@ export default function Remaining() {
 
   useEffect(() => {
     const fetchTransactions = async () => {
+      // به liabilities تغییر کند
       try {
         const response = await axiosClient2.get("/exchanges/balance");
         setRemainData(response.data.data);
