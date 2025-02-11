@@ -1,164 +1,141 @@
-import { useState  , useEffect } from "react";
-import { Line } from "react-chartjs-2";
-import {
-  Chart,
-  PointElement,
-  LineElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import { useState, useEffect, useRef } from "react";
 import axiosClient2 from "../../../axios-client2";
-
-Chart.register(PointElement, LineElement, CategoryScale, LinearScale, Tooltip, Legend);
+import Chart from "chart.js/auto"; 
 
 export default function ChartAllUsers() {
-  const [filteredData, setFilteredData] = useState([]);
-  const hourlyData = [
-    { time: "08:00", profit: 100, type: "buy", username: "علی", currency: "تتر" },
-    { time: "08:05", profit: 150, type: "sell", username: "رضا", currency: "بیت کوین" },
-    { time: "08:10", profit: 200, type: "buy", username: "محمد", currency: "تتر" },
-    { time: "08:15", profit: 250, type: "sell", username: "زهرا", currency: "BTC" },
-    { time: "08:20", profit: 300, type: "buy", username: "سارا", currency: "gold" },
-    { time: "08:25", profit: 350, type: "sell", username: "حمید", currency: "ریال" },
-    { time: "08:30", profit: 400, type: "buy", username: "علیرضا", currency: "دلار" },
-  ];
-
-  const dailyData = [
-    { day: "1402/08/01", profit: 1000, type: "buy", username: "علی", currency: "تتر" },
-    { day: "1402/08/02", profit: 900, type: "sell", username: "رضا", currency: "بیت کوین" },
-    { day: "1402/08/03", profit: 800, type: "buy", username: "محمد", currency: "تتر" },
-    { day: "1402/08/04", profit: 700, type: "sell", username: "زهرا", currency: "BTC" },
-    { day: "1402/08/05", profit: 600, type: "buy", username: "سارا", currency: "gold" },
-    { day: "1402/08/06", profit: 500, type: "sell", username: "حمید", currency: "ریال" },
-    { day: "1402/08/07", profit: 400, type: "buy", username: "علیرضا", currency: "دلار" },
-  ];
-
-  const hourlyChartData = {
-    labels: hourlyData.map((item) => item.time),
-    datasets: [
-      {
-        label: "سود ساعتی",
-        data: hourlyData.map((item) => item.profit),
-        borderColor: "#006400",
-        borderWidth: 2,
-        pointRadius: 5,
-        pointBackgroundColor: "rgba(255, 99, 132, 1)",
-        tension: 0.3,
-      },
-    ],
-  };
-
-  const dailyChartData = {
-    labels: dailyData.map((item) => item.day),
-    datasets: [
-      {
-        label: "سود روزانه",
-        data: dailyData.map((item) => item.profit),
-        borderColor: "#00008B",
-        borderWidth: 2,
-        pointRadius: 5,
-        pointBackgroundColor: "rgba(54, 162, 235, 1)",
-        tension: 0.3,
-      },
-    ],
-  };
-
-  const options = {
-    plugins: {
-      tooltip: {
-        callbacks: {
-          label: function (context) {
-            const index = context.dataIndex;
-            const dataset = context.dataset.label === "سود ساعتی" ? hourlyData : dailyData;
-            const item = dataset[index];
-            return [
-              `مبلغ: ${item.profit} تومان`,
-              `نوع: ${item.type === "buy" ? "خرید" : "فروش"}`,
-              `کاربر: ${item.username}`,
-              `ارز: ${item.currency}`,
-            ];
-          },
-        },
-      },
-      legend: {
-        labels: {
-          font: {
-            size: 15,
-            family: "vazir",
-          },
-        },
-      },
-    },
-    responsive: true,
-    scales: {
-      y: {
-        ticks: {
-          font: {
-            size: 12,
-            weight: "bold",
-            family: "vazir",
-          },
-        },
-        title: {
-          display: true,
-          text: "مبلغ سود (تومان)",
-          padding: { bottom: 10 },
-          font: {
-            size: 14,
-            family: "vazir",
-          },
-        },
-        beginAtZero: true,
-      },
-      x: {
-        ticks: {
-          font: {
-            size: 12,
-            weight: "bold",
-            family: "vazir",
-          },
-        },
-        title: {
-          display: true,
-          text: "زمان",
-          padding: { top: 10 },
-          font: {
-            size: 14,
-            family: "vazir",
-          },
-        },
-      },
-    },
-  };
+  const [dataChart, setDataChart] = useState(null);
+  const chartRef = useRef(null); 
 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const endpoint = `/exchanges/liabilities`;
+        const currentDate = new Date();
+        const currentDateString = currentDate.toISOString().slice(0, 19).replace('T', ' ');
+        const oneHourBefore = new Date(currentDate);
+        oneHourBefore.setHours(currentDate.getHours() - 1);
+        const oneHourBeforeString = oneHourBefore.toISOString().slice(0, 19).replace('T', ' ');
 
+        const endpoint = `/candles?f[created_at_between]=${oneHourBeforeString},${currentDateString}`;
         const response = await axiosClient2.get(endpoint);
-        if (response.data.data) {
-          const arrayData = Object.values(response.data.data).flat();
-          setFilteredData(arrayData);
+        console.log("response", response.data.data);
+        const chartTimeData = response.data.data;
+
+        if (chartTimeData) {
+          const buyData = chartTimeData.filter(item => item.sell_exchange_id === 1);
+          const sellData = chartTimeData.filter(item => item.sell_exchange_id === 2);
+
+      
+
+          const buyValues = buyData.map(item => parseFloat(item.max_buy_price));
+          const sellValues = sellData.map(item => parseFloat(item.min_sell_price));
+
+          const timeLabels = [];
+          for (let i = 0; i < 1; i++) {
+            for (let j = 0; j < 60; j += 5) {
+              const hour = String(i).padStart(2, "0");
+              const minute = String(j).padStart(2, "0");
+              timeLabels.push(`${hour}:${minute}`);
+            }
+          }
+
+          const newDataChart = {
+            labels: timeLabels,
+            datasets: [
+              {
+                label: "خرید",
+                data: buyValues,
+                backgroundColor: "rgba(0, 255, 0, 0.8)",
+                borderColor: "rgba(0, 255, 0, 3)",
+                borderWidth: 3,
+                tension: 0.4,
+              },
+              {
+                label: "فروش",
+                data: sellValues,
+                backgroundColor: "rgba(255, 0, 0, 0.8)",
+                borderColor: "rgba(255, 0, 0, 3)",
+                borderWidth: 3,
+                tension: 0.4,
+              },
+            ],
+          };
+
+          setDataChart(newDataChart); // Update chart data
+        } else {
+          console.error("Invalid data structure:", response.data.data);
         }
       } catch (error) {
-        console.log("Error fetching data:", error);
+        console.error("Error fetching transactions:", error);
       }
     };
 
     fetchTransactions();
-  }, []);
+  }, []); 
 
-  console.log(`filteredData`, filteredData);
+
+  useEffect(() => {
+    if (dataChart && chartRef.current) {
+      if (chartRef.current.chartInstance) {
+        chartRef.current.chartInstance.destroy();
+      }
+
+      const chartInstance = new Chart(chartRef.current, {
+        type: "line", 
+        data: dataChart, 
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              labels: {
+                font: {
+                  size: 15,
+                  family: "vazir",
+                },
+              },
+            },
+          },
+          scales: {
+            y: {
+              ticks: {
+                font: {
+                  size: 12,
+                  weight: "bold",
+                  family: "vazir",
+                },
+              },
+            },
+            x: {
+              ticks: {
+                font: {
+                  size: 12,
+                  weight: "bold",
+                  family: "vazir",
+                },
+              },
+            },
+          },
+        },
+      });
+
+      chartRef.current.chartInstance = chartInstance;
+    }
+  }, [dataChart]); 
+
   return (
-    <div className="w-full py-10">
-      <h1 className="text-center mt-6 font-bold text-lg">نمودار سود ساعتی</h1>
-      <Line data={hourlyChartData} options={options} />
-
-      <h1 className="text-center mt-6 font-bold text-lg">نمودار سود روزانه</h1>
-      <Line data={dailyChartData} options={options} />
+    <div>
+      <h1 className="text-center font-bold text-lg mt-6">نمودار آمار کلی ساعتی</h1>
+      <div>
+        {dataChart ? (
+          <canvas ref={chartRef}></canvas> 
+        ) : (
+          <div className="flex justify-center items-center py-20 text-center bg-gray-100">
+            <svg className="animate-spin h-20 w-20 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+            </svg>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

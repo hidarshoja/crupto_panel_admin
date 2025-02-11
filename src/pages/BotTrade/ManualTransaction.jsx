@@ -3,7 +3,7 @@ import axios from "axios";
 import TableReview from "../../components/Bot/TableReview";
 import TableRegistration from "../../components/Bot/TableRegistration";
 import axiosClient2 from "../../axios-client2";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 
 export default function ManualTransaction() {
   const[review , setReview] = useState(false);

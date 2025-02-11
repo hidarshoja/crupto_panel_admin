@@ -2,8 +2,8 @@ import { useState } from "react";
 import MobileSidebar from "./components/MobileSidbar";
 import DesktopSidebar from "./components/DesktopSidebar";
 import MainContent from "./components/MainContent";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify"; 
+import "react-toastify/dist/ReactToastify.css"; 
 import "./App.css";
 
 function App() {

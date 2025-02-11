@@ -1,135 +1,197 @@
-import { useState, useEffect } from "react";
-import axiosClient2 from "../axios-client2";
+import { useState , useEffect } from 'react';
+import Modal from '../components/Api/Modal';  
+import { FaWallet } from "react-icons/fa";
 import { AiFillPicture } from "react-icons/ai";
 import { Link } from "react-router-dom";
-import { FaWallet } from "react-icons/fa";
-import LoadingTable from "../components/LoadingTable";
+import axiosClient2 from "../axios-client2";
+import { toast } from 'react-toastify';
 
-export default function KycUser() {
+const KycUser = () => {
+  const [accessLevels , setAccessLevels] = useState([]);
+  const tableHeaders = [
+    'نام و نام خانوادگی',
+    'کدملی',
+    'تاریخ تولد',
+    'شماره تماس',
+    'کیف پول ها',
+    'تصاویر',
+    'وضعیت',
+  ];
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [assetAll , setAssetAll] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedAssets, setSelectedAssets] = useState([]);
   const [users, setUsers] = useState([]);
-const [isloading , setIsloading] = useState(true);
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const [formData, setFormData] = useState({
+ 
+    assets : [],
+     
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await axiosClient2.get("/users");
-        setUsers(response.data.data);
-        setIsloading(false);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
-    fetchUsers();
-  }, []);
 
-  // Handle status change (Approved / Rejected)
   const handleChangeStatus = async (id, newStatus) => {
-    setUsers((prevUsers) =>
+    setAccessLevels((prevUsers) =>
       prevUsers.map((user) =>
         user.id === id ? { ...user, status: newStatus } : user
       )
     );
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      assets: [...selectedAssets],
+    }));
 
     try {
       const response = await axiosClient2.put(`/users/${id}`, {
         status: newStatus,
       });
+      toast.success("تغییرات با موفقیت ثبت شد");
     } catch (error) {
       console.error("Error updating status:", error);
+      toast.error("خطا در اعمال تغییرات");
     }
   };
 
+
+  const fetchTransactionsAssetes = async () => {
+    try {
+      const endpoint = `/assets`;
+      const response = await axiosClient2.get(endpoint);
+      setAssetAll(response.data.data);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } 
+  };
+
+ 
+  
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await axiosClient2.get(`/users?include=assets`);
+          setLoading(true);
+          setAccessLevels(response.data.data);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTransactionsAssetes();
+    fetchTransactions();
+  }, []);
   const indexOfLastItem = currentPage * itemsPerPage;
-const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-const currentItems = users.slice(indexOfFirstItem, indexOfLastItem);
-const totalPages = Math.ceil(users.length / itemsPerPage);
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = accessLevels.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(accessLevels.length / itemsPerPage);
 
   return (
-    <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">کاربران KYC</h1>
-      <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-        <table className="min-w-full divide-y divide-gray-300">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-3 py-4 text-center text-sm font-semibold">#</th>
-              <th className="px-3 py-4 text-center text-sm font-semibold">
-                نام و نام خانوادگی
-              </th>
-              <th className="px-3 py-4 text-center text-sm font-semibold">
-                کد ملی
-              </th>
-              <th className="px-3 py-4 text-center text-sm font-semibold">
-                تاریخ تولد
-              </th>
-              <th className="px-3 py-4 text-center text-sm font-semibold">
-                شماره تماس
-              </th>
-              <th className="px-3 py-4 text-center text-sm font-semibold">
-                تصاویر
-              </th>
-              <th className="px-3 py-4 text-center text-sm font-semibold">
-                کیف پول
-              </th>
-              <th className="px-3 py-4 text-center text-sm font-semibold">
-                وضعیت
-              </th>
-            </tr>
-          </thead>
-          {isloading ? (
-    <tbody>
-      <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-          <LoadingTable />
-        
-      </tr>
-    </tbody>
-  ) : (
-    <tbody className="divide-y divide-gray-200 bg-white">
-    {currentItems?.map((user , index) => (
-      <tr key={user.id}>
-        <td className="px-3 py-4 text-center">{index + 1}</td>
-        <td className="px-3 py-4 text-center">
-          {user.name} - {user.lastname}
-        </td>
-        <td className="px-3 py-4 text-center">{user.national_code}</td>
-        <td className="px-3 py-4 text-center">{user.birthdate}</td>
-        <td className="px-3 py-4 text-center">{user.mobile}</td>
-        <td className="px-3 py-4 text-center">
-          <Link to={`/download/${user.id}`}>
-            <AiFillPicture size={20} />
-          </Link>
-        </td>
-        <td className="px-3 py-4 text-center">
-          <button onClick={openModal}>
-            <FaWallet size={20} />
-          </button>
-        </td>
-        <td className="px-3 py-4 text-center">
-          <select
-            value={user.status}
+    <div className="mt-8 flow-root">
+      <h1 className="text-lg font-bold mb-4 mt-4">کاربران kyc</h1>
+      <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+        <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+          <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+            <table className="min-w-full divide-y divide-gray-300">
+              <thead className="bg-gray-50">
+                <tr>
+                  {tableHeaders.map((header, index) => (
+                    <th
+                      key={index}
+                      scope="col"
+                      className="px-3 py-4 text-center text-sm font-semibold text-gray-900"
+                    >
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              {loading ? (
+                <tbody>
+                  <tr>
+                    <td
+                      colSpan={tableHeaders.length}
+                      className="py-20 text-center bg-gray-100"
+                    >
+                      <div className="flex justify-center items-center">
+                        <svg
+                          className="animate-spin h-10 w-10 text-blue-500"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v8z"
+                          ></path>
+                        </svg>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              ) : (
+              <tbody className="divide-y divide-gray-200 bg-white">
+                {currentItems?.map((transaction ) => (
+                  <tr key={transaction.id}>
+                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                      {transaction.name} -  {transaction.lastname}
+                    </td>
+                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                    {transaction.national_code}
+                    </td>
+                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                      {transaction.birthdate}
+                    </td>
+                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                    {transaction.mobile}
+                    </td>
+                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                      <button className="cursor-pointer"
+                       onClick={() => {
+                        setSelectedAssets(transaction.assets); 
+                        openModal();
+                      }}
+                       >
+                        <FaWallet size={20} />
+                      </button>
+                    </td>
+                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                               <Link to={`/download/${transaction.id}`}>
+                              <AiFillPicture size={20} />
+                           </Link>
+                    </td>
+                           <td className="px-3 py-4 text-center">
+           <select
+            value={transaction.status}
             onChange={(e) =>
-              handleChangeStatus(user.id, e.target.value)
+              handleChangeStatus(transaction.id, e.target.value)
             }
           >
             <option value={100}>تایید</option>
             <option value={-100}>رد</option>
           </select>
         </td>
-      </tr>
-    ))}
-  </tbody>
-  )}
-         
-        </table>
+                  </tr>
+                ))}
+              </tbody>
+               )}
+            </table>
+          </div>
+        </div>
       </div>
-        <div className="flex justify-between items-center mt-4">
+      {/* صفحه بندی */}
+      <div className="flex justify-between items-center mt-4">
         <button
           disabled={currentPage === 1}
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -148,46 +210,12 @@ const totalPages = Math.ceil(users.length / itemsPerPage);
           صفحه بعد
         </button>
       </div>
-
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4 text-center">
-              انتخاب کیف پول
-            </h2>
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                "کیف ریال",
-                "کیف تتر",
-                "کیف ارزی",
-                "کیف بیت کوین",
-                "کیف دلار",
-                "کیف پرفکت مانی",
-                "کیف وب مانی",
-              ].map((wallet) => (
-                <label key={wallet} className="flex items-center space-x-2">
-                  <input type="checkbox" />
-                  <span>{wallet}</span>
-                </label>
-              ))}
-            </div>
-            <div className="flex justify-between mt-6">
-              <button
-                className="bg-gray-300 py-2 px-4 rounded-lg"
-                onClick={closeModal}
-              >
-                بستن
-              </button>
-              <button
-                className="bg-blue-500 py-2 px-4 rounded-lg text-white"
-                onClick={closeModal}
-              >
-                ذخیره
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* نمایش مدال */}
+      <Modal isOpen={isModalOpen} closeModal={closeModal} assets={selectedAssets} formData={formData} setFormData={setFormData} assetAll={assetAll} />
+      
     </div>
   );
-}
+};
+
+export default KycUser;
+

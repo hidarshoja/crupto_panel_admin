@@ -1,7 +1,7 @@
 
 import { useState , useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 import UsersComponent from '../UserComponent';
 import ExchangeComponent from '../ExchangeComponent';
 import axiosClient2 from '../../axios-client2';

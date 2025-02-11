@@ -7,7 +7,6 @@ import { toast } from 'react-toastify';
 
 
 const TableAccessLevels = () => {
-
   const [accessLevels , setAccessLevels] = useState([]);
   const tableHeaders = [
     'نام و نام خانوادگی',

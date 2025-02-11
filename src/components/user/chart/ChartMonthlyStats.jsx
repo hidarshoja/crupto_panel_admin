@@ -21,8 +21,6 @@ export default function ChartAllUsers() {
     asset_id: '',
   });
 
-
-
   const handleChange = (e) => {
     const { name, value } = e.target;
   

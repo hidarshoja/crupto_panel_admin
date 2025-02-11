@@ -6,24 +6,7 @@ import axiosClient2 from '../../../axios-client2';
 export default function StreamView() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
- const [accounts, setAccounts] = useState([
-  // {
-  //   id: 1,
-  //   sourceAccount: '12345',
-  //   accountHolderName: 'استراتژی الف',
-  //   destinationAccount: '67890',
-  //   gatewayName: 'گیت‌وی 1',
-  //   isOngoingTransaction: true,
-  //   transactionProgress: 45,
-  //   profit: '500,000 تومان',
-  //   exchangeName: 'صرافی 1',
-  //   transactionType: 'خرید', 
-  //   amount: '10,000', 
-  //   price: '50,000 تومان', 
-  //   status: 'در حال انجام', 
-  // },
- 
-]);
+ const [accounts, setAccounts] = useState([]);
 
   const navigate = useNavigate();
   const handleIconClick = (accountId) => {
@@ -77,22 +60,29 @@ const totalPages = Math.ceil(accounts.length / itemsPerPage);
                   <td className="px-6 py-4 text-center text-sm text-gray-900">{account.id}</td>
                   <td className="px-6 py-4 text-center text-sm text-gray-900">{account.title}</td>
                   <td className="px-6 py-4 text-center text-sm text-gray-900">
-                    {account.isOngoingTransaction ? (
-                      <div className="w-full bg-gray-200 rounded-full h-2.5 relative">
-                        <div
-                          className="bg-green-500 h-2.5 rounded-full"
-                          style={{ width: `${account.transactionProgress}%` }}
-                        />
-                        <span
-                          className="absolute top-[-18px] left-1/2 transform -translate-x-1/2 text-xs text-green-500"
-                        >
-                          {account.transactionProgress}%
-                        </span>
-                      </div>
-                    ) : (
-                      'تمام شده'
-                    )}
-                  </td>
+  {parseInt(account.amount) ? (
+    <div className="w-full bg-gray-200 rounded-full h-2.5 relative">
+      <div
+        className="bg-green-500 h-2.5 rounded-full"
+        style={{
+          width: `${(account?.last_auto_order?.remain_amount 
+            ? parseInt(account.amount) / account.last_auto_order.remain_amount 
+            : parseInt(account.amount) / parseInt(account.amount)) - 1}%`
+        }}
+      />
+      <span
+        className="absolute top-[-18px] left-1/2 transform -translate-x-1/2 text-xs text-green-500"
+      >
+        {(account?.last_auto_order?.remain_amount 
+          ? parseInt(account.amount) / account.last_auto_order.remain_amount 
+          : parseInt(account.amount) / parseInt(account.amount)) - 1}%
+      </span>
+    </div>
+  ) : (
+    'تمام شده'
+  )}
+</td>
+
                   <td className="px-6 py-4 text-center text-sm text-gray-900">
                   {new Intl.NumberFormat('fa-IR').format(Math.floor(Number(account.amount)))}
                      تومان</td>

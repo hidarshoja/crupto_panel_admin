@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axiosClient2 from "../axios-client2";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 
 export default function StatusPage() {
   const [selectedCategory, setSelectedCategory] = useState(null);

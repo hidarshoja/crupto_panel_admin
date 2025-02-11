@@ -6,13 +6,8 @@ import axiosClient2 from "../../axios-client2";
 
 export default function StableCondition() {
   const [status , setStatus] = useState(null);
- const exchangeData = [
-  { name: "صرافی نوبیتکس", status: "تایید شده", reviewTime: 5 },
-  { name: "صرافی والکس", status: "رد شده", reviewTime: 10 },
-  { name: "صرافی رمزینکس", status: "در انتظار بررسی", reviewTime: 15 },
-  { name: "صرافی اکسیر", status: "تایید شده", reviewTime: 7 },
-  { name: "صرافی بایننس", status: "رد شده", reviewTime: 20 },
-];
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const getStatusCircle = (status) => {
     switch (status) {
@@ -31,7 +26,7 @@ export default function StableCondition() {
     const fetchTransactions = async () => {
       try {
         const response = await axiosClient2.get("/exchanges/status");
-        console.log(`response.data`, response.data);
+      
         setStatus(response.data);
       } catch (error) {
         console.error("Error fetching transactions:", error);
@@ -39,6 +34,11 @@ export default function StableCondition() {
     };
     fetchTransactions();
   }, []);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = status?.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(status?.length / itemsPerPage);
 
   return (
     <div className="p-4">
@@ -59,8 +59,8 @@ export default function StableCondition() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {status?.length > 0 ? (
-              status?.map((exchange, index) => (
+            {currentItems?.length > 0 ? (
+              currentItems?.map((exchange, index) => (
                 <tr key={index}>
                   <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange?.exchange.name_fa}</td>
                   <td className="px-6 py-4 text-center text-sm text-gray-900">
@@ -83,6 +83,26 @@ export default function StableCondition() {
             )}
           </tbody>
         </table>
+      </div>
+       {/* صفحه بندی */}
+       <div className="flex justify-between items-center mt-4">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
+        >
+          صفحه قبل
+        </button>
+        <span>
+          صفحه {currentPage} از {totalPages}
+        </span>
+        <button
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
+        >
+          صفحه بعد
+        </button>
       </div>
     </div>
   );

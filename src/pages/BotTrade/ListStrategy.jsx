@@ -1,7 +1,7 @@
 import { useState , useEffect } from "react";
 import { FaPlay , FaPause , FaRegEye  } from "react-icons/fa";
 import { MdOutlineReplay } from "react-icons/md";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 import axiosClient2 from "../../axios-client2";
 import LoadingTable from "../../components/LoadingTable";
 
@@ -54,7 +54,7 @@ const ListStrategy = () => {
   const repeatStrategy = async (STRATEGY_ID) => {
     try {
       const response = await axiosClient2.post(`/strategies/${STRATEGY_ID}/run`);
-      toast.success("اطلاعات با موفقیت انجام شد!");
+      toast.success("استراتژی با موفقیت متوقف شد");
     } catch (error) {
       toast.error("خطا در انجام عملیات!");
     }
@@ -63,7 +63,7 @@ const ListStrategy = () => {
   const stopStrategy = async (STRATEGY_ID) => {
     try {
       const response = await axiosClient2.post(`/strategies/${STRATEGY_ID}/stop`);
-      toast.success("اطلاعات با موفقیت انجام شد!");
+      toast.success("استراتژی با موفقیت اجرا شد");
     } catch (error) {
       toast.error("خطا در انجام عملیات!");
     }

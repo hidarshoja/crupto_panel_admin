@@ -30,6 +30,8 @@ export default function TableTransactionStatus({autoOrders}) {
    const [filteredData, setFilteredData] = useState(Accounts);
     const [filters2, setFilters2] = useState({});
     const [filteredData2, setFilteredData2] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
    const handleExportExcel = async () => {
     const payload = {
@@ -59,7 +61,11 @@ export default function TableTransactionStatus({autoOrders}) {
     }
   };
 
-  console.log(`autoOrders`, autoOrders);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = autoOrders?.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(autoOrders?.length / itemsPerPage);
+
   return (
     <>
     <div className='flex items-center justify-between py-5'>
@@ -116,20 +122,20 @@ export default function TableTransactionStatus({autoOrders}) {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {autoOrders?.length > 0 ? (
-            autoOrders?.map((account, index) => (
+          {currentItems?.length > 0 ? (
+            currentItems?.map((account, index) => (
               <tr key={index}>
                 <td className="px-6 py-4 text-center text-sm text-gray-900">{index + 1}</td>
                 <td className="px-6 py-4 text-center text-sm text-gray-900">{account.documentNumber}</td>
                 <td className="px-6 py-4 text-center text-sm text-gray-900">
                 {new Date(account.created_at).toISOString().split('T')[0]}
                 </td>
-                <td className="px-6 py-4 text-center text-sm text-gray-900">{account.name}</td>
-                <td className="px-6 py-4 text-center text-sm text-gray-900">{account.exchangeName}</td>
+                <td className="px-6 py-4 text-center text-sm text-gray-900">-</td>
+                <td className="px-6 py-4 text-center text-sm text-gray-900">{account.exchanges_name[0].name}</td>
                 <td className="px-6 py-4 text-center text-sm text-gray-900">{account.type_label}</td>
-                <td className="px-6 py-4 text-center text-sm text-gray-900">{account.transactionType}</td>
+                <td className="px-6 py-4 text-center text-sm text-gray-900">تتر</td>
                 <td className="px-6 py-4 text-center text-sm text-gray-900">{parseInt(account.amount)}</td>
-                <td className="px-6 py-4 text-center text-sm text-gray-900">{account.sell_amount}</td>
+                <td className="px-6 py-4 text-center text-sm text-gray-900">-</td>
               </tr>
             ))
           ) : (
@@ -142,6 +148,26 @@ export default function TableTransactionStatus({autoOrders}) {
         </tbody>
       </table>
     </div>
+          {/* صفحه بندی */}
+          <div className="flex justify-between items-center mt-4">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
+        >
+          صفحه قبل
+        </button>
+        <span>
+          صفحه {currentPage} از {totalPages}
+        </span>
+        <button
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
+        >
+          صفحه بعد
+        </button>
+      </div>
     </>
   );
 }

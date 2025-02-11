@@ -3,7 +3,7 @@ import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import { convertPersianToEnglish } from "../constant/DateJalili";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 import axiosClient2 from "../axios-client2";
 
 export default function CustomerDefinition() {
@@ -112,7 +112,7 @@ export default function CustomerDefinition() {
         formattedData
       );
       console.log("Response from server:", response.data);
-      toast.success("اطلاعات با موفقیت ثبت شد!");
+      toast.success("اطلاعات کاربر با موفقیت ثبت شد");
     } catch (error) {
       console.error("Error submitting data:", error);
       toast.error("خطا در ارسال اطلاعات!");

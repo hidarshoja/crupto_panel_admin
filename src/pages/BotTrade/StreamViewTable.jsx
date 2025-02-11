@@ -11,12 +11,12 @@ export default function StreamViewTable() {
     const accountId = params.get('accountId');
     const fetchTransactions = async () => {
       try {
-        let endpoint = `strategies/status`;
+        let endpoint = `transactions?f[auto_order_id]=${accountId}`;
         const response = await axiosClient2.get(endpoint);
         console.log(`response.data.data`, response.data.data);
-        const filteredAccounts = response.data.data?.filter(acc => acc.id === Number(accountId));
+        // const filteredAccounts = response.data.data?.filter(acc => acc.id === Number(accountId));
       
-        setAccounts(filteredAccounts);
+        setAccounts(response.data.data);
     
       } catch (error) {
         console.error("Error fetching transactions:", error);
@@ -58,15 +58,21 @@ export default function StreamViewTable() {
             {accounts?.length > 0 ? (
               accounts?.map((account, index) => (
                 <tr key={index}>
-                  <td className="px-6 py-4 text-center text-sm text-gray-900">{account.title}</td>
-                  <td className="px-6 py-4 text-center text-sm text-gray-900">{account.type_label}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-900">{account?.asset?.name_fa}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-900">{account?.type_label}</td>
                   <td className="px-6 py-4 text-center text-sm text-gray-900">
-                  {new Intl.NumberFormat('fa-IR').format(Math.floor(Number(account.amount)))}
+                  {new Intl.NumberFormat('fa-IR').format(Math.floor(Number(account?.amount)))}
                      تومان</td>
-                  <td className="px-6 py-4 text-center text-sm text-gray-900">{account.price}</td>
-                  <td className="px-6 py-4 text-center text-sm text-gray-900">{account.profit}</td>
-                  <td className={`px-6 py-4 text-center text-sm font-medium ${getStatusClass(account?.last_auto_order.status_label)}`}>
-                    {account?.last_auto_order.status_label}
+                  <td className="px-6 py-4 text-center text-sm text-gray-900">
+                    {new Intl.NumberFormat('fa-IR').format(Math.floor(Number(account?.price)))}
+                    تومان
+                    </td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-900">
+                    {new Intl.NumberFormat('fa-IR').format(Math.floor(Number(account?.profit_amount)))}
+                    تومان
+                    </td>
+                  <td className={`px-6 py-4 text-center text-sm font-medium ${getStatusClass(account?.status_label)}`}>
+                    {account?.status_label}
                   </td>
                 </tr>
               ))

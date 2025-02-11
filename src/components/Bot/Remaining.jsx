@@ -1,37 +1,37 @@
-import { useEffect , useState } from "react";
+import { useEffect, useState } from "react";
 import axiosClient2 from "../../axios-client2";
-
 
 export default function Remaining() {
   const [remainData, setRemainData] = useState([]);
-  const [isloading, setIsloading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 8;
 
   useEffect(() => {
     const fetchTransactions = async () => {
-      // به liabilities تغییر کند
       try {
-        const response = await axiosClient2.get("/exchanges/balance");
+        const response = await axiosClient2.get("/exchanges/liabilities");
         setRemainData(response.data.data);
-       
-        setIsloading(false);
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching transactions:", error);
       }
     };
     fetchTransactions();
-  }, [])
+  }, []);
+
  
+  const remainDataList = Object.values(remainData).flat();
+
+ 
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = remainDataList.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(remainDataList.length / itemsPerPage);
 
   const handleDetailsClick = (data) => {
     console.log("جزئیات ردیف:", data);
   };
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = remainData.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(remainData.length / itemsPerPage);
 
   return (
     <div>
@@ -64,15 +64,47 @@ export default function Remaining() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {currentItems?.length > 0 ? (
-              currentItems?.map((exchange, index) => (
+            {isLoading ? (
+              <tr>
+                <td colSpan="7" className="text-center text-sm text-gray-500">
+                  <div className="flex items-center justify-center">
+                    <svg
+                      className="animate-spin h-20 w-20 text-blue-500"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8z"
+                      ></path>
+                    </svg>
+                  </div>
+                  <span>منتظر بمانید ...</span>
+                </td>
+              </tr>
+            ) : (
+              currentItems.map((exchange, index) => (
                 <tr key={index}>
-                  <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange?.exchange?.name_fa}</td>
-                  <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange?.asset?.name_fa}</td>
-                  <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange.buyAmount}</td>
-                  <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange.sellAmount}</td>
-                  <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange.rialPayment}</td>
-                  <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange.currencyPayment}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange?.exchange_name_fa}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange?.asset_name_fa}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-900">
+                    {new Intl.NumberFormat('fa-IR').format(Math.floor(Number(exchange.total_price)))} تومان
+                  </td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-900">
+                    {new Intl.NumberFormat('fa-IR').format(Math.floor(Number(exchange.total_amount)))} تومان
+                  </td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-900">-</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-900">-</td>
                   <td className="px-6 py-4 text-center text-sm text-gray-900">
                     <button
                       onClick={() => handleDetailsClick(exchange)}
@@ -83,38 +115,12 @@ export default function Remaining() {
                   </td>
                 </tr>
               ))
-            ) : (
-              <tr>
-                <td colSpan="7" className=" text-center text-sm text-gray-500">
-                <div className="flex items-center justify-center">
-   <svg
-     className="animate-spin h-20 w-20 text-blue-500"
-     xmlns="http://www.w3.org/2000/svg"
-     fill="none"
-     viewBox="0 0 24 24"
-   >
-     <circle
-       className="opacity-25"
-       cx="12"
-       cy="12"
-       r="10"
-       stroke="currentColor"
-       strokeWidth="4"
-     ></circle>
-     <path
-       className="opacity-75"
-       fill="currentColor"
-       d="M4 12a8 8 0 018-8v8z"
-     ></path>
-   </svg>
- </div>
-                <span>منتظر بمانید ...</span>
-                </td>
-              </tr>
             )}
           </tbody>
         </table>
       </div>
+
+      {/* صفحه‌بندی */}
       <div className="flex justify-between items-center mt-4">
         <button
           disabled={currentPage === 1}

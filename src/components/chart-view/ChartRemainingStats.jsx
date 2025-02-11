@@ -106,7 +106,7 @@ export default function ChartRemainingStats() {
           </div>
           <h3 className="text-lg  text-gray-100">{exchange.exchange_name_fa}</h3>
           <p className="text-gray-100 mt-2">
-            <strong>کل ارزش خرید:</strong>{" "}
+            <strong>کل ارز خرید شده:</strong>{" "}
             {exchange?.totalBuy} ریال
           </p>
           <p className="text-gray-100">

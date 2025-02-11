@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Modal from "../../components/Bot/ModalStrategy";
 import StrategyFormComponent from "../../components/Bot/StrategyFormComponent";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 import axiosClient2 from "../../axios-client2";
 
 export default function Strategy() {
