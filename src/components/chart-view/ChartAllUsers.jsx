@@ -3,6 +3,7 @@ import { Bar } from "react-chartjs-2";
 import DatePicker, { DateObject } from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import jalaali from "jalaali-js";
 import {
   Chart,
   BarElement,
@@ -14,11 +15,12 @@ import {
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 import axiosClient2 from "../../axios-client2";
 
-export default function ChartAllUsers() {
-
+export default function ChartAllUsers({assets}) {
   const [dateBirth, setDateBirth] = useState(new DateObject());
   const [dateBirth2, setDateBirth2] = useState(new DateObject());
   const [dataChart, setDataChart] = useState(null);
+  const [startDate, setStartDate] = useState(null);
+const [endDate, setEndDate] = useState(null);
   const [formData, setFormData] = useState({
     type: '',
     asset_id: '',
@@ -26,9 +28,7 @@ export default function ChartAllUsers() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-  
       setFormData((prev) => ({ ...prev, [name]: value }));
-    
   };
 
   const convertPersianToEnglishNumbers = (str) => {
@@ -43,19 +43,27 @@ export default function ChartAllUsers() {
     return result;
   };
   
-  const  handleFilterByDate = () => {
-    const startDate = convertPersianToEnglishNumbers(dateBirth.format("YYYY-MM-DD"));
-    const endDate = convertPersianToEnglishNumbers(dateBirth2.format("YYYY-MM-DD"));
-    let endpoint = `/statistics/daily-user-asset?start_date=${startDate}&end_date=${endDate}`;
-    const response = axiosClient2.get(endpoint);
+  const handleFilterByDate = () => {
+    const startDateFormatted = convertPersianToEnglishNumbers(dateBirth.format("YYYY-MM-DD"));
+    const endDateFormatted = convertPersianToEnglishNumbers(dateBirth2.format("YYYY-MM-DD"));
+    setStartDate(startDateFormatted); // تنظیم تاریخ شروع
+    setEndDate(endDateFormatted); // تنظیم تاریخ پایان
+  };
+
+  const handleRemoveDateFilter = () => {
+    setStartDate(null);
+    setEndDate(null);
   };
 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         let endpoint = `/statistics/daily-user-asset`;
-  
         const queryParams = [];
+        if (startDate && endDate) {
+          queryParams.push(`start_date=${startDate}`);
+          queryParams.push(`end_date=${endDate}`);
+        }
         if (formData.type) queryParams.push(`type=${formData.type}`);
         if (formData.asset_id) queryParams.push(`asset_id=${formData.asset_id}`);
   
@@ -66,24 +74,39 @@ export default function ChartAllUsers() {
         const response = await axiosClient2.get(endpoint);
   
         if (Array.isArray(response.data.data)) {
-          const buyData = response.data.data.filter(item => item.type === 1);
-          const sellData = response.data.data.filter(item => item.type === 2);
+          const sortedData = response.data.data.sort((a, b) => new Date(a.date) - new Date(b.date));
+         
+          const groupedData = sortedData.reduce((acc, item) => {
+            if (!acc[item.date]) {
+              acc[item.date] = { buy: 0, sell: 0 , name: item.asset.name };
+            }
+            if (item.type === 1) {
+              acc[item.date].buy += parseFloat(item.total_price);
+            } else {
+              acc[item.date].sell += parseFloat(item.total_price);
+            }
+            return acc;
+          }, {});
+          const dates = Object.keys(groupedData).map(date => {
+            const d = new Date(date);
+            const { jy, jm, jd } = jalaali.toJalaali(d.getFullYear(), d.getMonth() + 1, d.getDate());
+            return `${jy}/${jm.toString().padStart(2, "0")}/${jd.toString().padStart(2, "0")}`;
+          });
   
-          const buyLabels = buyData.map(item => item.asset.name);
-          const sellLabels = sellData.map(item => item.asset.name);
-  
-          const buyValues = buyData.map(item => parseFloat(item.total_price));
-          const sellValues = sellData.map(item => parseFloat(item.total_price));
+          const buyValues = Object.keys(groupedData).map(date => groupedData[date].buy);
+          const sellValues = Object.keys(groupedData).map(date => groupedData[date].sell);
+          const walletValues = Object.keys(groupedData).map(date => groupedData[date].name);
   
           setDataChart({
-            labels: [...buyLabels, ...sellLabels],
+            labels: dates, 
             datasets: [
               {
                 label: 'خرید',
                 data: buyValues,
-                backgroundColor: 'rgba(0, 255, 0, 0.8)', 
+                backgroundColor: 'rgba(0, 255, 0, 0.8)',
                 borderColor: 'rgba(0, 255, 0, 3)',
                 borderWidth: 1,
+                wallet : walletValues
               },
               {
                 label: 'فروش',
@@ -91,6 +114,7 @@ export default function ChartAllUsers() {
                 backgroundColor: 'rgba(255, 0, 0, 0.8)',
                 borderColor: 'rgba(255, 0, 0, 3)',
                 borderWidth: 1,
+                wallet : walletValues
               },
             ],
           });
@@ -103,9 +127,9 @@ export default function ChartAllUsers() {
     };
   
     fetchTransactions();
-  }, [formData.type, formData.asset_id]);
+  }, [startDate, endDate,formData.type, formData.asset_id]);
   
-
+  
 
 
   const options = {
@@ -115,6 +139,40 @@ export default function ChartAllUsers() {
           font: {
             size: 15,
             family: "vazir",
+          },
+        },
+      },
+      tooltip: {
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        titleAlign: "center",
+        bodyAlign: "center",
+        caretPadding: 12,
+        caretSize: 8,
+        position: "nearest",
+        yAlign: "bottom",
+        displayColors: false,
+        titleFont: {
+          family: "vazir", 
+          size: 14,
+          weight: "bold",
+        },
+        bodyFont: {
+          family: "vazir", 
+          size: 13,
+        },
+        callbacks: {
+          label: function (context) {
+            const index = context.dataIndex;
+            const transaction = dataChart?.datasets[context.datasetIndex].data[index];
+            const name = dataChart?.datasets[context.datasetIndex].wallet[index];
+            if (transaction) {
+              return [
+                `نام ارز: ${name || "نامشخص"}`,
+                `مبلغ: ${parseInt(transaction).toLocaleString()} تومان`,
+              ];
+            }
+  
+            return "";
           },
         },
       },
@@ -200,14 +258,17 @@ export default function ChartAllUsers() {
           value={formData.asset_id}
           onChange={handleChange}
         >
-            <option value="">انتخاب کنید</option>
-              <option value="1">ریال</option>
-              <option value="2">تتر</option>
+          <option value="">همه</option>
+             {assets?.map((wallet) => (
+              <option key={wallet.id} value={wallet.related_asset}>
+                {wallet.name_fa} ({wallet.symbol})
+              </option>
+            ))}
         </select>
       </div>
       </div>
       <div className="my-4 flex flex-col md:flex-row gap-4 w-full">
-            <div className="w-full md:w-2/5 flex flex-col gap-1">
+            <div className="w-full md:w-2/6 flex flex-col gap-1">
                 <span className="block text-gray-700 text-sm font-bold  w-28">
                    از تاریخ :
                 </span>
@@ -220,7 +281,7 @@ export default function ChartAllUsers() {
                   inputClass="custom-input"
                 />
               </div>
-              <div className="w-full md:w-2/5 flex flex-col gap-1">
+              <div className="w-full md:w-2/6 flex flex-col gap-1">
                 <span className="block text-gray-700 text-sm font-bold  w-28">
                    تا تاریخ :
                 </span>
@@ -233,9 +294,11 @@ export default function ChartAllUsers() {
                   inputClass="custom-input"
                 />
               </div>
+              <button  onClick={handleRemoveDateFilter} className="bg-[#800505] hover:bg-[#f93aa3] text-white w-full text-sm md:w-1/6 px-4 mt-[23px]  rounded h-[43px]">حذف تاریخ</button>
+           
               <button
         onClick={handleFilterByDate}
-        className="bg-[#090580] hover:bg-[#3ABEF9] text-white w-full text-sm md:w-1/5 px-4 mt-[23px]  rounded h-[43px]"
+        className="bg-[#090580] hover:bg-[#3ABEF9] text-white w-full text-sm md:w-1/6 px-4 mt-[23px]  rounded h-[43px]"
       >
         فیلتر براساس تاریخ
             </button>

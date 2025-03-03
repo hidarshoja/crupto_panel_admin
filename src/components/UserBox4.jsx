@@ -1,45 +1,39 @@
-import React from 'react'
 import { useState } from 'react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 import { Combobox } from '@headlessui/react'
 
-
-
 function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
 }
-const UserBox = ({ people, setUserId }) => {
 
+const UserBox = ({ people, setUserId }) => {
     const [query, setQuery] = useState('')
     const [selectedPerson, setSelectedPerson] = useState(null)
 
-    const filteredPeople =
-        query === ''
-            ? people
-            : people?.filter((person) => {
-                return person.name.toLowerCase().includes(query.toLowerCase())
-            })
-
+    const filteredPeople = [
+        { id: "all", name: "همه" }, // گزینه همه را اضافه می‌کنیم
+        ...(
+            query === ''
+                ? people
+                : people?.filter((person) =>
+                    person.name.toLowerCase().includes(query.toLowerCase())
+                )
+        )
+    ]
 
     const handleSelectedPerson = (person) => {
         if (person) {
             setSelectedPerson(person);
-            setUserId(person.id);
-            
+            setUserId(person.id === "all" ? null : person.id); // اگر "همه" انتخاب شد، مقدار null بفرستد
         }
     };
 
-
     return (
         <Combobox as="div" value={selectedPerson} onChange={handleSelectedPerson} className="parent-div">
-
             <div className="div-box relative">
                 <Combobox.Input
                     className="input-box rounded-md border-0 bg-white py-2.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                    onChange={(event) => {
-                        setQuery(event.target.value)
-
-                    }}
+                    onChange={(event) => setQuery(event.target.value)}
                     displayValue={(person) => person?.name ? person?.name : 'انتخاب نام کاربر'}
                 />
                 <Combobox.Button className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
@@ -61,7 +55,9 @@ const UserBox = ({ people, setUserId }) => {
                             >
                                 {({ active, selected }) => (
                                     <>
-                                        <span className={classNames('block truncate', selected && 'font-semibold')}>{person.name }</span>
+                                        <span className={classNames('block truncate', selected && 'font-semibold')}>
+                                            {person.name}
+                                        </span>
 
                                         {selected && (
                                             <span

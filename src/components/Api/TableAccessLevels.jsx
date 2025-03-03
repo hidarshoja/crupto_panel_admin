@@ -1,39 +1,42 @@
-import { useState , useEffect } from 'react';
-import Modal from './Modal';  
-import LicenseModal from './LicenseModal';
-import { FaWallet, FaLock } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import Modal from "./Modal";
+import LicenseModal from "./LicenseModal";
+import { FaWallet, FaLock , FaRegEye} from "react-icons/fa";
+import { IoCloseOutline } from "react-icons/io5";
 import axiosClient2 from "../../axios-client2";
-import { toast } from 'react-toastify';
-
+import { toast } from "react-toastify";
 
 const TableAccessLevels = () => {
-  const [accessLevels , setAccessLevels] = useState([]);
+  const [accessLevels, setAccessLevels] = useState([]);
   const tableHeaders = [
-    'نام و نام خانوادگی',
-    'شماره',
-    'کدملی',
-    'نوع مشتری',
-    'کیف پول ها',
-    'مجوزها',
-    'api ke',
-    'token api',
-    'دسترسی',
-    'عملیات',
+    "نام و نام خانوادگی",
+    "شماره",
+    "کدملی",
+    "نوع مشتری",
+    "کیف پول ها",
+    "مجوزها",
+    "API KEY",
+    "TOKEN API",
+    "دسترسی",
+    "عملیات",
   ];
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
-  const [assetAll , setAssetAll] = useState([]);
+  const [assetAll, setAssetAll] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedAssets, setSelectedAssets] = useState([]);
   const [selectedAssets2, setSelectedAssets2] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState("");
+
   const [formData, setFormData] = useState({
     transaction: "100000",
     exchange: "30000",
-    assets : [],
-    access :"1",
-    CustomerType:"1",
-credit_irr_limit: "",
-credit_usdt_limit: ""   
+    assets: [],
+    access: "1",
+    CustomerType: "1",
+    credit_irr_limit: "",
+    credit_usdt_limit: "",
   });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -44,48 +47,47 @@ credit_usdt_limit: ""
 
   const handleChange = (id, field, value) => {
     setAccessLevels((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, [field]: value } : item
-      )
+      prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
     );
   };
 
-const handleFormSubmit = async (transaction) => {
-  const updatedItem = accessLevels.find((item) => item.id === transaction.id);
+  const handleFormSubmit = async (transaction) => {
+    const updatedItem = accessLevels.find((item) => item.id === transaction.id);
 
-  const dataToSend = {};
+    const dataToSend = {};
 
-  if (updatedItem.customerType) {
-    dataToSend.type = updatedItem.customerType;
-  }
-
-  if (updatedItem.access) {
-    dataToSend.status = updatedItem.access;
-  }
-
-  if (formData.assets && formData.assets.length > 0) {
-    dataToSend.assets = formData.assets;
-  }
-  if(formData.transaction) {
-    dataToSend.credit_irr_limit = Number(formData.transaction)
-  }
-  if (formData.exchange) {
-    dataToSend.credit_usdt_limit = Number(formData.exchange)
-  }
-
-  try {
-    const response = await axiosClient2.put(`/users/${transaction.id}`, dataToSend);
-    if (response.status === 200) {
-      toast.success("تغییرات با موفقیت ثبت شد");
-      
-    } else {
-      toast.error("خطا در اعمال تغییرات، لطفاً دوباره تلاش کنید");
+    if (updatedItem.customerType) {
+      dataToSend.type = updatedItem.customerType;
     }
-  } catch (error) {
-    toast.error("خطا در اعمال تغییرات");
-  }
-};
 
+    if (updatedItem.access) {
+      dataToSend.status = updatedItem.access;
+    }
+
+    if (formData.assets && formData.assets.length > 0) {
+      dataToSend.assets = formData.assets;
+    }
+    if (formData.transaction) {
+      dataToSend.credit_irr_limit = Number(formData.transaction);
+    }
+    if (formData.exchange) {
+      dataToSend.credit_usdt_limit = Number(formData.exchange);
+    }
+
+    try {
+      const response = await axiosClient2.put(
+        `/users/${transaction.id}`,
+        dataToSend
+      );
+      if (response.status === 200) {
+        toast.success("تغییرات با موفقیت ثبت شد");
+      } else {
+        toast.error("خطا در اعمال تغییرات، لطفاً دوباره تلاش کنید");
+      }
+    } catch (error) {
+      toast.error("خطا در اعمال تغییرات");
+    }
+  };
 
   const fetchTransactionsAssetes = async () => {
     try {
@@ -94,17 +96,15 @@ const handleFormSubmit = async (transaction) => {
       setAssetAll(response.data.data);
     } catch (error) {
       console.error("Error fetching transactions:", error);
-    } 
+    }
   };
 
- 
-  
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         const response = await axiosClient2.get(`/users?include=assets`);
-          setLoading(true);
-          setAccessLevels(response.data.data);
+        setLoading(true);
+        setAccessLevels(response.data.data);
       } catch (error) {
         console.error("Error fetching transactions:", error);
       } finally {
@@ -114,6 +114,17 @@ const handleFormSubmit = async (transaction) => {
     fetchTransactionsAssetes();
     fetchTransactions();
   }, []);
+
+  const handleShowModal = (content) => {
+    setModalContent(content);
+    setModalOpen(true);
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(modalContent);
+    toast.success("کپی شد!");
+  };
+
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = accessLevels.slice(indexOfFirstItem, indexOfLastItem);
@@ -172,79 +183,90 @@ const handleFormSubmit = async (transaction) => {
                   </tr>
                 </tbody>
               ) : (
-              <tbody className="divide-y divide-gray-200 bg-white">
-                {currentItems?.map((transaction ) => (
-                  <tr key={transaction.id}>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      {transaction.name} -  {transaction.lastname}
-                    </td>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      {transaction.mobile}
-                    </td>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      {transaction.national_code}
-                    </td>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      <select
-                        value={transaction.customerType}
-                        onChange={(e) =>
-                          handleChange(transaction.id, 'customerType', e.target.value)
-                        }
-                      >
-                        <option value="1">کاربر</option>
-                        <option value="2">مشتری api</option>
-                        <option value="">صرافی</option>
-                      </select>
-                    </td>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      <button className="cursor-pointer"
-                       onClick={() => {
-                        setSelectedAssets(transaction.assets); 
-                        openModal();
-                      }}
-                       >
-                        <FaWallet size={20} />
-                      </button>
-                    </td>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      <button className="cursor-pointer"
+                <tbody className="divide-y divide-gray-200 bg-white">
+                  {currentItems?.map((transaction) => (
+                    <tr key={transaction.id}>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        {transaction.name} - {transaction.lastname}
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        {transaction.mobile}
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        {transaction.national_code}
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        {transaction.type === 1
+                          ? "کاربر عادی"
+                          : transaction.type === 3
+                          ? "کاربر API"
+                          : transaction.type === 2
+                          ? "صرافی"
+                          : "نامشخص"}
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        <button
+                          className="cursor-pointer"
                           onClick={() => {
-                            setSelectedAssets2(transaction); 
+                            setSelectedAssets(transaction.assets);
+                            openModal();
+                          }}
+                        >
+                          <FaWallet size={20} />
+                        </button>
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        <button
+                          className="cursor-pointer"
+                          onClick={() => {
+                            setSelectedAssets2(transaction);
                             openModal2();
                           }}
-                       >
-                        <FaLock size={20}/>
-                      </button>
-                    </td>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      {transaction.api}
-                    </td>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      {transaction.token}
-                    </td>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      <select
-                        value={transaction.access}
-                        onChange={(e) =>
-                          handleChange(transaction.id, 'access', e.target.value)
-                        }
-                      >
-                        <option value="100">فعال</option>
-                        <option value="-100">غیر فعال</option>
-                      </select>
-                    </td>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      <button
-                       className="bg-blue-500 text-white px-4 py-2 rounded"
-                       onClick={() => handleFormSubmit(transaction)}
-                       >
-                        ثبت
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-               )}
+                        >
+                          <FaLock size={20} />
+                        </button>
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        <button
+                          onClick={() => handleShowModal(transaction.mobile)}
+                        >
+                           <FaRegEye size={20}/>
+                        </button>
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        <button
+                          onClick={() => handleShowModal(transaction.national_code)}
+                        >
+                          <FaRegEye size={20}/>
+                        </button>
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        <select
+                          value={transaction.access}
+                          onChange={(e) =>
+                            handleChange(
+                              transaction.id,
+                              "access",
+                              e.target.value
+                            )
+                          }
+                        >
+                          <option value="100">فعال</option>
+                          <option value="-100">غیر فعال</option>
+                        </select>
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        <button
+                          className="bg-blue-500 text-white px-4 py-2 rounded"
+                          onClick={() => handleFormSubmit(transaction)}
+                        >
+                          ثبت
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              )}
             </table>
           </div>
         </div>
@@ -263,15 +285,59 @@ const handleFormSubmit = async (transaction) => {
         </span>
         <button
           disabled={currentPage === totalPages}
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+          }
           className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
         >
           صفحه بعد
         </button>
       </div>
       {/* نمایش مدال */}
-      <Modal isOpen={isModalOpen} closeModal={closeModal} assets={selectedAssets} formData={formData} setFormData={setFormData} assetAll={assetAll} />
-      <LicenseModal isOpen2={isModalOpen2} closeModal2={closeModal2} formData={formData} setFormData={setFormData} currentItems ={selectedAssets2} />
+      <Modal
+        isOpen={isModalOpen}
+        closeModal={closeModal}
+        assets={selectedAssets}
+        formData={formData}
+        setFormData={setFormData}
+        assetAll={assetAll}
+      />
+      <LicenseModal
+        isOpen2={isModalOpen2}
+        closeModal2={closeModal2}
+        formData={formData}
+        setFormData={setFormData}
+        currentItems={selectedAssets2}
+      />
+         {modalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+          <div className="bg-white p-6 rounded shadow-lg w-80 relative">
+            <h2 className="text-lg font-bold mb-2">مشاهده اطلاعات</h2>
+            <input
+              type="text"
+              value={modalContent}
+              readOnly
+              className="w-full border p-2 mb-4"
+            />
+            <div className="flex justify-between absolute top-4 left-4">
+              <button
+                className="bg-gray-500 text-white p-1 rounded-full"
+                onClick={() => setModalOpen(false)}
+              >
+               <IoCloseOutline size={20} /> 
+              </button>
+            </div>
+             <div className="flex items-end justify-end mt-4">
+             <button
+                className="bg-green-500 text-white px-4 py-2 rounded"
+                onClick={handleCopy}
+              >
+                کپی
+              </button>
+             </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

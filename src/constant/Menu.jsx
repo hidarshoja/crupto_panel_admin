@@ -12,11 +12,11 @@ export const navigation = [
     
     children: [
       { name: 'تعریف مشتری', href: '/customer_definition' },
+      { name: 'سطوح دسترسی', href: '/accessLevels' },
       { name: 'حسابداری', href: '/accounting' },
       { name: 'سند', href: '/document' },
       { name: 'نگاه آماری', href: '/statistical' },
       { name: 'وضعیت پایداری', href: '/status' },
-      { name: 'سطوح دسترسی', href: '/accessLevels' },
     ],
   },
   {

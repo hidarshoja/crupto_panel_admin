@@ -2,70 +2,80 @@ import { useState, useEffect } from "react";
 import UserBox from "../components/UserBox4";
 import axiosClient2 from "../axios-client2";
 
-export default function Transactions() {
+export default function Transactions({ assets }) {
   const [listTransaction, SetListTransaction] = useState([]);
-  const [users , setUsers] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
   const [isUsersInitialized, setIsUsersInitialized] = useState(false);
-  const [filters, setFilters] = useState({ type: "" , status: "" , currency: ""  });
+  const [filters, setFilters] = useState({
+    type: "",
+    status: "",
+    currency: "",
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const tableHeaders = [
     "تاریخ و ساعت",
     "کاربر معامله‌گر",
     "نوع معامله",
-    "میزان شماره‌مند",
     "مبلغ",
     "ارز معامله",
     "وضعیت",
     "توضیحات",
+    "شماره سند",
   ];
-  
-const handleFilterChange = (e) => {
-  const { name, value } = e.target;
-  setFilters((prevFilters) => ({
-    ...prevFilters,
-    [name]: value,
-  }));
-};
 
-useEffect(() => {
-  const fetchTransactions = async () => {
-    setLoading(true);
-    try {
-      const endpoint = `/transactions?${userId ? `f[user_id]=${userId}&` : ""}${
-        filters.type ? `f[type]=${filters.type}&` : ""
-      }${filters.status ? `f[status]=${filters.status}&` : ""}${
-        filters.currency ? `f[asset_id]=${filters.currency}` : ""
-      }`;
-
-      const response = await axiosClient2.get(endpoint);
-
-      SetListTransaction(response.data.data);
-
-      if (!isUsersInitialized) {
-        const users = response.data.data.map((item) => item.user);
-        const uniqueUsers = Array.from(
-          new Map(users.map((user) => [user.id, user])).values()
-        );
-        setUsers(uniqueUsers);
-        setIsUsersInitialized(true);
-      }
-      setCurrentPage(1);
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-    } finally {
-      setLoading(false);
-    }
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value,
+    }));
   };
 
-  fetchTransactions();
-}, [userId, filters.type, filters.status, isUsersInitialized , filters.currency]);
-const indexOfLastItem = currentPage * itemsPerPage;
-const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-const currentItems = listTransaction.slice(indexOfFirstItem, indexOfLastItem);
-const totalPages = Math.ceil(listTransaction.length / itemsPerPage);
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      setLoading(true);
+      try {
+        const endpoint = `/transactions?${
+          userId ? `f[user_id]=${userId}&` : ""
+        }${filters.type ? `f[type]=${filters.type}&` : ""}${
+          filters.status ? `f[status]=${filters.status}&` : ""
+        }${filters.currency ? `f[asset_id]=${filters.currency}` : ""}`;
+
+        const response = await axiosClient2.get(endpoint);
+
+        SetListTransaction(response.data.data);
+
+        if (!isUsersInitialized) {
+          const users = response.data.data.map((item) => item.user);
+          const uniqueUsers = Array.from(
+            new Map(users.map((user) => [user.id, user])).values()
+          );
+          setUsers(uniqueUsers);
+          setIsUsersInitialized(true);
+        }
+        setCurrentPage(1);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, [
+    userId,
+    filters.type,
+    filters.status,
+    isUsersInitialized,
+    filters.currency,
+  ]);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = listTransaction.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(listTransaction.length / itemsPerPage);
 
   return (
     <div className="mt-8 flow-root">
@@ -100,6 +110,7 @@ const totalPages = Math.ceil(listTransaction.length / itemsPerPage);
             <option value="2">فروش</option>
             <option value="4">دریافت</option>
             <option value="3">برداشت</option>
+            <option value="5">اصلاحی</option>
           </select>
         </div>
 
@@ -119,8 +130,11 @@ const totalPages = Math.ceil(listTransaction.length / itemsPerPage);
             className="p-2 border rounded w-full"
           >
             <option value="">همه</option>
-            <option value="2">تتر</option>
-            <option value="1">ریال</option>
+            {assets.map((asset) => (
+              <option key={asset.id} value={asset.id}>
+                {asset.name_fa} ({asset.name})
+              </option>
+            ))}
           </select>
         </div>
 
@@ -204,8 +218,11 @@ const totalPages = Math.ceil(listTransaction.length / itemsPerPage);
                         <td className="px-3 py-4 text-sm text-gray-500 text-center">
                           {new Date(transaction.created_at)
                             .toISOString()
-                            .slice(0, 16)
-                            .replace("T", " ")}
+                            .slice(11, 16) + // استخراج ساعت و دقیقه
+                            " " +
+                            new Date(transaction.created_at)
+                              .toISOString()
+                              .slice(0, 10)}
                         </td>
                         <td className="px-3 py-4 text-sm text-gray-500 text-center">
                           {transaction?.user?.name}
@@ -213,11 +230,9 @@ const totalPages = Math.ceil(listTransaction.length / itemsPerPage);
                         <td className="px-3 py-4 text-sm text-gray-500 text-center">
                           {transaction?.type_label}
                         </td>
+                       
                         <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                          {transaction?.txid}
-                        </td>
-                        <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                          {parseInt(transaction?.amount)}
+                          {parseInt(transaction?.amount).toLocaleString()}
                         </td>
                         <td className="px-3 py-4 text-sm text-gray-500 text-center">
                           {transaction?.asset?.name}
@@ -227,6 +242,9 @@ const totalPages = Math.ceil(listTransaction.length / itemsPerPage);
                         </td>
                         <td className="px-3 py-4 text-sm text-gray-500 text-center">
                           {transaction?.des}
+                        </td>
+                        <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                          {transaction?.txid}
                         </td>
                       </tr>
                     ))
@@ -259,7 +277,9 @@ const totalPages = Math.ceil(listTransaction.length / itemsPerPage);
         </span>
         <button
           disabled={currentPage === totalPages}
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+          }
           className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
         >
           صفحه بعد

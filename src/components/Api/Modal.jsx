@@ -53,17 +53,17 @@ const Modal = ({ isOpen, closeModal, formData, setFormData, assetAll, assets }) 
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+      <div className="bg-white px-4 py-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-center text-xl font-semibold mb-4">انتخاب کیف پول</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-x-0 gap-y-2">
           {assetAll?.map((wallet, index) => (
-            <label key={index} className="flex items-center space-x-2">
+            <label key={index} className="flex items-center">
               <input
                 type="checkbox"
                 checked={formData?.wallets?.includes(wallet.name_fa)} // بررسی اینکه آیا این کیف پول انتخاب شده است یا نه
                 onChange={() => handleCheckboxChange(wallet.name_fa)} // تغییر وضعیت انتخاب
               />
-              <span className="px-1">{wallet.name_fa}</span>
+              <span className="px-1">{wallet.name_fa} ({wallet.name})</span>
             </label>
           ))}
         </div>

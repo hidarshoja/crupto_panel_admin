@@ -15,7 +15,7 @@ export default function Header({
   // چک کردن وضعیت توکن و هدایت به صفحه ورود
   useEffect(() => {
     if (!accessToken) {
-      // navigate("/auth/login");
+       navigate("/auth/login");
     }
   }, [accessToken, navigate]);
 
@@ -86,7 +86,7 @@ export default function Header({
                   />
                 </div>
                 <div className="text-white text-[12px]">
-                  <span>ورود</span>
+                  <span>خروج</span>
                 </div>
                 <div className="text-white text-[12px]">
                   

@@ -10,23 +10,22 @@ function classNames(...classes) {
 const UserBox = ({ people, setUserId }) => {
 
     const [query, setQuery] = useState('')
-    const [selectedPerson, setSelectedPerson] = useState(null)
+    const [selectedPerson, setSelectedPerson] = useState(null);
 
-    const filteredPeople =
-        query === ''
-            ? people
-            : people?.filter((person) => {
-                return person.name_fa.toLowerCase().includes(query.toLowerCase())
-            })
+    const allOption = { id: 'all', name_fa: 'همه' };
+    const filteredPeople = query === ''
+        ? [allOption, ...people] // گزینه "همه" را به ابتدا اضافه می‌کنیم
+        : [allOption, ...people?.filter((person) => person.name_fa.toLowerCase().includes(query.toLowerCase()))];
 
 
-    const handleSelectedPerson = (person) => {
-        if (person) {
+        const handleSelectedPerson = (person) => {
             setSelectedPerson(person);
-            setUserId(person.id);
-           
-        }
-    };
+            if (person.id === 'all') {
+                setUserId(null);  // برای انتخاب "همه"، شناسه صرافی ارسال نشود
+            } else {
+                setUserId(person.id);
+            }
+        };
 
 
     return (

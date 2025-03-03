@@ -1,6 +1,7 @@
 import { useState , useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import UserBox from "../UserBox";
+import jalaali from "jalaali-js";
 import {
   Chart,
   BarElement,
@@ -12,7 +13,7 @@ import {
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 import axiosClient2 from "../../axios-client2";
 
-export default function ChartAllUsers() {
+export default function ChartAllUsers({assets}) {
   const [dataChart, setDataChart] = useState(null);
   const [formData, setFormData] = useState({
     type: '',
@@ -52,39 +53,56 @@ const[users , setUsers] = useState([]);
         console.log("response.data.data", response.data.data);
   
         if (Array.isArray(response.data.data)) {
-          const buyData = response.data.data.filter(item => item.type === 1);
-          const sellData = response.data.data.filter(item => item.type === 2);
-  
-          const buyLabels = buyData.map(item => item.asset.name);
-          const sellLabels = sellData.map(item => item.asset.name);
-  
-          const buyValues = buyData.map(item => parseFloat(item.total_price));
-          const sellValues = sellData.map(item => parseFloat(item.total_price));
-  
-          setDataChart({
-            labels: [...buyLabels, ...sellLabels],
-            datasets: [
-              {
-                label: 'خرید',
-                data: buyValues,
-                backgroundColor: 'rgba(0, 255, 0, 0.8)', 
-                borderColor: 'rgba(0, 255, 0, 3)',
-                borderWidth: 3,
-                tension: 0.4,
-              },
-              {
-                label: 'فروش',
-                data: sellValues,
-                backgroundColor: 'rgba(255, 0, 0, 0.8)',
-                borderColor: 'rgba(255, 0, 0, 3)',
-                borderWidth: 3,
-                tension: 0.4,
-              },
-            ],
-          });
-        } else {
-          console.error("Invalid data structure:", response.data.data);
-        }
+                          const sortedData = response.data.data.sort((a, b) => new Date(a.date) - new Date(b.date));
+                         
+                          const groupedData = sortedData.reduce((acc, item) => {
+                            if (!acc[item.date]) {
+                              acc[item.date] = { buy: 0, sell: 0 , name: item.asset.name , userName: item.user.name};
+                            }
+                            if (item.type === 1) {
+                              acc[item.date].buy += parseFloat(item.total_price);
+                            } else {
+                              acc[item.date].sell += parseFloat(item.total_price);
+                            }
+                            return acc;
+                          }, {});
+                          const dates = Object.keys(groupedData).map(date => {
+                            const d = new Date(date);
+                            const { jy, jm, jd } = jalaali.toJalaali(d.getFullYear(), d.getMonth() + 1, d.getDate());
+                            return `${jy}/${jm.toString().padStart(2, "0")}/${jd.toString().padStart(2, "0")}`;
+                          });
+                  
+                          const buyValues = Object.keys(groupedData).map(date => groupedData[date].buy);
+                          const sellValues = Object.keys(groupedData).map(date => groupedData[date].sell);
+                          const walletValues = Object.keys(groupedData).map(date => groupedData[date].name);
+                          const userValues = Object.keys(groupedData).map(date => groupedData[date].userName);
+                  
+                          setDataChart({
+                            labels: dates, 
+                            datasets: [
+                              {
+                                label: 'خرید',
+                                data: buyValues,
+                                backgroundColor: 'rgba(0, 255, 0, 0.8)',
+                                borderColor: 'rgba(0, 255, 0, 3)',
+                                borderWidth: 1,
+                                wallet : walletValues,
+                                userName: userValues
+                              },
+                              {
+                                label: 'فروش',
+                                data: sellValues,
+                                backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                                borderColor: 'rgba(255, 0, 0, 3)',
+                                borderWidth: 1,
+                                wallet : walletValues,
+                                userName: userValues
+                              },
+                            ],
+                          });
+                        } else {
+                          console.error("Invalid data structure:", response.data.data);
+                        }
       } catch (error) {
         console.error("Error fetching transactions:", error);
       }
@@ -117,6 +135,42 @@ const[users , setUsers] = useState([]);
           font: {
             size: 15,
             family: "vazir",
+          },
+        },
+      },
+      tooltip: {
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        titleAlign: "center",
+        bodyAlign: "center",
+        caretPadding: 12,
+        caretSize: 8,
+        position: "nearest",
+        yAlign: "bottom",
+        displayColors: false,
+        titleFont: {
+          family: "vazir", 
+          size: 14,
+          weight: "bold",
+        },
+        bodyFont: {
+          family: "vazir", 
+          size: 13,
+        },
+        callbacks: {
+          label: function (context) {
+            const index = context.dataIndex;
+            const transaction = dataChart?.datasets[context.datasetIndex].data[index];
+            const name = dataChart?.datasets[context.datasetIndex].wallet[index];
+            const userName = dataChart?.datasets[context.datasetIndex].userName[index];
+            if (transaction) {
+              return [
+                `نام ارز: ${name || "نامشخص"}`,
+                `نام کاربر: ${userName || "نامشخص"}`,
+                `مبلغ: ${parseInt(transaction).toLocaleString()} تومان`,
+              ];
+            }
+  
+            return "";
           },
         },
       },
@@ -165,6 +219,14 @@ const[users , setUsers] = useState([]);
         },
       },
     },
+    elements: {
+      line: {
+        borderWidth: 10, 
+        tension: 0.5, 
+        borderJoinStyle: "round",
+
+      },
+    },
   };
 
 
@@ -195,9 +257,12 @@ const[users , setUsers] = useState([]);
           value={formData.asset_id}
           onChange={handleChange}
         >
-            <option value="">انتخاب کنید</option>
-              <option value="1">ریال</option>
-              <option value="2">تتر</option>
+             <option value="">همه</option>
+             {assets?.map((wallet) => (
+              <option key={wallet.id} value={wallet.related_asset}>
+                {wallet.name_fa} ({wallet.symbol})
+              </option>
+            ))}
         </select>
       </div>
       </div>

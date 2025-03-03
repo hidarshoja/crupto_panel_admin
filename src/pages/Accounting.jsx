@@ -35,11 +35,12 @@ export default function Accounting() {
       let url = "/exchanges/liabilities";
       if (userId) {
         url = `/exchanges/liabilities?exchanges[0]=${userId}`;
+      }else {
+        url = "/exchanges/liabilities";
       }
       const response = await axiosClient2.get(url);
       if (response.data.data) {
         let data = response.data.data
-    
 const arrayData = Object.values(data).flat().reduce((acc, item) => {
   const existingExchange = acc.find((ex) => ex.exchange_id === item.exchange_id);
   if (existingExchange) {
@@ -47,11 +48,13 @@ const arrayData = Object.values(data).flat().reduce((acc, item) => {
       asset_name_fa: item.asset_name_fa,
       total_amount: item.total_amount,
       total_price: item.total_price,
+      img : item.exchange_logo
     });
   } else {
     acc.push({
       exchange_id: item.exchange_id,
       exchange_name_fa: item.exchange_name_fa,
+      img : item.exchange_logo,
       assets: [
         {
           asset_name_fa: item.asset_name_fa,
@@ -147,7 +150,7 @@ setFilteredData(arrayData);
         </button>
      </div>
      <div className='mt-8'>
-     <Transactions />
+     <Transactions assets ={assets}/>
      </div>
     </div>
   );

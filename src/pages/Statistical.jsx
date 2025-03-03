@@ -1,16 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import ChartAllUsers from "../components/chart-view/ChartAllUsers";
  import ChartDailyStats from "../components/chart-view/ChartDailyStats2";
  import ChartMonthlyStats from "../components/chart-view/ChartMonthlyStats";
  import ChartCustomerStats from "../components/chart-view/ChartCustomerStats";
  import ChartRemainingStats from "../components/chart-view/ChartRemainingStats";
+ import axiosClient2 from "../axios-client2";
 
 
 export default function Statistical() {
     const [activeSection, setActiveSection] = useState("chartAllUsers");
   const [filters, setFilters] = useState({});
   const [filteredData, setFilteredData] = useState([]);
+  const [assets , setAssets] = useState([]);
     const buttonClasses = (section) =>
       `text-sm w-1/2 md:w-full px-3 py-2 text-gray-100 border rounded-md ${
         activeSection === section
@@ -46,6 +48,21 @@ export default function Statistical() {
           alert("مشکلی در ارتباط با سرور رخ داده است");
         }
       };
+
+      const fetchTransactionsAssetes = async () => {
+        try {
+          const endpoint = `/assets`;
+          const response = await axiosClient2.get(endpoint);
+            setAssets(response.data.data);
+        } catch (error) {
+          console.error("Error fetching transactions:", error);
+        } 
+      };
+
+      useEffect(() => {
+        fetchTransactionsAssetes();
+      }
+      , []);
 
       
     return (
@@ -105,22 +122,22 @@ export default function Statistical() {
           </div>
           {activeSection === "chartAllUsers" && (
             <div>
-              <ChartAllUsers />
+              <ChartAllUsers assets={assets}/>
             </div>
           )}
           {activeSection === "dailyStats" && (
             <div>
-              <ChartDailyStats />
+              <ChartDailyStats assets={assets}/>
             </div>
           )}
           {activeSection === "monthlyStats" && (
             <div>
-              <ChartMonthlyStats />
+              <ChartMonthlyStats assets={assets}/>
             </div>
           )}
           {activeSection === "customerStats" && (
             <div>
-              <ChartCustomerStats />
+              <ChartCustomerStats assets={assets}/>
             </div>
           )}
           {activeSection === "remainingStats" && (

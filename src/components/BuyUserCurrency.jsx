@@ -65,22 +65,56 @@ export default function BuyUserCurrency() {
   const options = {
     plugins: {
       legend: {
-        display: false, 
+        display: false,
+      },
+      tooltip: {
+        backgroundColor: "rgba(0, 0, 0, 0.8)",
+        titleAlign: "center",
+        bodyAlign: "center",
+        caretPadding: 12,
+        caretSize: 8,
+        position: "nearest",
+        yAlign: "bottom",
+        displayColors: false,
+        titleFont: {
+          family: "vazir", 
+          size: 14,
+          weight: "bold",
+        },
+        bodyFont: {
+          family: "vazir", 
+          size: 13,
+        },
+        callbacks: {
+          label: function (context) {
+            const index = context.dataIndex;
+            const transaction = dataChart2?.filter(item => item.type === 2)[index];
+  
+            if (transaction) {
+              return [
+                `تاریخ: ${transaction?.date || "نامشخص"}`,
+                `مبلغ: ${parseInt(transaction?.total_price).toLocaleString()} تومان`,
+              ];
+            }
+  
+            return "";
+          },
+        },
       },
     },
     responsive: true,
     scales: {
       y: {
         ticks: {
-          display: false, 
+          display: false,
         },
         title: {
-          display: false, 
+          display: false,
         },
       },
       x: {
         ticks: {
-          display: false, 
+          display: false,
         },
         title: {
           display: false,
@@ -88,6 +122,7 @@ export default function BuyUserCurrency() {
       },
     },
   };
+
 
   const totalPriceSum = dataChart2?.filter(item => item.type === 1)  
   .reduce((sum, item) => sum + parseFloat(item.total_price), 0);

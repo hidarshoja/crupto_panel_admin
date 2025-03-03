@@ -5,7 +5,7 @@ import UserBox from "../components/UserBox3";
 
 export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId }) {
   const [selectedCurrencies, setSelectedCurrencies] = useState({});
-
+console.log(`exchangeWallet`, exchangeWallet);
   const handleCurrencyChange = (exchangeId, currency) => {
     setSelectedCurrencies((prev) => ({ ...prev, [exchangeId]: currency }));
   };
@@ -91,6 +91,10 @@ export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-md font-semibold text-gray-100">{exchange.exchange_name_fa}</h2>
+              <img
+                src={`https://pars-v2.liara.run/${exchange.img}`} 
+                alt={exchange.exchange_name_fa}
+                className="w-8 h-8" />
             </div>
 
             <select
@@ -109,13 +113,13 @@ export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId
               ارز انتخاب‌شده: {selectedCurrency}
             </div>
 
-            <div className="space-y-2 text-center">
-              <div className="text-red-500">
-                میزان طلب:{" "}
+            <div className="space-y-2 mt-4">
+              <div className="text-red-500 flex justify-between">
+                <span>میزان طلب:</span>
                 <span className="font-semibold">{parseFloat(selectedAsset.total_amount).toLocaleString()} ت</span>
               </div>
-              <div className="text-green-500">
-                میزان بدهی:{" "}
+              <div className="text-green-500 flex justify-between">
+                <span>میزان بدهی:</span>
                 <span className="font-semibold">{parseFloat(selectedAsset.total_price).toLocaleString()} ت</span>
               </div>
             </div>

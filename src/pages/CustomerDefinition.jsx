@@ -115,7 +115,23 @@ export default function CustomerDefinition() {
       toast.success("اطلاعات با موفقیت ثبت شد!");
     } catch (error) {
       console.error("Error submitting data:", error);
-      toast.error("خطا در ارسال اطلاعات!");
+      if (error.response && error.response.data) {
+        const { message, errors } = error.response.data;
+        
+        // ابتدا نمایش پیام کلی
+        toast.error(message || "خطا در ارسال اطلاعات!");
+  
+        // سپس نمایش خطاهای جزئی در فیلدهای مختلف
+        if (errors) {
+          Object.keys(errors).forEach((field) => {
+            errors[field].forEach((errorMessage) => {
+              toast.error(`${field}: ${errorMessage}`);
+            });
+          });
+        }
+      } else {
+        toast.error("خطا در ارسال اطلاعات!");
+      }
     }
   };
 
@@ -194,7 +210,7 @@ export default function CustomerDefinition() {
             <option value="">انتخاب کنید ...</option>
             <option value="1">کاربر عادی</option>
             {/* <option value="2">صرافی</option> */}
-            <option value="3">مشتری api</option>
+            <option value="3">مشتری API</option>
           </select>
         </div>
         {/* تاریخ تولد */}
@@ -285,7 +301,7 @@ export default function CustomerDefinition() {
             dir="rtl"
           />
           <span className="absolute left-3 top-2/3 transform -translate-y-1/2 text-gray-500">
-            ریال
+            تتر
           </span>
         </div>
 
@@ -314,7 +330,7 @@ export default function CustomerDefinition() {
           onChange={(e) => handleCheckboxChange(e, "assets")}
           className="hidden"
         />
-        <span className="text-sm">{wallet.name_fa}</span>
+        <span className="text-sm">{wallet.name_fa} ({wallet.name})</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
