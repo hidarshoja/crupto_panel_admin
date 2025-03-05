@@ -5,7 +5,6 @@ import UserBox from "../components/UserBox3";
 
 export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId }) {
   const [selectedCurrencies, setSelectedCurrencies] = useState({});
-console.log(`exchangeWallet`, exchangeWallet);
   const handleCurrencyChange = (exchangeId, currency) => {
     setSelectedCurrencies((prev) => ({ ...prev, [exchangeId]: currency }));
   };
@@ -81,9 +80,20 @@ console.log(`exchangeWallet`, exchangeWallet);
 
       <div className="flex flex-wrap justify-center gap-3">
       {result.map((exchange) => {
+
+         assets.forEach(asset => {
+          const exists = exchange.assets.some(item => item.asset_name_fa === asset.name_fa);
+          if (!exists) {
+              exchange.assets.push({
+                  asset_name_fa: asset.name_fa,
+                  total_amount: 0,
+                  total_price: 0
+              });
+          }
+      });
+
         const selectedCurrency = selectedCurrencies[exchange.exchange_id] || exchange.assets[0].asset_name_fa;
         const selectedAsset = exchange.assets.find((asset) => asset.asset_name_fa === selectedCurrency) || exchange.assets[0];
-
         return (
           <div
             key={exchange.exchange_id}

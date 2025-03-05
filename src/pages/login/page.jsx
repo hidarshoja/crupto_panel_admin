@@ -125,7 +125,7 @@ export default function Login() {
         <div className="w-[70%] flex items-center justify-center">
           <img
             className="absolute left-1/4 inset-0 h-full w-[70%]"
-            src="/img/login.svg"
+            src="/img/login-img.svg"
             alt=""
           />
         </div>

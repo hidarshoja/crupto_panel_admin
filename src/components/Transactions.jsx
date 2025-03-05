@@ -8,13 +8,14 @@ export default function Transactions({ assets }) {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
   const [isUsersInitialized, setIsUsersInitialized] = useState(false);
+  const [countPage , setCountPage] = useState(1);
+  const[totalPage , setTotalPage] = useState(0)
   const [filters, setFilters] = useState({
     type: "",
     status: "",
     currency: "",
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+
   const tableHeaders = [
     "تاریخ و ساعت",
     "کاربر معامله‌گر",
@@ -38,7 +39,7 @@ export default function Transactions({ assets }) {
     const fetchTransactions = async () => {
       setLoading(true);
       try {
-        const endpoint = `/transactions?${
+        const endpoint = `/transactions?page=${countPage}${
           userId ? `f[user_id]=${userId}&` : ""
         }${filters.type ? `f[type]=${filters.type}&` : ""}${
           filters.status ? `f[status]=${filters.status}&` : ""
@@ -47,7 +48,7 @@ export default function Transactions({ assets }) {
         const response = await axiosClient2.get(endpoint);
 
         SetListTransaction(response.data.data);
-
+        setTotalPage(response.data.meta.last_page);
         if (!isUsersInitialized) {
           const users = response.data.data.map((item) => item.user);
           const uniqueUsers = Array.from(
@@ -56,7 +57,7 @@ export default function Transactions({ assets }) {
           setUsers(uniqueUsers);
           setIsUsersInitialized(true);
         }
-        setCurrentPage(1);
+     
       } catch (error) {
         console.error("Error fetching transactions:", error);
       } finally {
@@ -71,11 +72,9 @@ export default function Transactions({ assets }) {
     filters.status,
     isUsersInitialized,
     filters.currency,
+    countPage
   ]);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = listTransaction.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(listTransaction.length / itemsPerPage);
+
 
   return (
     <div className="mt-8 flow-root">
@@ -212,8 +211,8 @@ export default function Transactions({ assets }) {
                 </tbody>
               ) : (
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {currentItems?.length > 0 ? (
-                    currentItems?.map((transaction) => (
+                  {listTransaction?.length > 0 ? (
+                    listTransaction?.map((transaction) => (
                       <tr key={transaction.id}>
                         <td className="px-3 py-4 text-sm text-gray-500 text-center">
                           {new Date(transaction.created_at)
@@ -266,19 +265,21 @@ export default function Transactions({ assets }) {
       </div>
       <div className="flex justify-between items-center mt-4">
         <button
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={countPage === 1}
+          onClick={() =>
+            setCountPage((prev) => prev - 1)
+          }
           className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
         >
           صفحه قبل
         </button>
         <span>
-          صفحه {currentPage} از {totalPages}
+          صفحه {countPage} از {totalPage}
         </span>
         <button
-          disabled={currentPage === totalPages}
+          disabled={countPage === totalPage}
           onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            setCountPage((prev) => prev + 1)
           }
           className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
         >
