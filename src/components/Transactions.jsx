@@ -39,7 +39,7 @@ export default function Transactions({ assets }) {
     const fetchTransactions = async () => {
       setLoading(true);
       try {
-        const endpoint = `/transactions?page=${countPage}${
+        const endpoint = `/transactions?page=${countPage}&${
           userId ? `f[user_id]=${userId}&` : ""
         }${filters.type ? `f[type]=${filters.type}&` : ""}${
           filters.status ? `f[status]=${filters.status}&` : ""
