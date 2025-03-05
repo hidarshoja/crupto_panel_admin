@@ -21,7 +21,8 @@ const KycUser = () => {
   const [assetAll , setAssetAll] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedAssets, setSelectedAssets] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [countPage , setCountPage] = useState(1);
+  const[totalPage , setTotalPage] = useState(0)
   const [formData, setFormData] = useState({
  
     assets : [],
@@ -71,9 +72,10 @@ const KycUser = () => {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await axiosClient2.get(`/users?include=assets`);
+        const response = await axiosClient2.get(`/users?include=assets&page=${countPage}`);
           setLoading(true);
           setAccessLevels(response.data.data);
+          setTotalPage(response.data.meta.last_page);
       } catch (error) {
         console.error("Error fetching transactions:", error);
       } finally {
@@ -82,11 +84,8 @@ const KycUser = () => {
     };
     fetchTransactionsAssetes();
     fetchTransactions();
-  }, []);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = accessLevels.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(accessLevels.length / itemsPerPage);
+  }, [countPage]);
+
 
   return (
     <div className="mt-8 flow-root">
@@ -142,7 +141,7 @@ const KycUser = () => {
                 </tbody>
               ) : (
               <tbody className="divide-y divide-gray-200 bg-white">
-                {currentItems?.map((transaction ) => (
+                {accessLevels?.map((transaction ) => (
                   <tr key={transaction.id}>
                     <td className="px-3 py-4 text-sm text-gray-500 text-center">
                       {transaction.name} -  {transaction.lastname}
@@ -193,18 +192,22 @@ const KycUser = () => {
       {/* صفحه بندی */}
       <div className="flex justify-between items-center mt-4">
         <button
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+           disabled={countPage === 1}
+           onClick={() =>
+             setCountPage((prev) => prev - 1)
+           }
           className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
         >
           صفحه قبل
         </button>
         <span>
-          صفحه {currentPage} از {totalPages}
+        صفحه {countPage} از {totalPage}
         </span>
         <button
-          disabled={currentPage === totalPages}
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+         disabled={countPage === totalPage}
+         onClick={() =>
+           setCountPage((prev) => prev + 1)
+         }
           className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
         >
           صفحه بعد
