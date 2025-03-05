@@ -66,7 +66,7 @@ export default function ExchangeComponent({
         </div>
 
         <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
-          <span className="text-sm font-semibold pl-2">شماره سند بدل:</span>
+          <span className="text-sm font-semibold pl-2">شماره سند :</span>
           <input
             type="text"
             name="bank_txid"

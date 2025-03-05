@@ -12,7 +12,8 @@ const ListStrategy = () => {
   const [playState, setPlayState] = useState({});
   const [strategiesList, setStrategiesList] = useState([]);
   const [isloading, setIsloading] = useState(true);
-
+  const [countPage , setCountPage] = useState(1);
+  const[totalPage , setTotalPage] = useState(0)
   
 
   const handleView = (list) => {
@@ -83,15 +84,16 @@ const ListStrategy = () => {
  useEffect(() => {
   const fetchTransactions = async () => {
     try {
-      const response = await axiosClient2.get("/strategies");
+      const response = await axiosClient2.get(`/strategies?page=${countPage}`);
       setStrategiesList(response.data.data);
+      setTotalPage(response.data.meta.last_page);
       setIsloading(false);
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
   };
   fetchTransactions();
-}, []);
+}, [countPage]);
 
 
   return (
@@ -214,6 +216,29 @@ const ListStrategy = () => {
           </div>
         </div>
       )}
+       <div className="flex justify-between items-center mt-4">
+        <button
+             disabled={countPage === 1}
+             onClick={() =>
+               setCountPage((prev) => prev - 1)
+             }
+          className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
+        >
+          صفحه قبل
+        </button>
+        <span>
+        صفحه {countPage} از {totalPage}
+        </span>
+        <button
+           disabled={countPage === totalPage}
+           onClick={() =>
+             setCountPage((prev) => prev + 1)
+           }
+          className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
+        >
+          صفحه بعد
+        </button>
+      </div>
     </div>
   );
 };

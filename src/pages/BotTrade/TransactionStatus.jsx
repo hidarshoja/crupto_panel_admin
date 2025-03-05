@@ -109,7 +109,7 @@ if (data.fromDate || data.toDate || data.id) {
         </button>
       </div>
       <div className="mt-8">
-        <TableTransactionStatus autoOrders={autoOrders} />
+        <TableTransactionStatus  />
       </div>
     </div>
   );

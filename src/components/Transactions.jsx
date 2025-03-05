@@ -9,7 +9,7 @@ export default function Transactions({ assets }) {
   const [userId, setUserId] = useState(null);
   const [isUsersInitialized, setIsUsersInitialized] = useState(false);
   const [countPage , setCountPage] = useState(1);
-  const[totalPage , setTotalPage] = useState(0)
+  const[totalPage , setTotalPage] = useState(0);
   const [filters, setFilters] = useState({
     type: "",
     status: "",
@@ -129,7 +129,7 @@ export default function Transactions({ assets }) {
             className="p-2 border rounded w-full"
           >
             <option value="">همه</option>
-            {assets.map((asset) => (
+            {assets?.map((asset) => (
               <option key={asset.id} value={asset.id}>
                 {asset.name_fa} ({asset.name})
               </option>

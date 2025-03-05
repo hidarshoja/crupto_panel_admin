@@ -1,6 +1,7 @@
-import React , {useState} from 'react';
+import  {useState , useEffect} from 'react';
 import UserBox from "../../components/UserBox4";
 import axios from 'axios';
+import axiosClient2 from '../../axios-client2';
 
 const Accounts = [
   {
@@ -25,13 +26,13 @@ const Accounts = [
   },
 ];
 
-export default function TableTransactionStatus({autoOrders}) {
+export default function TableTransactionStatus() {
   const [userId, setUserId] = useState(null);
-   const [filteredData, setFilteredData] = useState(Accounts);
     const [filters2, setFilters2] = useState({});
     const [filteredData2, setFilteredData2] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+    const [autoOrders, setAutoOrders] = useState([]);
+    const [countPage , setCountPage] = useState(1);
+  const[totalPage , setTotalPage] = useState(0);
 
    const handleExportExcel = async () => {
     const payload = {
@@ -61,10 +62,19 @@ export default function TableTransactionStatus({autoOrders}) {
     }
   };
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = autoOrders?.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(autoOrders?.length / itemsPerPage);
+  useEffect(() => {
+    const fetchAutoOrders = async () => {
+      try {
+        const response = await axiosClient2.get(`/auto-orders?page=${countPage}`);
+        setAutoOrders(response.data.data);
+        setTotalPage(response.data.meta.last_page);
+      } catch (error) {
+        console.error("Error fetching auto orders:", error);
+      }
+    };
+
+    fetchAutoOrders();
+  }, [countPage]);
 
   return (
     <>
@@ -122,8 +132,8 @@ export default function TableTransactionStatus({autoOrders}) {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {currentItems?.length > 0 ? (
-            currentItems?.map((account, index) => (
+          {autoOrders?.length > 0 ? (
+            autoOrders?.map((account, index) => (
               <tr key={index}>
                 <td className="px-6 py-4 text-center text-sm text-gray-900">{index + 1}</td>
                 <td className="px-6 py-4 text-center text-sm text-gray-900">{account.documentNumber}</td>
@@ -151,18 +161,22 @@ export default function TableTransactionStatus({autoOrders}) {
           {/* صفحه بندی */}
           <div className="flex justify-between items-center mt-4">
         <button
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+           disabled={countPage === 1}
+           onClick={() =>
+             setCountPage((prev) => prev - 1)
+           }
           className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
         >
           صفحه قبل
         </button>
         <span>
-          صفحه {currentPage} از {totalPages}
+        صفحه {countPage} از {totalPage}
         </span>
         <button
-          disabled={currentPage === totalPages}
-          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              disabled={countPage === totalPage}
+              onClick={() =>
+                setCountPage((prev) => prev + 1)
+              }
           className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
         >
           صفحه بعد

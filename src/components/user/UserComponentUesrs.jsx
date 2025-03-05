@@ -66,7 +66,7 @@ export default function UserComponentUsers({
         </div>
 
         <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
-          <span className="text-sm font-semibold pl-2">شماره سند بدل:</span>
+          <span className="text-sm font-semibold pl-2">شماره سند :</span>
           <input
             type="text"
             name="bank_txid"
@@ -78,33 +78,6 @@ export default function UserComponentUsers({
         </div>
       </div>
 
-      {/* <div className="flex flex-col md:flex-row gap-4 w-full">
-        <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
-          <span className="text-sm font-semibold pl-2">شماره سند بدل:</span>
-          <input
-            type="text"
-            name="documentNumber"
-            value={formData2.documentNumber}
-            onChange={handleChange2}
-            placeholder="شماره سند را وارد کنید"
-            className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
-          <span className="text-sm font-semibold pl-2">کلیت سند:</span>
-          <select
-            name="documentType"
-            value={formData2.documentType}
-            onChange={handleChange2}
-            className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">انتخاب کنید</option>
-            <option value="1">اصلاحی</option>
-            <option value="2">قطعی</option>
-          </select>
-        </div>
-      </div> */}
 
       <div className="flex flex-col gap-1 items-start w-full">
         <span className="text-sm font-semibold pl-2">بابت صرافی :</span>
