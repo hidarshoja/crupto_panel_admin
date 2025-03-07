@@ -58,7 +58,7 @@ const [endDate, setEndDate] = useState(null);
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        let endpoint = `/statistics/daily-user-asset`;
+        let endpoint = `/statistics/daily-user-asset?user_type=3`;
         const queryParams = [];
         if (startDate && endDate) {
           queryParams.push(`start_date=${startDate}`);
@@ -68,7 +68,7 @@ const [endDate, setEndDate] = useState(null);
         if (formData.asset_id) queryParams.push(`asset_id=${formData.asset_id}`);
   
         if (queryParams.length > 0) {
-          endpoint += `?${queryParams.join("&")}`;
+          endpoint += `&${queryParams.join("&")}`;
         }
   
         const response = await axiosClient2.get(endpoint);

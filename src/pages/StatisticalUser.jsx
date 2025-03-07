@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import ChartAllUsers from "../components/user/chart/ChartAllUsers";
  import ChartDailyStats from "../components/user/chart/ChartDailyStats2";
  import ChartMonthlyStats from "../components/user/chart/ChartMonthlyStats";
  import ChartCustomerStats from "../components/user/chart/ChartCustomerStats";
+ import axiosClient2 from "../axios-client2";
 
 
 export default function StatisticalUser() {
     const [activeSection, setActiveSection] = useState("chartAllUsers");
+    const [assets , setAssets] = useState([]);
 
     const buttonClasses = (section) =>
       `text-sm w-1/2 md:w-full px-3 py-2 text-gray-100 border rounded-md ${
@@ -14,6 +16,21 @@ export default function StatisticalUser() {
           ? "bg-[#3ABEF9]"
           : "bg-[#090580] hover:bg-[#3ABEF9]"
       }`;
+
+      const fetchTransactionsAssetes = async () => {
+        try {
+          const endpoint = `/assets`;
+          const response = await axiosClient2.get(endpoint);
+            setAssets(response.data.data);
+        } catch (error) {
+          console.error("Error fetching transactions:", error);
+        } 
+      };
+
+      useEffect(() => {
+        fetchTransactionsAssetes();
+      }
+      , []);
 
       
     return (
@@ -56,22 +73,22 @@ export default function StatisticalUser() {
           </div>
           {activeSection === "chartAllUsers" && (
             <div>
-              <ChartAllUsers />
+              <ChartAllUsers assets={assets}/>
             </div>
           )}
           {activeSection === "dailyStats" && (
             <div>
-              <ChartDailyStats />
+              <ChartDailyStats  assets={assets}/>
             </div>
           )}
           {activeSection === "monthlyStats" && (
             <div>
-              <ChartMonthlyStats />
+              <ChartMonthlyStats assets={assets}/>
             </div>
           )}
           {activeSection === "customerStats" && (
             <div>
-              <ChartCustomerStats />
+              <ChartCustomerStats assets={assets}/>
             </div>
           )}
          

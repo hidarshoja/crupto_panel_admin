@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import UserBox from "../components/UserBox4";
 import axiosClient2 from "../axios-client2";
 
-export default function Transactions({ assets }) {
+export default function Transactions({ assets , selectedValue }) {
   const [listTransaction, SetListTransaction] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,11 +39,11 @@ export default function Transactions({ assets }) {
     const fetchTransactions = async () => {
       setLoading(true);
       try {
-        const endpoint = `/transactions?page=${countPage}&${
-          userId ? `f[user_id]=${userId}&` : ""
-        }${filters.type ? `f[type]=${filters.type}&` : ""}${
-          filters.status ? `f[status]=${filters.status}&` : ""
-        }${filters.currency ? `f[asset_id]=${filters.currency}` : ""}`;
+        const endpoint = `/transactions?f[user.type]=${selectedValue}&page=${countPage}${
+          userId ? `&f[user_id]=${userId}` : ""
+        }${filters.type ? `&f[type]=${filters.type}` : ""}${
+          filters.status ? `&f[status]=${filters.status}` : ""
+        }${filters.currency ? `&f[asset_id]=${filters.currency}` : ""}`;
 
         const response = await axiosClient2.get(endpoint);
 
@@ -72,7 +72,8 @@ export default function Transactions({ assets }) {
     filters.status,
     isUsersInitialized,
     filters.currency,
-    countPage
+    countPage,
+    selectedValue
   ]);
 
 

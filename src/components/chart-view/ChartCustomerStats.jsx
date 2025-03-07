@@ -25,7 +25,7 @@ export default function ChartAllUsers({assets}) {
   const [formData, setFormData] = useState({
     type: '',
     asset_id: '',
-    typeChange : ''
+    typeChange : '3'
   });
 
 
@@ -65,7 +65,7 @@ export default function ChartAllUsers({assets}) {
     const fetchTransactions = async () => {
       try {
         let endpoint = `/statistics/daily-user-asset`;
-  
+       
         const queryParams = [];
         if (startDate && endDate) {
           queryParams.push(`start_date=${startDate}`);
@@ -73,7 +73,7 @@ export default function ChartAllUsers({assets}) {
         }
         if (formData.type) queryParams.push(`type=${formData.type}`);
         if (formData.asset_id) queryParams.push(`asset_id=${formData.asset_id}`);
-       
+        if (formData.typeChange) queryParams.push(`user_type=${formData.typeChange}`);
   
    
         if (queryParams.length > 0) {
@@ -140,7 +140,7 @@ export default function ChartAllUsers({assets}) {
     };
   
     fetchTransactions();
-  }, [startDate ,endDate , formData.type, formData.asset_id ]);
+  }, [startDate ,endDate , formData.type, formData.asset_id , formData.typeChange ]);
 
 
 
@@ -271,10 +271,10 @@ export default function ChartAllUsers({assets}) {
           value={formData.typeChange}
           onChange={handleChange}
         >
-          <option value="all">همه</option>
-          <option value="1">مشتریان API</option>
-          <option value="2">Bot</option>
-          <option value="3">کاربران</option>
+           <option value="">همه</option>
+        <option value="3" selected>مشتریان API</option>
+        <option value="2">  بات ترید</option>
+        <option value="1">کاربران</option>
         </select>
       </div>
       <div className="w-full md:w-1/2 flex flex-col gap-1">
@@ -288,7 +288,8 @@ export default function ChartAllUsers({assets}) {
           value={formData.asset_id}
           onChange={handleChange}
         >
-               {assets?.map((wallet) => (
+            <option value="">همه</option>
+           {assets?.map((wallet) => (
               <option key={wallet.id} value={wallet.related_asset}>
                 {wallet.name_fa} ({wallet.symbol})
               </option>

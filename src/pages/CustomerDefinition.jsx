@@ -23,7 +23,7 @@ export default function CustomerDefinition() {
     assets: [],
     password: "",
     status: 100,
-    type : "",
+    type : "3",
     user_api: true,
     valid_ips : ["192.1.23.36"]
   };
@@ -207,10 +207,9 @@ export default function CustomerDefinition() {
             onChange={handleInputChange}
             className=" block w-full rounded-md border-0 py-2 pr-2 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
           >
-            <option value="">انتخاب کنید ...</option>
-            <option value="1">کاربر عادی</option>
-            {/* <option value="2">صرافی</option> */}
-            <option value="3">مشتری API</option>
+        <option value="3" selected>مشتریان API</option>
+           <option value="1">کاربران</option>
+        <option value="2">  بات ترید</option>
           </select>
         </div>
         {/* تاریخ تولد */}

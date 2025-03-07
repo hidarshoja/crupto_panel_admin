@@ -4,7 +4,7 @@ import TransactionsUser from '../components/user/TransactionsUser';
 import axiosClient2 from '../axios-client2';
 
 export default function AccountingUser() {
-  const [selectedValue, setSelectedValue] = useState("4");
+  const [selectedValue, setSelectedValue] = useState("1");
   const [exchange , setExchange] = useState([]);
   const [userId, setUserId] = useState(null);
   const [assets , setAssets] = useState([]);
@@ -33,7 +33,11 @@ export default function AccountingUser() {
     try {
       let url = "/exchanges/liabilities";
       if (userId) {
-        url = `/exchanges/liabilities?exchanges[0]=${userId}`;
+        url = `/exchanges/liabilities?exchanges[0]=${userId}${
+          selectedValue ? `&user_type=${selectedValue}` : ""
+        }`;
+      } else if (selectedValue) {
+        url = `/exchanges/liabilities?user_type=${selectedValue}`;
       }
       const response = await axiosClient2.get(url);
       if (response.data.data) {
@@ -72,7 +76,7 @@ setFilteredData(arrayData);
   
   useEffect(() => {
     fetchUsers(); 
-  }, [userId]); 
+  }, [userId , selectedValue]); 
 
   useEffect(() => {
    
@@ -124,10 +128,10 @@ setFilteredData(arrayData);
         onChange={handleSelectChange}
         className="bg-gray-100 border w-[250px] border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
-        <option value="1">همه</option>
-        <option value="2">کاربران API</option>
-        <option value="3">  بات ترید</option>
-        <option value="4">کاربران</option>
+        <option value="">همه</option>
+        <option value="3">مشتریان API</option>
+        <option value="2">  بات ترید</option>
+        <option value="1" selected>کاربران</option>
       </select>
      </div>
      <BoxAccountUser
@@ -145,7 +149,7 @@ setFilteredData(arrayData);
           خروجی اکسل
         </button>
      </div>
-     <TransactionsUser />
+     <TransactionsUser selectedValue={selectedValue} />
     </div>
   );
 }

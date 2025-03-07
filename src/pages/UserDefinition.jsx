@@ -24,7 +24,7 @@ export default function CustomerDefinition() {
     password: "",
     status: 100,
     user_api: true,
-    type : "",
+    type : "1",
     valid_ips : ["192.1.23.36"]
   };
 
@@ -191,10 +191,10 @@ export default function CustomerDefinition() {
             onChange={handleInputChange}
             className=" block w-full rounded-md border-0 py-2 pr-2 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
           >
-            <option value="">انتخاب کنید ...</option>
-            <option value="1">کاربر عادی</option>
-            {/* <option value="2">صرافی</option> */}
-            <option value="3">مشتری api</option>
+          
+        <option value="1" selected>کاربران</option>
+        <option value="3">مشتریان API</option>
+        <option value="2">  بات ترید</option>
           </select>
         </div>
         {/* تاریخ تولد */}
@@ -285,7 +285,7 @@ export default function CustomerDefinition() {
             dir="rtl"
           />
           <span className="absolute left-3 top-2/3 transform -translate-y-1/2 text-gray-500">
-            ریال
+            تتر
           </span>
         </div>
 
@@ -315,7 +315,7 @@ export default function CustomerDefinition() {
           onChange={(e) => handleCheckboxChange(e, "assets")}
           className="hidden"
         />
-        <span className="text-sm">{wallet.name}</span>
+        <span className="text-sm">{wallet.name_fa} ({wallet.name})</span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import UserBox from "../../components/UserBox4";
 import axiosClient2 from "../../axios-client2";
 
-export default function TransactionsUser() {
+export default function TransactionsUser({selectedValue}) {
   const [listTransaction, SetListTransaction] = useState([]);
   const [users , setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,7 +34,7 @@ useEffect(() => {
   const fetchTransactions = async () => {
     setLoading(true);
     try {
-      const endpoint = `/transactions?page=${countPage}&${userId ? `f[user_id]=${userId}&` : ""}${
+      const endpoint = `/transactions?f[user.type]=${selectedValue}&page=${countPage}${userId ? `&f[user_id]=${userId}&` : ""}${
         filters.type ? `f[type]=${filters.type}&` : ""
       }${filters.status ? `f[status]=${filters.status}&` : ""}${
         filters.currency ? `f[asset_id]=${filters.currency}` : ""
@@ -61,7 +61,7 @@ useEffect(() => {
   };
 
   fetchTransactions();
-}, [userId, filters.type, filters.status, isUsersInitialized , filters.currency , countPage]);
+}, [userId, filters.type, filters.status, isUsersInitialized , filters.currency , countPage ,  selectedValue]);
 
 
 

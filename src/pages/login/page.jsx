@@ -11,44 +11,40 @@ export default function Login() {
   const navigate = useNavigate();
 
  
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
-    const payload = {
-      mobile: phoneRef.current.value,
-      password: passwordRef.current.value,
-    };
-
-    if (payload.mobile.length !== 10) {
+  
+    const mobile = phoneRef.current.value;
+    const password = passwordRef.current.value;
+  
+    if (mobile.length !== 10) {
       setIsLoading(false);
       errorMessage("شماره موبایل ده رقمی را وارد کنید");
       return;
     }
-
+  
     try {
-      const response = await axiosClient.post("/login", payload);
-      console.log(`response`, response);
-      const { user, token } = response.data.data;
-      localStorage.setItem("USER_INFO", JSON.stringify(user));
-      localStorage.setItem("ACCESS_TOKEN", token);
+      const response = await axiosClient.post("/send-otp", { mobile });
+  
+    
       
-      successMessage("ورود با موفقیت انجام شد");
+      // ذخیره شماره موبایل و پسورد در localStorage
+      localStorage.setItem("mobile", mobile);
+      localStorage.setItem("password", password);
+  
+      successMessage("کد تایید ارسال شد");
       setTimeout(() => {
         setIsLoading(false);
-        navigate("/");
+        navigate("/auth/otp");
       }, 1000);
     } catch (error) {
       setIsLoading(false);
-      if (error.response?.status === 401) {
-        errorMessage("شماره موبایل و پسورد هم‌خوانی ندارد");
-      } else {
-        errorMessage("خطایی رخ داده است، لطفاً مجدداً تلاش کنید");
-      }
+      errorMessage("خطایی رخ داده است، لطفاً مجدداً تلاش کنید");
     }
   };
-
+  
+  
   return (
     <div className="flex min-h-full flex-1 w-full h-screen">
       <div

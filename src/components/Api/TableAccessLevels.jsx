@@ -101,7 +101,7 @@ const TableAccessLevels = () => {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await axiosClient2.get(`/users?include=assets&page=${countPage}`);
+        const response = await axiosClient2.get(`/users?include=assets&f[type]=3&page=${countPage}`);
         setLoading(true);
         setAccessLevels(response.data.data);
         setTotalPage(response.data.meta.last_page);

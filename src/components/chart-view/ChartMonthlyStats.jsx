@@ -37,7 +37,7 @@ const[users , setUsers] = useState([]);
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        let endpoint = `/statistics/daily-user-asset`;
+        let endpoint = `/statistics/daily-user-asset?user_type=3`;
   
         const queryParams = [];
         if (formData.type) queryParams.push(`type=${formData.type}`);
@@ -46,7 +46,7 @@ const[users , setUsers] = useState([]);
   
    
         if (queryParams.length > 0) {
-          endpoint += `?${queryParams.join("&")}`;
+          endpoint += `&${queryParams.join("&")}`;
         }
   
         const response = await axiosClient2.get(endpoint);

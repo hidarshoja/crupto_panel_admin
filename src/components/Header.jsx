@@ -9,7 +9,7 @@ export default function Header({
   setDesktopSidebarOpen,
 }) {
   const navigate = useNavigate();
-  const userInfo = JSON.parse(localStorage.getItem("USER_INFO"));
+   const userInfo = JSON.parse(localStorage.getItem("USER_INFO"));
   const accessToken = localStorage.getItem("ACCESS_TOKEN");
 
   // چک کردن وضعیت توکن و هدایت به صفحه ورود

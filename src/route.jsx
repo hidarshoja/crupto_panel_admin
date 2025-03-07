@@ -3,6 +3,7 @@ import App from "./App";
 import AuthLayout from "./layout/AuthLayout";
 import Login from "./pages/login/page";
 import Register from "./pages/Rigester/Register";
+import OtpPage from "./pages/OtpPage/Otp";
 import HomePage from "./pages/HomePage";
 import CustomerDefinition from "./pages/CustomerDefinition";
 import Accounting from "./pages/Accounting";
@@ -168,6 +169,10 @@ export const route = createBrowserRouter([
             {
                 path: 'register',
                 element: <Register />
+            },
+            {
+                path: 'otp',
+                element: <OtpPage />
             }
         ]
     }

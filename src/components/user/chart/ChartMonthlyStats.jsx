@@ -1,6 +1,7 @@
 import { useState , useEffect } from "react";
 import { Bar } from "react-chartjs-2";
 import UserBox from "../../UserBox1";
+import jalaali from "jalaali-js";
 import {
   Chart,
   BarElement,
@@ -12,7 +13,7 @@ import {
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 import axiosClient2 from "../../../axios-client2";
 
-export default function ChartAllUsers() {
+export default function ChartAllUsers({assets}) {
   const [dataChart, setDataChart] = useState(null);
   const [userId, setUserId] = useState(null);
   const [exchange , setExchange] = useState([]);
@@ -35,7 +36,7 @@ export default function ChartAllUsers() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        let endpoint = `/statistics/daily-user-asset`;
+        let endpoint = `/statistics/daily-user-asset?user_type=1`;
   
         const queryParams = [];
         if (formData.type) queryParams.push(`type=${formData.type}`);
@@ -44,7 +45,7 @@ export default function ChartAllUsers() {
   
    
         if (queryParams.length > 0) {
-          endpoint += `?${queryParams.join("&")}`;
+          endpoint += `&${queryParams.join("&")}`;
         }
   
         const response = await axiosClient2.get(endpoint);
