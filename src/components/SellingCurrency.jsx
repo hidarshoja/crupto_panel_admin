@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
+import { useNavigate } from 'react-router-dom';
 import {
   Chart,
   LineElement,
@@ -14,6 +15,7 @@ import axiosClient2 from "../axios-client2";
 export default function SellingCurrency() {
   const [dataChart, setDataChart] = useState(null);
   const [dataChart2 , setDataChart2] = useState(null);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     type: '',
     asset_id: '',
@@ -54,6 +56,9 @@ export default function SellingCurrency() {
         }
       } catch (error) {
         console.error("Error fetching transactions:", error);
+        if (error.response && error.response.status === 401) {
+          navigate('/auth/login');
+        }
       }
     };
 

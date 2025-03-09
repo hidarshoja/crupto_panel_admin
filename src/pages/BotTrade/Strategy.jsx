@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "../../components/Bot/ModalStrategy";
 import StrategyFormComponent from "../../components/Bot/StrategyFormComponent";
 import { toast } from "react-toastify";
@@ -10,7 +10,7 @@ export default function Strategy() {
   const [formData, setFormData] = useState({
     title: "",
     amount: "",
-    currency: "USDT",
+    currency: "Tether",
     suppliers: [],
     buyers: [], 
     strategyName: "", 
@@ -22,22 +22,22 @@ export default function Strategy() {
   });
 
   const [supplierExchanges, setSupplierExchanges] = useState([
-    { id: 1, name: "نیوبیکس", selected: false },
-    { id: 2, name: "آبان تتر", selected: false },
-    { id: 3, name: "exch", selected: false },
-    { id: 4, name: "لیدیا", selected: false },
-    { id: 5, name: "تترلند", selected: false },
-    { id: 6, name: "DAI", selected: false },
-    { id: 7, name: "همه", selected: false },
+    { id: 5, name: "آبان", selected: false },
+    { id: 6, name: "نوبیتکس", selected: false },
+    { id: 7, name: "بیت پین", selected: false },
+    { id: 8, name: "سلام کریپتو", selected: false },
+    { id: 9, name: "تبدیل", selected: false },
+    { id: 10, name: "آبان پرایم", selected: false },
+    { id: 11, name: "عصر تتر", selected: false },
   ]);
   const [buyerExchanges, setBuyerExchanges] = useState([
-    { id: 1, name: "نیوبیکس", selected: false },
-    { id: 2, name: "آبان تتر", selected: false },
-    { id: 3, name: "exch", selected: false },
-    { id: 4, name: "لیدیا", selected: false },
-    { id: 5, name: "تترلند", selected: false },
-    { id: 6, name: "DAI", selected: false },
-    { id: 7, name: "همه", selected: false },
+    { id: 5, name: "آبان", selected: false },
+    { id: 6, name: "نوبیتکس", selected: false },
+    { id: 7, name: "بیت پین", selected: false },
+    { id: 8, name: "سلام کریپتو", selected: false },
+    { id: 9, name: "تبدیل", selected: false },
+    { id: 10, name: "آبان پرایم", selected: false },
+    { id: 11, name: "عصر تتر", selected: false },
   ]);
 
   const toggleSelection = (index, type) => {
@@ -109,7 +109,17 @@ export default function Strategy() {
     }
   };
   
-
+useEffect(() =>{
+  const fetchTransactions = async () => {
+    try {
+      const response = await axiosClient2.get("/exchanges");
+      console.log("Fetched transactions:", response.data.data); 
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    }
+  };
+  fetchTransactions();
+} ,[])
 
   
 
@@ -128,30 +138,7 @@ export default function Strategy() {
   };
 
 
-  // const handleSubmit = async () => {
-  //   if (
-  //     !formData.lastname ||
-  //     !formData.national_code ||
-  //     !formData.mobile ||
-      
-  //   ) {
-  //     console.log("عررور");
-  //     toast.error("لطفاً تمام فیلدهای ضروری را پر کنید.");
-  //     return;
-  //   }
-
-  //   try {
-  //     const response = await axiosClient2.post(
-  //       "/users",
-  //       formData
-  //     );
-  //     console.log("Response from server:", response.data);
-  //     toast.success("اطلاعات با موفقیت ثبت شد!");
-  //   } catch (error) {
-  //     console.error("Error submitting data:", error);
-  //     toast.error("خطا در ارسال اطلاعات!");
-  //   }
-  // };
+ 
 
   return (
     <div>
@@ -180,6 +167,7 @@ export default function Strategy() {
         </button>
       </div>
       <Modal
+      formData={formData}
   isOpen={isSupplierModalOpen}
   exchanges={supplierExchanges}
   toggleSelection={(index) => toggleSelection(index, "supplier")}
@@ -187,6 +175,7 @@ export default function Strategy() {
 />
 
 <Modal
+formData={formData}
   isOpen={isBuyerModalOpen}
   exchanges={buyerExchanges}
   toggleSelection={(index) => toggleSelection(index, "buyer")}

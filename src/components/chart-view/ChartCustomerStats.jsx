@@ -332,7 +332,7 @@ export default function ChartAllUsers({assets}) {
         فیلتر براساس تاریخ
             </button>
       </div>
-      <h1 className="text-center font-bold text-lg mt-6">نمودار آمار کلی خرید و فروش   </h1>
+      <h1 className="text-center font-bold text-lg mt-6">نمودار آمار کلی  سود   </h1>
       <div>
       {dataChart ? (
         <Line data={dataChart} options={options} />

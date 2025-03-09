@@ -1,38 +1,26 @@
 import  {useState , useEffect} from 'react';
-import UserBox from "../../components/UserBox4";
+import UserBox from "../../components/UserBox3";
+import UserBox5 from '../../components/UserBox5';
 import axios from 'axios';
 import axiosClient2 from '../../axios-client2';
 
-const Accounts = [
-  {
-    documentNumber: '12345',
-    date: '1402/10/15',
-    name: 'علی رضایی',
-    exchangeName: 'صرافی پارسی',
-    transactionType: 'خرید',
-    currencyType: 'دلار',
-    amount: '1000',
-    profit: '50',
-  },
-  {
-    documentNumber: '67890',
-    date: '1402/10/16',
-    name: 'مریم موسوی',
-    exchangeName: 'صرافی ایرانیان',
-    transactionType: 'فروش',
-    currencyType: 'یورو',
-    amount: '2000',
-    profit: '70',
-  },
-];
 
-export default function TableTransactionStatus() {
+export default function TableTransactionStatus({selectedValue  , startDate , endDate}) {
   const [userId, setUserId] = useState(null);
+  const [userIdSt, setUserIdSt] = useState(null);
     const [filters2, setFilters2] = useState({});
     const [filteredData2, setFilteredData2] = useState([]);
     const [autoOrders, setAutoOrders] = useState([]);
+    const [strategiesList,setStrategiesList] = useState([]);
     const [countPage , setCountPage] = useState(1);
   const[totalPage , setTotalPage] = useState(0);
+  const [exchange , setExchange] = useState([]);
+  const [assets , setAssets] = useState([]);
+  const [filters, setFilters] = useState({
+    type: "",
+    status: "",
+    currency: "",
+  });
 
    const handleExportExcel = async () => {
     const payload = {
@@ -62,38 +50,149 @@ export default function TableTransactionStatus() {
     }
   };
 
-  useEffect(() => {
-    const fetchAutoOrders = async () => {
-      try {
-        const response = await axiosClient2.get(`/auto-orders?page=${countPage}`);
-        setAutoOrders(response.data.data);
-        setTotalPage(response.data.meta.last_page);
-      } catch (error) {
-        console.error("Error fetching auto orders:", error);
-      }
-    };
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value,
+    }));
+  };
 
+  const fetchTransactions = async () => {
+    try {
+      const response = await axiosClient2.get("/exchanges");
+      setExchange(response.data.data);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    }
+  };
+  const fetchTransactionsAssetes = async () => {
+    try {
+      const endpoint = `/assets`;
+      const response = await axiosClient2.get(endpoint);
+        setAssets(response.data.data);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } 
+  };
+  const fetchAutoOrders = async () => {
+    console.log(`startData`, startDate);
+    console.log(`endDate`, endDate);
+    try {
+    
+      const endpoint = `/auto-orders?page=${countPage}${
+        userId ? `&f[user_id]=${userId}` : ""
+      }${
+        userIdSt ? `&f[strategy_id]=${userIdSt}` : ""
+      }${filters.type ? `&f[type]=${filters.type}` : ""}${
+        filters.status ? `&f[status]=${filters.status}` : ""
+      }${filters.currency ? `&f[asset_id]=${filters.currency}` : ""}${
+        selectedValue ? `&user_type=${selectedValue}` : ""
+      }${
+        startDate ? `&start_date=${startDate}` : ""
+      }${
+        endDate ? `&end_date=${endDate}` : ""
+      }`;
+
+      const response = await axiosClient2.get(endpoint);
+      setAutoOrders(response.data.data);
+      setTotalPage(response.data.meta.last_page);
+    } catch (error) {
+      console.error("Error fetching auto orders:", error);
+    }
+  };
+
+  const fetchStrategies = async () => {
+    try {
+      const response = await axiosClient2.get(`/strategies`);
+      setStrategiesList(response.data.data);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    }
+  };
+
+  useEffect(() => {
+   
     fetchAutoOrders();
-  }, [countPage]);
+  }, [countPage , userId , filters.type, filters.currency ,userIdSt , selectedValue , startDate , endDate]);
+useEffect(() => {
+  fetchTransactions();
+  fetchTransactionsAssetes();
+  fetchStrategies();
+},[])
 
   return (
     <>
     <div className='flex items-center justify-between py-5'>
-    <div className="w-full md:w-1/4 flex flex-col mt-[-3px]">
+    <div className="w-full md:w-1/5 flex flex-col mt-[-3px]">
           <label
             htmlFor="userFilter"
             className="block text-gray-700 text-sm font-bold pb-2 w-28"
           >
-            نام کاربر:
+            نام صرافی:
           </label>
           <UserBox
-            people={Accounts}
+            people={exchange}
             setUserId={setUserId}
           />
         </div>
+        <div className="w-full md:w-1/5 flex flex-col mt-[-3px]">
+          <label
+            htmlFor="userFilter"
+            className="block text-gray-700 text-sm font-bold pb-2 w-28"
+          >
+            نام استراتژی:
+          </label>
+          <UserBox5
+            people={strategiesList}
+            setUserId={setUserIdSt}
+          />
+        </div>
+         {/* فیلتر نوع معامله */}
+         <div className="w-full md:w-1/5">
+          <label
+            htmlFor="type"
+            className="block mb-1 text-sm font-medium text-gray-700"
+          >
+            فیلتر نوع معامله
+          </label>
+          <select
+            id="type"
+            name="type"
+            value={filters.type}
+            onChange={handleFilterChange}
+            className="p-2 border rounded w-full"
+          >
+            <option value="">همه</option>
+            <option value="1">خرید</option>
+            <option value="-1">فروش</option>
+          </select>
+        </div>
+        <div className="w-full md:w-1/5">
+          <label
+            htmlFor="currency"
+            className="block mb-1 text-sm font-medium text-gray-700"
+          >
+            فیلتر ارز معامله
+          </label>
+          <select
+            id="currency"
+            name="currency"
+            value={filters.currency}
+            onChange={handleFilterChange}
+            className="p-2 border rounded w-full"
+          >
+            <option value="">همه</option>
+            {assets?.map((asset) => (
+              <option key={asset.id} value={asset.id}>
+                {asset.name_fa} ({asset.name})
+              </option>
+            ))}
+          </select>
+        </div>
         <button
           onClick={handleExportExcel}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="px-4 py-3 mt-4 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           خروجی اکسل
         </button>
@@ -112,7 +211,7 @@ export default function TableTransactionStatus() {
               تاریخ
             </th>
             <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-              نام مشتری
+              نام استراتژی
             </th>
             <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
               نام صرافی
@@ -144,7 +243,7 @@ export default function TableTransactionStatus() {
                 <td className="px-6 py-4 text-center text-sm text-gray-900">{account.exchanges_name[0].name}</td>
                 <td className="px-6 py-4 text-center text-sm text-gray-900">{account.type_label}</td>
                 <td className="px-6 py-4 text-center text-sm text-gray-900">تتر</td>
-                <td className="px-6 py-4 text-center text-sm text-gray-900">{parseInt(account.amount)}</td>
+                <td className="px-6 py-4 text-center text-sm text-gray-900">{parseInt(account.amount).toLocaleString()}</td>
                 <td className="px-6 py-4 text-center text-sm text-gray-900">-</td>
               </tr>
             ))

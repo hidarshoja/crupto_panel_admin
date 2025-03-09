@@ -1,14 +1,30 @@
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import ChartAllUsers from "../../components/Bot/chart-view/ChartAllUsers";
 import ChartDailyStats from "../../components/Bot/chart-view/ChartDailyStats2";
 import ChartMonthlyStats from "../../components/Bot/chart-view/ChartMonthlyStats";
 import ChartCustomerStats from "../../components/Bot/chart-view/ChartCustomerStats";
 import ChartRemainingStats from "../../components/Bot/chart-view/ChartRemainingStats";
 import StreamView from "../../components/Bot/chart-view/StreamView";
+import axiosClient2 from "../../axios-client2";
 
 export default function StatisticalViewBot() {
   const [activeSection, setActiveSection] = useState("chartAllUsers");
+  const [assets , setAssets] = useState([]);
 
+  const fetchTransactionsAssetes = async () => {
+    try {
+      const endpoint = `/assets`;
+      const response = await axiosClient2.get(endpoint);
+        setAssets(response.data.data);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    } 
+  };
+
+  useEffect(() => {
+    fetchTransactionsAssetes();
+  }
+  , []);
   return (
     <>
       <div className="w-full px-4">
@@ -39,12 +55,12 @@ export default function StatisticalViewBot() {
       </div>
       {activeSection === "chartAllUsers" && (
         <div>
-          <ChartAllUsers />
+          <ChartAllUsers assets={assets} />
         </div>
       )}
       {activeSection === "dailyStats" && (
         <div>
-          <ChartDailyStats />
+          <ChartDailyStats assets={assets}/>
         </div>
       )}
       {activeSection === "monthlyStats" && (

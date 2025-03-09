@@ -14,7 +14,7 @@ export default function ChartAllUsers() {
         const oneHourBefore = new Date(currentDate);
         oneHourBefore.setHours(currentDate.getHours() - 1);
         const oneHourBeforeString = oneHourBefore.toISOString().slice(0, 19).replace('T', ' ');
-
+console.log(`oneHourBeforeString`, oneHourBeforeString);
         const endpoint = `/candles?f[created_at_between]=${oneHourBeforeString},${currentDateString}`;
         const response = await axiosClient2.get(endpoint);
         console.log("response", response.data.data);

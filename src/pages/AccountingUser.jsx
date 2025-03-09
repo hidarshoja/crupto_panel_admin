@@ -1,5 +1,5 @@
 import  { useState, useEffect } from 'react';
-import BoxAccountUser from '../components/user/BoxAccountUser';
+import BoxAccountUser from '../components/BoxAccount';
 import TransactionsUser from '../components/user/TransactionsUser';
 import axiosClient2 from '../axios-client2';
 
@@ -50,11 +50,13 @@ const arrayData = Object.values(data).flat().reduce((acc, item) => {
       asset_name_fa: item.asset_name_fa,
       total_amount: item.total_amount,
       total_price: item.total_price,
+      img : item.exchange_logo
     });
   } else {
     acc.push({
       exchange_id: item.exchange_id,
       exchange_name_fa: item.exchange_name_fa,
+      img : item.exchange_logo,
       assets: [
         {
           asset_name_fa: item.asset_name_fa,

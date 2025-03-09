@@ -1,10 +1,16 @@
 import { useState, useEffect } from "react";
-import UserBox from "../components/UserBox3";
+import UserBox from "./UserBox3";
 
 
 
-export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId }) {
+export default function BoxAccountAll({ assets, exchangeWallet, exchange, setUserId }) {
   const [selectedCurrencies, setSelectedCurrencies] = useState({});
+  const defaultAssets = [
+    { asset_name_fa: "ریال", total_amount: 0, total_price: 0 },
+    { asset_name_fa: "ریال اعتباری", total_amount: 0, total_price: 0 },
+    { asset_name_fa: "تتر", total_amount: 0, total_price: 0 },
+    { asset_name_fa: "تتر اعتباری", total_amount: 0, total_price: 0 },
+];
   const handleCurrencyChange = (exchangeId, currency) => {
     setSelectedCurrencies((prev) => ({ ...prev, [exchangeId]: currency }));
   };
@@ -28,7 +34,6 @@ export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId
   }, [exchangeWallet, assets]);
 
 
-
   if (loading) {
     return (
       <div className="min-h-[400px] flex justify-center items-center">
@@ -37,7 +42,7 @@ export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId
     );
   }
   const mergeExchangeAssets = (exchangeWallet) => {
-    return exchangeWallet.map((exchange) => {
+    return exchangeWallet?.map((exchange) => {
       const mergedAssets = {};
   
       exchange.assets.forEach(({ asset_name_fa, total_amount, total_price }) => {
@@ -61,8 +66,24 @@ export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId
   };
   
   const result = mergeExchangeAssets(exchangeWallet);
+ 
 
+  const baseUrl = "https://pars-v2.liara.run/";
+
+  const completeResult = exchange.map(ex => {
+      const found = result.find(res => res.exchange_id === ex.id);
+      return found
+          ? found
+          : {
+                exchange_id: ex.id,
+                exchange_name_fa: ex.name_fa,
+                img: ex.logo.startsWith("http") ? ex.logo : `${baseUrl}${ex.logo.replace(baseUrl, "")}`,
+                assets: [...defaultAssets],
+            };
+  });
   
+
+
   return (
     <div className="min-h-[400px]">
       <h1 className="text-xl font-bold text-center mb-8 text-gray-800 mt-4">
@@ -79,7 +100,7 @@ export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId
       </div>
 
       <div className="flex flex-wrap justify-center gap-3">
-      {result.map((exchange) => {
+      {completeResult.map((exchange) => {
 
          assets.forEach(asset => {
           const exists = exchange.assets.some(item => item.asset_name_fa === asset.name_fa);
@@ -102,7 +123,7 @@ export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-md font-semibold text-gray-100">{exchange.exchange_name_fa}</h2>
               <img
-                src={`https://pars-v2.liara.run/${exchange?.img}`} 
+                 src={exchange.img.startsWith("http") ? exchange.img : `${baseUrl}${exchange.img}`}
                 alt={exchange.exchange_name_fa}
                 className="w-8 h-8" />
             </div>
