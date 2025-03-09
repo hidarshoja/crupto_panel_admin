@@ -1,5 +1,6 @@
 import  { useState, useEffect } from 'react';
-import BoxAccountUser from '../components/BoxAccount';
+import BoxAccount from '../components/BoxAccount';
+import BoxAccountAll from "../components/BoxAccountAll";
 import TransactionsUser from '../components/user/TransactionsUser';
 import axiosClient2 from '../axios-client2';
 
@@ -38,8 +39,11 @@ export default function AccountingUser() {
         }`;
       } else if (selectedValue) {
         url = `/exchanges/liabilities?user_type=${selectedValue}`;
+      } else if (selectedValue === "") {
+        url = "/exchanges";
       }
       const response = await axiosClient2.get(url);
+      if(selectedValue !== ""){
       if (response.data.data) {
         let data = response.data.data
     
@@ -69,7 +73,10 @@ const arrayData = Object.values(data).flat().reduce((acc, item) => {
   return acc;
 }, []);
 setFilteredData(arrayData);
+      } else {
+        setExchange(response.data.data)
       }
+    }
     } catch (error) {
       console.error("Error fetching users:", error);
     }
@@ -136,12 +143,24 @@ setFilteredData(arrayData);
         <option value="1" selected>کاربران</option>
       </select>
      </div>
-     <BoxAccountUser
-      exchangeWallet={filteredData}  
-      assets={assets}
-      exchange ={exchange}
-      setUserId = {setUserId}
-       />
+     {
+        selectedValue !== "" &&
+      <BoxAccount
+        exchangeWallet={filteredData}
+        assets={assets}
+        exchange={exchange}
+        setUserId={setUserId}
+      />
+      }
+       {
+        selectedValue === "" &&
+      <BoxAccountAll
+        assets={assets}
+        exchangeWallet={filteredData}
+        exchange={exchange}
+        setUserId={setUserId}
+      />
+      }
      <div className='flex items-center justify-between'>
      <h1 className="text-lg font-bold mb-4 mt-4">لیست معاملات</h1>
         <button
