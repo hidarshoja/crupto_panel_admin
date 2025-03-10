@@ -11,6 +11,8 @@ import {
 } from "chart.js";
 Chart.register(LineElement, CategoryScale, LinearScale, Tooltip, Legend);
 import axiosClient2 from "../axios-client2";
+import jalaali from "jalaali-js";
+import convertEnglishToPersianNumbers from "../utils/convertEnglishToPersianNumbers";
 
 export default function SellingCurrency() {
   const [dataChart, setDataChart] = useState(null);
@@ -34,18 +36,26 @@ export default function SellingCurrency() {
         setDataChart2(response.data.data);
 
         if (Array.isArray(response.data.data)) {
-          const sellData = response.data.data.filter(item => item.type === 2);
-          const sellLabels = sellData.map(item => item.type_label); 
-          const sellValues = sellData.map(item => parseFloat(item.total_price));
+          const sellData = response.data.data
+            .filter((item) => item.type === 2)
+            .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+          
+            const sellLabels = sellData.map((item) => {
+              const [year, month, day] = item.date.split("-").map(Number); 
+              const { jy, jm, jd } = jalaali.toJalaali(year, month, day);
+              return convertEnglishToPersianNumbers(`${jy}/${jm}/${jd}`); 
+            });
+          const sellValues = sellData.map((item) => parseFloat(item.total_price));
 
           setDataChart({
             labels: sellLabels,
             datasets: [
               {
-                label: 'فروش',
+                label: "فروش براساس تاریخ",
                 data: sellValues,
-                backgroundColor: 'rgba(255, 0, 0, 0.8)',
-                borderColor: 'rgba(255, 0, 0, 3)',
+                backgroundColor: "rgba(255, 0, 0, 0.8)",
+                borderColor: "rgba(255, 0, 0, 1)",
                 pointBorderWidth: 2,
                 tension: 0.5,
               },
@@ -80,26 +90,26 @@ export default function SellingCurrency() {
         yAlign: "bottom",
         displayColors: false,
         titleFont: {
-          family: "vazir", 
+          family: "vazir",
           size: 14,
           weight: "bold",
         },
         bodyFont: {
-          family: "vazir", 
+          family: "vazir",
           size: 13,
         },
         callbacks: {
           label: function (context) {
             const index = context.dataIndex;
-            const transaction = dataChart2?.filter(item => item.type === 2)[index];
-  
+            const transaction = dataChart2?.filter((item) => item.type === 2)[index];
+
             if (transaction) {
               return [
-                `تاریخ: ${transaction?.date || "نامشخص"}`,
+                
                 `مبلغ: ${parseInt(transaction?.total_price).toLocaleString()} تومان`,
               ];
             }
-  
+
             return "";
           },
         },
@@ -107,20 +117,44 @@ export default function SellingCurrency() {
     },
     responsive: true,
     scales: {
-      y: {
-        ticks: {
-          display: false,
-        },
-        title: {
-          display: false,
-        },
-      },
       x: {
         ticks: {
-          display: false,
+          autoSkip: true,
+          maxRotation: 45,
+          minRotation: 0,
+          font: {
+            family: "vazir",
+            size: 10,
+          },
         },
         title: {
-          display: false,
+          display: true,
+          text: "",
+          font: {
+            family: "vazir",
+            size: 10,
+            weight: "bold",
+          },
+          color: "#ffffff",
+        },
+      },
+      y: {
+        ticks: {
+          callback: (value) => `${value.toLocaleString()} تومان`,
+          font: {
+            family: "vazir",
+            size: 10,
+          },
+        },
+        title: {
+          display: true,
+          text: "",
+          font: {
+            family: "vazir",
+            size: 10,
+            weight: "bold",
+          },
+          color: "#ffffff",
         },
       },
     },

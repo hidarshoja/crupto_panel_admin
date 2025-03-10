@@ -15,6 +15,7 @@ import {
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 import axiosClient2 from "../../axios-client2";
 
+
 export default function ChartAllUsers({assets}) {
   const [dateBirth, setDateBirth] = useState(new DateObject());
   const [dateBirth2, setDateBirth2] = useState(new DateObject());
@@ -30,7 +31,6 @@ const [endDate, setEndDate] = useState(null);
     const { name, value } = e.target;
       setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
   const convertPersianToEnglishNumbers = (str) => {
     const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
     const englishNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -46,8 +46,8 @@ const [endDate, setEndDate] = useState(null);
   const handleFilterByDate = () => {
     const startDateFormatted = convertPersianToEnglishNumbers(dateBirth.format("YYYY-MM-DD"));
     const endDateFormatted = convertPersianToEnglishNumbers(dateBirth2.format("YYYY-MM-DD"));
-    setStartDate(startDateFormatted); // تنظیم تاریخ شروع
-    setEndDate(endDateFormatted); // تنظیم تاریخ پایان
+    setStartDate(startDateFormatted); 
+    setEndDate(endDateFormatted); 
   };
 
   const handleRemoveDateFilter = () => {
