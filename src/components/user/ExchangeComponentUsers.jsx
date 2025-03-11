@@ -69,38 +69,7 @@ export default function ExchangeComponentUsers({ formData, handleSubmit, handleC
         </div>
       </div>
     
-        {/* <div className="flex flex-col md:flex-row gap-4 w-full">
-          <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
-            <span className="text-sm font-semibold pl-2">از محل:</span>
-            <select
-              name="source"
-              value={formData.source}
-              onChange={handleChange}
-              className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-                <option value="">انتخاب کنید</option>
-              <option value="1">درگاه بیت</option>
-              <option value="2">درگاه تومان</option>
-              <option value="3">حساب بانکی</option>
-              <option value="4">حساب مشتری</option>
-              <option value="5">شخصی</option>
-            </select>
-          </div>
-    
-          <div className="flex flex-col gap-1 items-start w-full md:w-1/2">
-            <span className="text-sm font-semibold pl-2">کلیت سند:</span>
-            <select
-              name="documentType"
-              value={formData.documentType}
-              onChange={handleChange}
-              className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-               <option value="">انتخاب کنید</option>
-              <option value="1">اصلاحی</option>
-              <option value="2">قطعی</option>
-            </select>
-          </div>
-        </div> */}
+      
     
         <div className="flex flex-col gap-1 items-start w-full">
           <span className="text-sm font-semibold pl-2">توضیحات:</span>
@@ -115,7 +84,7 @@ export default function ExchangeComponentUsers({ formData, handleSubmit, handleC
         </div>
     
         {/* دکمه‌ها */}
-        <div className="flex gap-4 mt-4">
+        <div className="flex gap-4 mt-4 w-full items-center justify-end">
           <button
             onClick={handleCancel}
             className="bg-red-500 text-white p-2 rounded-md hover:bg-red-600"

@@ -79,24 +79,26 @@ export default function UserComponentUsers({
       </div>
 
 
-      <div className="flex flex-col gap-1 items-start w-full">
-        <span className="text-sm font-semibold pl-2">بابت صرافی :</span>
-        <select
-          name="exchangeName"
-          value={formData.exchangeName}
-          onChange={handleChange}
-          className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="">انتخاب کنید</option>
-          <option value="باران">باران</option>
-          <option value="فد">فد</option>
-          <option value="ارز">ارز</option>
-          <option value="نیوبیکس">نیوبیکس</option>
-        </select>
-      </div>
+      <div className="flex flex-col gap-2 items-start w-full">
+
+
+  {/* Textarea برای توضیحات */}
+  <div className="w-full">
+    <span className="text-sm font-semibold pl-2">توضیحات :</span>
+    <textarea
+      name="des"
+      value={formData.des}
+      onChange={handleChange}
+      placeholder="توضیحات خود را وارد کنید..."
+      rows="4"
+      className="bg-gray-100 border w-full border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+    />
+  </div>
+</div>
+
 
       {/* دکمه‌ها */}
-      <div className="flex gap-4 mt-4">
+      <div className="flex gap-4 mt-4 items-center justify-end w-full">
         <button
           onClick={handleCancel}
           className="bg-red-500 text-white p-2 rounded-md hover:bg-red-600"

@@ -20,7 +20,8 @@ export default function DocumentComponentUser({assets}) {
     bank_txid: '',
     coefficient: '1',
     des: '',
-    user_id : userId
+    user_id : userId,
+
   });
 
   const handleChange = (e) => {
