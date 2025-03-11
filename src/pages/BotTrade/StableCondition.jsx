@@ -40,6 +40,7 @@ export default function StableCondition() {
   const currentItems = status?.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(status?.length / itemsPerPage);
 
+
   return (
     <div className="p-4">
       <h3 className="text-lg font-semibold mb-4 mt-4">لیست صرافی‌ها</h3>
@@ -62,7 +63,7 @@ export default function StableCondition() {
             {currentItems?.length > 0 ? (
               currentItems?.map((exchange, index) => (
                 <tr key={index}>
-                  <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange?.exchange.name_fa}</td>
+                  <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange?.name_fa}</td>
                   <td className="px-6 py-4 text-center text-sm text-gray-900">
                     <div className="flex items-center justify-center space-x-2 space-x-reverse">
                       {getStatusCircle(exchange.status)}

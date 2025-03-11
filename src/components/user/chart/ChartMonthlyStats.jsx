@@ -1,7 +1,6 @@
 import { useState , useEffect } from "react";
 import { Bar } from "react-chartjs-2";
 import UserBox from "../../UserBox1";
-import jalaali from "jalaali-js";
 import {
   Chart,
   BarElement,
@@ -12,6 +11,7 @@ import {
 } from "chart.js";
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 import axiosClient2 from "../../../axios-client2";
+import { toast } from "react-toastify";
 
 export default function ChartAllUsers({assets}) {
   const [dataChart, setDataChart] = useState(null);
@@ -85,7 +85,20 @@ export default function ChartAllUsers({assets}) {
           console.error("Invalid data structure:", response.data.data);
         }
       } catch (error) {
-        console.error("Error fetching transactions:", error);
+        if (error.response && error.response.data) {
+          const { message, errors } = error.response.data;
+          toast.error(message || "خطا در ارسال اطلاعات!");
+          if (errors) {
+            Object.values(errors).forEach((errorMessages) => {
+              errorMessages.forEach((errorMessage) => {
+                toast.error(errorMessage);
+              });
+            });
+          }
+        } else {
+          toast.error("خطا در ارسال اطلاعات!");
+        }
+  
       }
     };
   

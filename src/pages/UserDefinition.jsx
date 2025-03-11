@@ -89,17 +89,6 @@ export default function CustomerDefinition() {
   };
 
   const handleSubmit = async () => {
-    if (
-      !formData.lastname ||
-      !formData.national_code ||
-      !formData.mobile ||
-      !dateBirth
-    ) {
-      console.log("عررور");
-      toast.error("لطفاً تمام فیلدهای ضروری را پر کنید.");
-      return;
-    }
-
     const formattedData = {
       ...formData,
       credit_irr_limit: Number(formData.credit_irr_limit.replace(/,/g, "")), 
@@ -114,8 +103,20 @@ export default function CustomerDefinition() {
       console.log("Response from server:", response.data);
       toast.success("اطلاعات کاربر با موفقیت ثبت شد");
     } catch (error) {
-      console.error("Error submitting data:", error);
-      toast.error("خطا در ارسال اطلاعات!");
+      if (error.response && error.response.data) {
+        const { message, errors } = error.response.data;
+        toast.error(message || "خطا در ارسال اطلاعات!");
+        if (errors) {
+          Object.values(errors).forEach((errorMessages) => {
+            errorMessages.forEach((errorMessage) => {
+              toast.error(errorMessage);
+            });
+          });
+        }
+      } else {
+        toast.error("خطا در ارسال اطلاعات!");
+      }
+
     }
   };
 

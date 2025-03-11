@@ -41,13 +41,13 @@ useEffect(() => {
 
 const handleExportExcel = async () => {
   const payload = {
-    filters,   // ارسال فیلترها به همراه داده‌ها
-    data: filteredData, // ارسال داده‌های فیلترشده
+    filters,  
+    data: filteredData, 
   };
 
   try {
     const response = await axios.post("/api/export-excel", payload, {
-      responseType: "blob", // برای دریافت فایل به فرمت blob
+      responseType: "blob",
       headers: {
         "Content-Type": "application/json",
       },
@@ -57,7 +57,7 @@ const handleExportExcel = async () => {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", "transactions.xlsx"); // نام فایل خروجی
+    link.setAttribute("download", "transactions.xlsx"); 
     document.body.appendChild(link);
     link.click();
     link.parentNode.removeChild(link);

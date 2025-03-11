@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import { Disclosure, Transition } from "@headlessui/react";
 import { ChevronRightIcon, XMarkIcon } from "@heroicons/react/20/solid";
-import { Link } from "react-router-dom";
+import { Link , useLocation } from "react-router-dom";
 import { navigation } from "../constant/Menu";
 
 function classNames(...classes) {
@@ -12,7 +12,7 @@ export default function DesktopSidebar({
   desktopSidebarOpen,
   setDesktopSidebarOpen,
 }) {
-
+  const location = useLocation();
   return (
     <Transition.Root show={desktopSidebarOpen} as={Fragment}>
       <Transition.Child
@@ -56,13 +56,13 @@ export default function DesktopSidebar({
                                   {!item.children ? (
                                     <Link
                                       to={item.href}
-                                     
                                       className={classNames(
-                                        item.current
-                                          ? "bg-gray-50"
-                                          : "",
-                                        "block rounded-md  pr-2 pl-10 text-sm leading-6 font-semibold text-gray-100"
+                                        location.pathname === item.href
+                                          ? "bg-green-500 text-black w-full"
+                                          : "hover:bg-gray-50 hover:text-gray-700 w-full",
+                                        "block rounded-md py-2 pr-2 pl-9 text-sm leading-6 text-gray-100"
                                       )}
+                                    
                                     >
                                       {item.name}
                                     </Link>
@@ -98,10 +98,9 @@ export default function DesktopSidebar({
                                                 <Disclosure.Button
                                                   as={Link}
                                                   to={subItem.href}
-                                                
                                                   className={classNames(
-                                                    subItem.current
-                                                      ? "bg-gray-50"
+                                                    location.pathname === subItem.href
+                                                      ? "bg-green-500 text-black"
                                                       : "hover:bg-gray-50 hover:text-gray-700",
                                                     "block rounded-md py-2 pr-2 pl-9 text-sm leading-6 text-gray-100"
                                                   )}

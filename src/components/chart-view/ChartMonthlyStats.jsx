@@ -12,6 +12,7 @@ import {
 } from "chart.js";
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 import axiosClient2 from "../../axios-client2";
+import { toast } from "react-toastify";
 
 export default function ChartAllUsers({assets}) {
   const [dataChart, setDataChart] = useState(null);
@@ -104,7 +105,19 @@ const[users , setUsers] = useState([]);
                           console.error("Invalid data structure:", response.data.data);
                         }
       } catch (error) {
-        console.error("Error fetching transactions:", error);
+        if (error.response && error.response.data) {
+          const { message, errors } = error.response.data;
+          toast.error(message || "خطا در ارسال اطلاعات!");
+          if (errors) {
+            Object.values(errors).forEach((errorMessages) => {
+              errorMessages.forEach((errorMessage) => {
+                toast.error(errorMessage);
+              });
+            });
+          }
+        } else {
+          toast.error("خطا در ارسال اطلاعات!");
+        }
       }
     };
   
@@ -118,7 +131,19 @@ const[users , setUsers] = useState([]);
         const response = await axiosClient2.get("/users");
         setUsers(response.data.data);
       } catch (error) {
-        console.error("Error fetching transactions:", error);
+        if (error.response && error.response.data) {
+          const { message, errors } = error.response.data;
+          toast.error(message || "خطا در ارسال اطلاعات!");
+          if (errors) {
+            Object.values(errors).forEach((errorMessages) => {
+              errorMessages.forEach((errorMessage) => {
+                toast.error(errorMessage);
+              });
+            });
+          }
+        } else {
+          toast.error("خطا در ارسال اطلاعات!");
+        }
       }
     };
     fetchTransactions();

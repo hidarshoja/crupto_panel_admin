@@ -10,6 +10,10 @@
 *{
   font-family: "vazir";
 }
+.Toastify__toast  {
+  font-family: "vazir", sans-serif !important;
+  direction: rtl;
+}
 
 body{
   direction: rtl;

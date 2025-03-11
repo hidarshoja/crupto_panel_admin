@@ -99,13 +99,20 @@ export default function Strategy() {
       console.log("Response from server:", response.data);
       toast.success("اطلاعات با موفقیت ثبت شد!");
     } catch (error) {
-      console.error("Error submitting data:", error);
-      if (error.response) {
-        console.error("Server error:", error.response.data);
-        toast.error("خطا در ارسال اطلاعات!");
+      if (error.response && error.response.data) {
+        const { message, errors } = error.response.data;
+        toast.error(message || "خطا در ارسال اطلاعات!");
+        if (errors) {
+          Object.values(errors).forEach((errorMessages) => {
+            errorMessages.forEach((errorMessage) => {
+              toast.error(errorMessage);
+            });
+          });
+        }
       } else {
-        toast.error("خطای داخلی! لطفا دوباره تلاش کنید.");
+        toast.error("خطا در ارسال اطلاعات!");
       }
+
     }
   };
   

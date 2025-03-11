@@ -2,6 +2,7 @@ import  { useState , useEffect } from "react";
 import DocumentComponentUser from "../components/user/DoucumentComponentUser";
 import { CiSearch } from "react-icons/ci";
 import axiosClient2 from "../axios-client2";
+import { toast } from "react-toastify";
 
 export default function DocumentPage() {
   const [assets , setAssets] = useState([]);
@@ -18,7 +19,19 @@ export default function DocumentPage() {
   
        
       } catch (error) {
-        console.error("Error fetching transactions:", error);
+        if (error.response && error.response.data) {
+          const { message, errors } = error.response.data;
+          toast.error(message || "خطا در ارسال اطلاعات!");
+          if (errors) {
+            Object.values(errors).forEach((errorMessages) => {
+              errorMessages.forEach((errorMessage) => {
+                toast.error(errorMessage);
+              });
+            });
+          }
+        } else {
+          toast.error("خطا در ارسال اطلاعات!");
+        }
       } 
     };
   

@@ -84,7 +84,18 @@ const TableAccessLevels = () => {
         toast.error("خطا در اعمال تغییرات، لطفاً دوباره تلاش کنید");
       }
     } catch (error) {
-      toast.error("خطا در اعمال تغییرات");
+      if (error.response && error.response.data) {
+        const {  errors } = error.response.data;
+        if (errors) {
+          Object.values(errors).forEach((errorMessages) => {
+            errorMessages.forEach((errorMessage) => {
+              toast.error(errorMessage);
+            });
+          });
+        }
+      } else {
+        toast.error("خطا در ارسال اطلاعات!");
+      }
     }
   };
 
@@ -107,6 +118,18 @@ const TableAccessLevels = () => {
         setTotalPage(response.data.meta.last_page);
       } catch (error) {
         console.error("Error fetching transactions:", error);
+        if (error.response && error.response.data) {
+          const {  errors } = error.response.data;
+          if (errors) {
+            Object.values(errors).forEach((errorMessages) => {
+              errorMessages.forEach((errorMessage) => {
+                toast.error(errorMessage);
+              });
+            });
+          }
+        } else {
+          toast.error("خطا در ارسال اطلاعات!");
+        }
       } finally {
         setLoading(false);
       }

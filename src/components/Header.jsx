@@ -12,14 +12,14 @@ export default function Header({
    const userInfo = JSON.parse(localStorage.getItem("USER_INFO"));
   const accessToken = localStorage.getItem("ACCESS_TOKEN");
 
-  // چک کردن وضعیت توکن و هدایت به صفحه ورود
+
   useEffect(() => {
     if (!accessToken) {
        navigate("/auth/login");
     }
   }, [accessToken, navigate]);
 
-  // تابع خروج
+ 
   const handleLogout = () => {
     localStorage.removeItem("USER_INFO");
     localStorage.removeItem("ACCESS_TOKEN");

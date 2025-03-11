@@ -81,7 +81,19 @@ const handleFormSubmit = async (transaction) => {
       toast.error("خطا در اعمال تغییرات، لطفاً دوباره تلاش کنید");
     }
   } catch (error) {
-    toast.error("خطا در اعمال تغییرات");
+    if (error.response && error.response.data) {
+      const { message, errors } = error.response.data;
+      toast.error(message || "خطا در ارسال اطلاعات!");
+      if (errors) {
+        Object.values(errors).forEach((errorMessages) => {
+          errorMessages.forEach((errorMessage) => {
+            toast.error(errorMessage);
+          });
+        });
+      }
+    } else {
+      toast.error("خطا در ارسال اطلاعات!");
+    }
   }
 };
 

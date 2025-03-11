@@ -1,11 +1,12 @@
 import  { useEffect , useState } from "react";
 import axiosClient2 from "../../axios-client2";
+import { toast } from "react-toastify";
 
 export default function ChartRemainingStats() {
-  const [originalData, setOriginalData] = useState([]); // دیتای خام که از API میاد
-  const [groupedData, setGroupedData] = useState([]); // دیتای پردازش شده
+  const [originalData, setOriginalData] = useState([]); 
+  const [groupedData, setGroupedData] = useState([]); 
 
-  // **فراخوانی API فقط یک بار هنگام لود شدن صفحه**
+ 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
@@ -14,17 +15,28 @@ export default function ChartRemainingStats() {
         
         if (response.data.data) {
           const arrayData = Object.values(response.data.data).flat();
-          setOriginalData(arrayData); // فقط مقدار اولیه رو ذخیره می‌کنیم
+          setOriginalData(arrayData);
         }
       } catch (error) {
-        console.log("Error fetching data:", error);
+        if (error.response && error.response.data) {
+                        const { message, errors } = error.response.data;
+                        toast.error(message || "خطا در ارسال اطلاعات!");
+                        if (errors) {
+                          Object.values(errors).forEach((errorMessages) => {
+                            errorMessages.forEach((errorMessage) => {
+                              toast.error(errorMessage);
+                            });
+                          });
+                        }
+                      } else {
+                        toast.error("خطا در ارسال اطلاعات!");
+                      }
       }
     };
 
     fetchTransactions();
   }, []);
 
-  // **محاسبه groupedData فقط زمانی که originalData تغییر کند**
   useEffect(() => {
     if (originalData.length === 0) return;
 
@@ -43,8 +55,8 @@ export default function ChartRemainingStats() {
       }, {})
     );
 
-    setGroupedData(grouped); // مقدار پردازش شده رو تنظیم می‌کنیم
-  }, [originalData]); // این useEffect فقط زمانی اجرا می‌شه که originalData تغییر کنه
+    setGroupedData(grouped); 
+  }, [originalData]); 
 
   return (
     <div className="flex flex-wrap gap-6 p-6 justify-center ">

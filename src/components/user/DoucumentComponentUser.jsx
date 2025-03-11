@@ -61,7 +61,19 @@ export default function DocumentComponentUser({assets}) {
       await axiosClient2.post('/transactions', finalFormData);
       toast.success("اطلاعات با موفقیت ثبت شد!");
     } catch (error) {
-      toast.error('خطا در ارسال اطلاعات.');
+      if (error.response && error.response.data) {
+        const { message, errors } = error.response.data;
+        toast.error(message || "خطا در ارسال اطلاعات!");
+        if (errors) {
+          Object.values(errors).forEach((errorMessages) => {
+            errorMessages.forEach((errorMessage) => {
+              toast.error(errorMessage);
+            });
+          });
+        }
+      } else {
+        toast.error("خطا در ارسال اطلاعات!");
+      }
     }
   };
   

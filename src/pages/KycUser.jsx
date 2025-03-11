@@ -28,8 +28,6 @@ const KycUser = () => {
     assets : [],
      
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
@@ -51,8 +49,20 @@ const KycUser = () => {
       });
       toast.success("تغییرات با موفقیت ثبت شد");
     } catch (error) {
-      console.error("Error updating status:", error);
-      toast.error("خطا در اعمال تغییرات");
+      if (error.response && error.response.data) {
+        const { message, errors } = error.response.data;
+        toast.error(message || "خطا در ارسال اطلاعات!");
+        if (errors) {
+          Object.values(errors).forEach((errorMessages) => {
+            errorMessages.forEach((errorMessage) => {
+              toast.error(errorMessage);
+            });
+          });
+        }
+      } else {
+        toast.error("خطا در ارسال اطلاعات!");
+      }
+
     }
   };
 

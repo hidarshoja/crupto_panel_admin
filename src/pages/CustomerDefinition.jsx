@@ -89,17 +89,6 @@ export default function CustomerDefinition() {
   };
 
   const handleSubmit = async () => {
-    if (
-      !formData.lastname ||
-      !formData.national_code ||
-      !formData.mobile ||
-      !dateBirth
-    ) {
-      console.log("عررور");
-      toast.error("لطفاً تمام فیلدهای ضروری را پر کنید.");
-      return;
-    }
-
     const formattedData = {
       ...formData,
       credit_irr_limit: Number(formData.credit_irr_limit.replace(/,/g, "")), 
@@ -117,15 +106,13 @@ export default function CustomerDefinition() {
       console.error("Error submitting data:", error);
       if (error.response && error.response.data) {
         const { message, errors } = error.response.data;
-        
-        // ابتدا نمایش پیام کلی
+     
         toast.error(message || "خطا در ارسال اطلاعات!");
   
-        // سپس نمایش خطاهای جزئی در فیلدهای مختلف
         if (errors) {
-          Object.keys(errors).forEach((field) => {
-            errors[field].forEach((errorMessage) => {
-              toast.error(`${field}: ${errorMessage}`);
+          Object.values(errors).forEach((errorMessages) => {
+            errorMessages.forEach((errorMessage) => {
+              toast.error(errorMessage);
             });
           });
         }

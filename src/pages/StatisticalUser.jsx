@@ -4,6 +4,7 @@ import ChartAllUsers from "../components/user/chart/ChartAllUsers";
  import ChartMonthlyStats from "../components/user/chart/ChartMonthlyStats";
  import ChartCustomerStats from "../components/user/chart/ChartCustomerStats";
  import axiosClient2 from "../axios-client2";
+  import { toast } from "react-toastify";
 
 
 export default function StatisticalUser() {
@@ -23,7 +24,19 @@ export default function StatisticalUser() {
           const response = await axiosClient2.get(endpoint);
             setAssets(response.data.data);
         } catch (error) {
-          console.error("Error fetching transactions:", error);
+          if (error.response && error.response.data) {
+            const { message, errors } = error.response.data;
+            toast.error(message || "خطا در ارسال اطلاعات!");
+            if (errors) {
+              Object.values(errors).forEach((errorMessages) => {
+                errorMessages.forEach((errorMessage) => {
+                  toast.error(errorMessage);
+                });
+              });
+            }
+          } else {
+            toast.error("خطا در ارسال اطلاعات!");
+          }
         } 
       };
 

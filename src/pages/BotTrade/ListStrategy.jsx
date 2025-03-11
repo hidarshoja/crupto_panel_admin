@@ -57,7 +57,20 @@ const ListStrategy = () => {
       const response = await axiosClient2.post(`/strategies/${STRATEGY_ID}/run`);
       toast.success("استراتژی با موفقیت متوقف شد");
     } catch (error) {
-      toast.error("خطا در انجام عملیات!");
+      if (error.response && error.response.data) {
+        const { message, errors } = error.response.data;
+        toast.error(message || "خطا در ارسال اطلاعات!");
+        if (errors) {
+          Object.values(errors).forEach((errorMessages) => {
+            errorMessages.forEach((errorMessage) => {
+              toast.error(errorMessage);
+            });
+          });
+        }
+      } else {
+        toast.error("خطا در ارسال اطلاعات!");
+      }
+
     }
   };
 
@@ -66,7 +79,20 @@ const ListStrategy = () => {
       const response = await axiosClient2.post(`/strategies/${STRATEGY_ID}/stop`);
       toast.success("استراتژی با موفقیت اجرا شد");
     } catch (error) {
-      toast.error("خطا در انجام عملیات!");
+      if (error.response && error.response.data) {
+        const { message, errors } = error.response.data;
+        toast.error(message || "خطا در ارسال اطلاعات!");
+        if (errors) {
+          Object.values(errors).forEach((errorMessages) => {
+            errorMessages.forEach((errorMessage) => {
+              toast.error(errorMessage);
+            });
+          });
+        }
+      } else {
+        toast.error("خطا در ارسال اطلاعات!");
+      }
+
     }
   };
 
@@ -89,7 +115,20 @@ const ListStrategy = () => {
       setTotalPage(response.data.meta.last_page);
       setIsloading(false);
     } catch (error) {
-      console.error("Error fetching transactions:", error);
+      if (error.response && error.response.data) {
+        const { message, errors } = error.response.data;
+        toast.error(message || "خطا در ارسال اطلاعات!");
+        if (errors) {
+          Object.values(errors).forEach((errorMessages) => {
+            errorMessages.forEach((errorMessage) => {
+              toast.error(errorMessage);
+            });
+          });
+        }
+      } else {
+        toast.error("خطا در ارسال اطلاعات!");
+      }
+
     }
   };
   fetchTransactions();

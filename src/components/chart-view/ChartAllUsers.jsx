@@ -14,6 +14,8 @@ import {
 } from "chart.js";
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 import axiosClient2 from "../../axios-client2";
+import convertPersianToEnglishNumbers from "../../utils/convertPersianToEnglishNumbers";
+import { toast } from "react-toastify";
 
 
 export default function ChartAllUsers({assets}) {
@@ -31,17 +33,7 @@ const [endDate, setEndDate] = useState(null);
     const { name, value } = e.target;
       setFormData((prev) => ({ ...prev, [name]: value }));
   };
-  const convertPersianToEnglishNumbers = (str) => {
-    const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-    const englishNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-  
-    let result = str;
-    persianNumbers.forEach((persian, index) => {
-      result = result.replace(new RegExp(persian, 'g'), englishNumbers[index]);
-    });
-  
-    return result;
-  };
+ 
   
   const handleFilterByDate = () => {
     const startDateFormatted = convertPersianToEnglishNumbers(dateBirth.format("YYYY-MM-DD"));
@@ -122,7 +114,21 @@ const [endDate, setEndDate] = useState(null);
           console.error("Invalid data structure:", response.data.data);
         }
       } catch (error) {
-        console.error("Error fetching transactions:", error);
+        if (error.response && error.response.data) {
+          const { message, errors } = error.response.data;
+          toast.error(message || "خطا در ارسال اطلاعات!");
+          if (errors) {
+            Object.values(errors).forEach((errorMessages) => {
+              errorMessages.forEach((errorMessage) => {
+                toast.error(errorMessage);
+              });
+            });
+          }
+        } else {
+          toast.error("خطا در ارسال اطلاعات!");
+        }
+  
+  
       }
     };
   

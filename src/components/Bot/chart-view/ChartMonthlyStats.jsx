@@ -14,6 +14,8 @@ import {
 import UserBox3 from "../../UserBox3";
 import axiosClient2 from "../../../axios-client2";
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+import { toast } from "react-toastify";
+import convertPersianToEnglishNumbers from "../../../utils/convertPersianToEnglishNumbers";
 
 export default function ChartAllUsers() {
   const [dateBirth, setDateBirth] = useState(new DateObject());
@@ -28,24 +30,8 @@ export default function ChartAllUsers() {
 const [pri, setPri] = useState(0);
 
 
-const handleChange = (e) => {
-  const { name, value } = e.target;
 
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  
-};
 
-const convertPersianToEnglishNumbers = (str) => {
-  const persianNumbers = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-  const englishNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-
-  let result = str;
-  persianNumbers.forEach((persian, index) => {
-    result = result.replace(new RegExp(persian, 'g'), englishNumbers[index]);
-  });
-
-  return result;
-};
 
 
 const  handleFilterByDate = () => {
@@ -108,7 +94,20 @@ useEffect(() => {
         console.error("Invalid data structure:", response.data.data);
       }
     } catch (error) {
-      console.error("Error fetching transactions:", error);
+      if (error.response && error.response.data) {
+        const { message, errors } = error.response.data;
+        toast.error(message || "خطا در ارسال اطلاعات!");
+        if (errors) {
+          Object.values(errors).forEach((errorMessages) => {
+            errorMessages.forEach((errorMessage) => {
+              toast.error(errorMessage);
+            });
+          });
+        }
+      } else {
+        toast.error("خطا در ارسال اطلاعات!");
+      }
+
     }
   };
 

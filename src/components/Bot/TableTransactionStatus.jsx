@@ -3,7 +3,7 @@ import UserBox from "../../components/UserBox3";
 import UserBox5 from '../../components/UserBox5';
 import axios from 'axios';
 import axiosClient2 from '../../axios-client2';
-
+import { toast } from 'react-toastify';
 
 export default function TableTransactionStatus({selectedValue  , startDate , endDate}) {
   const [userId, setUserId] = useState(null);
@@ -98,7 +98,19 @@ export default function TableTransactionStatus({selectedValue  , startDate , end
       setAutoOrders(response.data.data);
       setTotalPage(response.data.meta.last_page);
     } catch (error) {
-      console.error("Error fetching auto orders:", error);
+       if (error.response && error.response.data) {
+              const { message, errors } = error.response.data;
+              toast.error(message || "خطا در ارسال اطلاعات!");
+              if (errors) {
+                Object.values(errors).forEach((errorMessages) => {
+                  errorMessages.forEach((errorMessage) => {
+                    toast.error(errorMessage);
+                  });
+                });
+              }
+            } else {
+              toast.error("خطا در ارسال اطلاعات!");
+            }
     }
   };
 
