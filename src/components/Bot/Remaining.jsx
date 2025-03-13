@@ -40,6 +40,9 @@ export default function Remaining() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
+            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                 #
+              </th>
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 نام صرافی
               </th>
@@ -95,6 +98,7 @@ export default function Remaining() {
             ) : (
               currentItems.map((exchange, index) => (
                 <tr key={index}>
+                    <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange?.exchange_id}</td>
                   <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange?.exchange_name_fa}</td>
                   <td className="px-6 py-4 text-center text-sm text-gray-900">{exchange?.asset_name_fa}</td>
                   <td className="px-6 py-4 text-center text-sm text-gray-900">

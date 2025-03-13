@@ -58,7 +58,6 @@ export default function DocumentComponent({assets}) {
       amount: plainAmount, 
       user_id: userId || null,
     };
-  
     try {
       await axiosClient2.post('/transactions', finalFormData);
       toast.success("اطلاعات با موفقیت ثبت شد!");

@@ -1,8 +1,8 @@
 import  { useState, useEffect } from 'react';
 import BoxAccount from '../components/BoxAccount';
 import BoxAccountAll from "../components/BoxAccountAll";
-import TransactionsUser from '../components/user/TransactionsUser';
 import axiosClient2 from '../axios-client2';
+import Transactions from '../components/Transactions';
 
 export default function AccountingUser() {
   const [selectedValue, setSelectedValue] = useState("1");
@@ -170,7 +170,7 @@ setFilteredData(arrayData);
           خروجی اکسل
         </button>
      </div>
-     <TransactionsUser selectedValue={selectedValue} />
+     <Transactions assets={assets} selectedValue={selectedValue} />
     </div>
   );
 }

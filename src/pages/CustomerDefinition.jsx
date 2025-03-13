@@ -5,10 +5,12 @@ import persian_fa from "react-date-object/locales/persian_fa";
 import { convertPersianToEnglish } from "../constant/DateJalili";
 import { toast } from "react-toastify";
 import axiosClient2 from "../axios-client2";
+import { useNavigate } from "react-router-dom";
 
 export default function CustomerDefinition() {
   const [dateBirth, setDateBirth] = useState(null);
   const [assets , setAssets] = useState([]);
+  const navigate = useNavigate();
 
   const initialFormState = {
     name :"",
@@ -102,6 +104,7 @@ export default function CustomerDefinition() {
       );
       console.log("Response from server:", response.data);
       toast.success("اطلاعات با موفقیت ثبت شد!");
+      navigate("/accessLevels")
     } catch (error) {
       console.error("Error submitting data:", error);
       if (error.response && error.response.data) {

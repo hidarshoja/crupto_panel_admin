@@ -3,10 +3,12 @@ import Modal from "../../components/Bot/ModalStrategy";
 import StrategyFormComponent from "../../components/Bot/StrategyFormComponent";
 import { toast } from "react-toastify";
 import axiosClient2 from "../../axios-client2";
+import { useNavigate } from "react-router-dom";
 
 export default function Strategy() {
   const [isSupplierModalOpen, setSupplierModalOpen] = useState(false);
   const [isBuyerModalOpen, setBuyerModalOpen] = useState(false);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
     amount: "",
@@ -98,6 +100,7 @@ export default function Strategy() {
       const response = await axiosClient2.post("/strategies", finalFormData);
       console.log("Response from server:", response.data);
       toast.success("اطلاعات با موفقیت ثبت شد!");
+      navigate("/bot/strategy-list");
     } catch (error) {
       if (error.response && error.response.data) {
         const { message, errors } = error.response.data;

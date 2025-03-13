@@ -17,6 +17,7 @@ export default function Transactions({ assets , selectedValue }) {
   });
 
   const tableHeaders = [
+    "#",
     "تاریخ و ساعت",
     "کاربر معامله‌گر",
     "نوع معامله",
@@ -25,6 +26,7 @@ export default function Transactions({ assets , selectedValue }) {
     "وضعیت",
     "توضیحات",
     "شماره سند",
+    "شماره سند سیستمی",
   ];
 
   const handleFilterChange = (e) => {
@@ -213,8 +215,11 @@ export default function Transactions({ assets , selectedValue }) {
               ) : (
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {listTransaction?.length > 0 ? (
-                    listTransaction?.map((transaction) => (
+                    [...listTransaction]?.reverse().map((transaction) => (
                       <tr key={transaction.id}>
+                         <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                          {transaction?.id}
+                        </td>
                         <td className="px-3 py-4 text-sm text-gray-500 text-center">
                           {new Date(transaction.created_at)
                             .toISOString()
@@ -242,6 +247,9 @@ export default function Transactions({ assets , selectedValue }) {
                         </td>
                         <td className="px-3 py-4 text-sm text-gray-500 text-center">
                           {transaction?.des}
+                        </td>
+                        <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                          {transaction?.bank_txid}
                         </td>
                         <td className="px-3 py-4 text-sm text-gray-500 text-center">
                           {transaction?.txid}

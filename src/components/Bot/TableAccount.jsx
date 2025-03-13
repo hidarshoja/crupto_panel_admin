@@ -9,6 +9,9 @@ export default function TableAccount({paymentsList , isloading}) {
         <table className="min-w-full overflow-x-auto divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
+            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                 #
+              </th>
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 حساب مبدا
               </th>
@@ -41,8 +44,9 @@ export default function TableAccount({paymentsList , isloading}) {
   ) : (
     <tbody className="bg-white divide-y divide-gray-200">
     {paymentsList?.length > 0 ? (
-      paymentsList?.map((account, index) => (
+      [...paymentsList]?.reverse().map((account, index) => (
         <tr key={index}>
+           <td className="px-6 py-4 text-center text-sm text-gray-900">{account.id}</td>
           <td className="px-6 py-4 text-center text-sm text-gray-900">{account.userIban}</td>
           <td className="px-6 py-4 text-center text-sm text-gray-900">{account.userFullName}</td>
           <td className="px-6 py-4 text-center text-sm text-gray-900">{account.destinationOwnerName}</td>
