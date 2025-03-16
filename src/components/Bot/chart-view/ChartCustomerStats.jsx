@@ -92,15 +92,13 @@ export default function ChartAllUsers() {
           const sellValues = sellData.map((item) =>
             parseFloat(item.min_sell_price)
           );
-
-          const timeLabels = [];
-          for (let i = 0; i < 1; i++) {
-            for (let j = 0; j < 60; j += 5) {
-              const hour = String(i).padStart(2, "0");
-              const minute = String(j).padStart(2, "0");
-              timeLabels.push(`${hour}:${minute}`);
-            }
-          }
+          
+          const timeLabels = chartTimeData.map(item => {
+            const date = new Date(item.created_at);
+              const { jy, jm, jd } = jalaali.toJalaali(date.getFullYear(), date.getMonth() + 1, date.getDate());
+            return ` ${jm}/${jd} - ${date.getHours()}:${String(date.getMinutes()).padStart(2, "0")}`;
+          });
+          
 
           const newDataChart = {
             labels: timeLabels,
