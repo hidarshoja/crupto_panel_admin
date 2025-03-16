@@ -45,7 +45,7 @@ const  handleFilterByDate = () => {
 useEffect(() => {
   const fetchTransactions = async () => {
     try {
-      let endpoint = `/statistics/daily-user-asset`;
+      let endpoint = `/statistics/daily-user-asset?auto-order=true`;
 
       const queryParams = [];
       if (formData.type) queryParams.push(`type=${formData.type}`);

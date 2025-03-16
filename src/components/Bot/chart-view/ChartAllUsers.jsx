@@ -42,8 +42,8 @@ export default function ChartAllUsers({assets}) {
   const handleFilterByDate = () => {
     const startDateFormatted = convertPersianToEnglishNumbers(dateBirth.format("YYYY-MM-DD"));
     const endDateFormatted = convertPersianToEnglishNumbers(dateBirth2.format("YYYY-MM-DD"));
-    setStartDate(startDateFormatted); // تنظیم تاریخ شروع
-    setEndDate(endDateFormatted); // تنظیم تاریخ پایان
+    setStartDate(startDateFormatted); 
+    setEndDate(endDateFormatted); 
   };
 
   const handleRemoveDateFilter = () => {
@@ -54,7 +54,7 @@ export default function ChartAllUsers({assets}) {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        let endpoint = `/statistics/daily-user-asset?user_type=2`;
+        let endpoint = `/statistics/daily-user-asset?auto-order=true`;
         const queryParams = [];
         if (startDate && endDate) {
           queryParams.push(`start_date=${startDate}`);
@@ -134,8 +134,35 @@ export default function ChartAllUsers({assets}) {
   
       }
     };
+
+    const fetchTransactions2 = async () => {
+      try {
+        let endpoint = `strategies?per_page=999`;
+       
+  
+        const response = await axiosClient2.get(endpoint);
+  
+         console.log(`response`, response);
+      } catch (error) {
+        if (error.response && error.response.data) {
+          const { message, errors } = error.response.data;
+          toast.error(message || "خطا در ارسال اطلاعات!");
+          if (errors) {
+            Object.values(errors).forEach((errorMessages) => {
+              errorMessages.forEach((errorMessage) => {
+                toast.error(errorMessage);
+              });
+            });
+          }
+        } else {
+          toast.error("خطا در ارسال اطلاعات!");
+        }
+  
+      }
+    };
   
     fetchTransactions();
+    fetchTransactions2()
   }, [startDate, endDate,formData.type, formData.asset_id]);
 
 

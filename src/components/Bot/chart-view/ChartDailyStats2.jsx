@@ -56,7 +56,7 @@ export default function ChartAllUsers({assets}) {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        let endpoint = `/statistics/daily-user-asset`;
+        let endpoint = `/statistics/daily-user-asset?auto-order=true`;
        
         const queryParams = [];
         if (startDate && endDate) {
@@ -65,7 +65,7 @@ export default function ChartAllUsers({assets}) {
         }
         if (formData.type) queryParams.push(`type=${formData.type}`);
         if (formData.asset_id) queryParams.push(`asset_id=${formData.asset_id}`);
-        if (formData.typeChange) queryParams.push(`user_type=${formData.typeChange}`);
+      
   
    
         if (queryParams.length > 0) {
