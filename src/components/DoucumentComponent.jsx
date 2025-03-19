@@ -90,14 +90,14 @@ export default function DocumentComponent({assets}) {
         const response = await axiosClient2.get(endpoint);
         setUsers(response.data.data);
   
-        if (!isUsersInitialized) {
+   
           const users = response.data.data.map((item) => item.user);
           const uniqueUsers = Array.from(
             new Map(users.map((user) => [user.id, user])).values()
           );
           setUsers(uniqueUsers);
           setIsUsersInitialized(true);
-        }
+     
       } catch (error) {
         console.error("Error fetching transactions:", error);
       } 

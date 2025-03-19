@@ -21,6 +21,8 @@ export default function ChartAllUsers() {
   const [endDate2, setEndDate2] = useState(null);
   const [startTime, setStartTime] = useState(null);
   const [endTime, setEndTime] = useState(null);
+  const [startTime2, setStartTime2] = useState(null);
+  const [endTime2, setEndTime2] = useState(null);
 
   const handleFilterByDate = () => {
 
@@ -29,6 +31,10 @@ export default function ChartAllUsers() {
       return;
     }
 
+const formattedStartTime = new Date(startTime).toLocaleTimeString("en-GB");
+const formattedEndTime = new Date(endTime).toLocaleTimeString("en-GB");
+setStartTime2(formattedStartTime);
+setEndTime2(formattedEndTime);
     const startDateFormatted = convertPersianToEnglishNumbers(
       dateBirth.format("YYYY-MM-DD")
     );
@@ -37,15 +43,17 @@ export default function ChartAllUsers() {
     );
     setStartDate2(startDateFormatted);
     setEndDate2(endDateFormatted);
+    
   };
 
   const handleRemoveDateFilter = () => {
     setStartDate2(null);
     setEndDate2(null);
+    setStartTime(null);
+    setEndTime(null)
   };
 
   useEffect(() => {
-    console.log(`startTime`, startTime);
     const fetchTransactions = async () => {
       try {
         const currentDate = new Date();
@@ -54,12 +62,9 @@ export default function ChartAllUsers() {
         let start =
           startDate ||
           oneHourBefore.toISOString().slice(0, 19).replace("T", " ");
-        let end =
-          endDate || currentDate.toISOString().slice(0, 19).replace("T", " ");
+        let end =  endDate || currentDate.toISOString().slice(0, 19).replace("T", " ");
         const startJalali = jalaali.toJalaali(new Date(start.split(" ")[0]));
         const endJalali = jalaali.toJalaali(new Date(end.split(" ")[0]));
-        let startTimeFormatted = new Date(start).toTimeString().split(" ")[0];
-        let endTimeFormatted = new Date(end).toTimeString().split(" ")[0];
         let startJalaliFormatted = `${startJalali.jy}-${startJalali.jm}-${
           startJalali.jd
         } ${start.split(" ")[1]}`;
@@ -68,19 +73,19 @@ export default function ChartAllUsers() {
         } ${end.split(" ")[1]}`;
         let finalStartDate =
           startDate2 !== null
-            ? `${startDate2} ${startTimeFormatted}`
+            ? `${startDate2} ${startTime2}`
             : startJalaliFormatted;
         let finalEndDate =
           endDate2 !== null
-            ? `${endDate2} ${endTimeFormatted}`
+            ? `${endDate2} ${endTime2}`
             : endJalaliFormatted;
         let endpoint = `/candles?f[created_at_between]=${finalStartDate},${finalEndDate}`;
         const response = await axiosClient2.get(endpoint);
-        const chartTimeData = response.data.data;
+        const chartTimeData = response.data.data.reverse();
 
         if (chartTimeData) {
           const buyData = chartTimeData.filter(
-            (item) => item.sell_exchange_id === 1
+            (item) => item.buy_exchange_id === 6
           );
           const sellData = chartTimeData.filter(
             (item) => item.sell_exchange_id === 2
@@ -95,7 +100,7 @@ export default function ChartAllUsers() {
           
           const timeLabels = chartTimeData.map(item => {
             const date = new Date(item.created_at);
-              const { jy, jm, jd } = jalaali.toJalaali(date.getFullYear(), date.getMonth() + 1, date.getDate());
+              const {  jm, jd } = jalaali.toJalaali(date.getFullYear(), date.getMonth() + 1, date.getDate());
             return ` ${jm}/${jd} - ${date.getHours()}:${String(date.getMinutes()).padStart(2, "0")}`;
           });
           
@@ -132,7 +137,7 @@ export default function ChartAllUsers() {
     };
 
     fetchTransactions();
-  }, [startDate2, endDate2]);
+  }, [startDate2, endDate2 , startDate , endDate , startTime2]);
 
   useEffect(() => {
     if (dataChart && chartRef.current) {

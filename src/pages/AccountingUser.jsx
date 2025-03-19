@@ -163,12 +163,12 @@ setFilteredData(arrayData);
       }
      <div className='flex items-center justify-between'>
      <h1 className="text-lg font-bold mb-4 mt-4">لیست معاملات</h1>
-        <button
+        {/* <button
           onClick={handleExportExcel}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           خروجی اکسل
-        </button>
+        </button> */}
      </div>
      <Transactions assets={assets} selectedValue={selectedValue} />
     </div>
