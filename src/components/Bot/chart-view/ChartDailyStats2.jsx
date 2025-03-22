@@ -69,11 +69,10 @@ export default function ChartAllUsers({assets}) {
   
    
         if (queryParams.length > 0) {
-          endpoint += `?${queryParams.join("&")}`;
+          endpoint += `&${queryParams.join("&")}`;
         }
   
         const response = await axiosClient2.get(endpoint);
-        console.log("response.data.data", response.data.data);
   
          if (Array.isArray(response.data.data)) {
                           const sortedData = response.data.data.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -146,13 +145,6 @@ export default function ChartAllUsers({assets}) {
   
     fetchTransactions();
   }, [startDate ,endDate , formData.type, formData.asset_id , formData.typeChange ]);
-
-
-
-  
-  
-
-
 
   const options = {
     plugins: {
@@ -256,12 +248,6 @@ export default function ChartAllUsers({assets}) {
   };
 
 
-
-
-
-
-
- 
  
   return (
     <div>

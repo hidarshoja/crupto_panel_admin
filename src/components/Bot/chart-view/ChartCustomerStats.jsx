@@ -84,45 +84,36 @@ setEndTime2(formattedEndTime);
         const chartTimeData = response.data.data.reverse();
 
         if (chartTimeData) {
-          const buyData = chartTimeData.filter(
-            (item) => item.buy_exchange_id === 6
-          );
+       
           const sellData = chartTimeData.filter(
             (item) => item.sell_exchange_id === 2
           );
 
-          const buyValues = buyData.map((item) =>
-            parseFloat(item.max_buy_price)
-          );
+         
           const sellValues = sellData.map((item) =>
-            parseFloat(item.min_sell_price)
+          (parseFloat(item.max_buy_price) - parseFloat(item.min_sell_price))
           );
-          
+          const walletValues = sellData.map((item) => [item.buy_exchange.name_fa, item.sell_exchange.name_fa]);
+
           const timeLabels = chartTimeData.map(item => {
             const date = new Date(item.created_at);
-              const {  jm, jd } = jalaali.toJalaali(date.getFullYear(), date.getMonth() + 1, date.getDate());
-            return ` ${jm}/${jd} - ${date.getHours()}:${String(date.getMinutes()).padStart(2, "0")}`;
+              const {jy , jm, jd } = jalaali.toJalaali(date.getFullYear(), date.getMonth() + 1, date.getDate());
+            return `${jy}/${jm}/${jd} - ${date.getHours()}:${String(date.getMinutes()).padStart(2, "0")}`;
           });
           
 
           const newDataChart = {
             labels: timeLabels,
             datasets: [
+              
               {
-                label: "خرید",
-                data: buyValues,
-                backgroundColor: "rgba(0, 255, 0, 0.8)",
+                label: "سود",
+                data: sellValues,
+                backgroundColor: "rgba(110, 155, 110)",
                 borderColor: "rgba(0, 255, 0, 3)",
                 borderWidth: 3,
                 tension: 0.4,
-              },
-              {
-                label: "فروش",
-                data: sellValues,
-                backgroundColor: "rgba(255, 0, 0, 0.8)",
-                borderColor: "rgba(255, 0, 0, 3)",
-                borderWidth: 3,
-                tension: 0.4,
+                wallet : walletValues
               },
             ],
           };
@@ -144,7 +135,9 @@ setEndTime2(formattedEndTime);
       if (chartRef.current.chartInstance) {
         chartRef.current.chartInstance.destroy();
       }
+  
 
+  
       const chartInstance = new Chart(chartRef.current, {
         type: "line",
         data: dataChart,
@@ -156,6 +149,40 @@ setEndTime2(formattedEndTime);
                 font: {
                   size: 15,
                   family: "vazir",
+                },
+              },
+            },
+            tooltip: {
+              backgroundColor: "rgba(0, 0, 0, 0.8)",
+              titleAlign: "center",
+              bodyAlign: "center",
+              caretPadding: 12,
+              caretSize: 8,
+              position: "nearest",
+              yAlign: "bottom",
+              displayColors: false,
+              titleFont: {
+                family: "vazir",
+                size: 14,
+                weight: "bold",
+              },
+              bodyFont: {
+                family: "vazir",
+                size: 13,
+              },
+              callbacks: {
+                label: function (context) {
+                  const index = context.dataIndex;
+                  const transaction = dataChart?.datasets[context.datasetIndex].data[index];
+                  const wallet = dataChart?.datasets[context.datasetIndex].wallet[index];
+                  if (transaction) {
+                    return [
+                      `خریدار: ${wallet[0]}`,
+                      `فروشنده: ${wallet[1]}`,
+                      `میزان سود: ${parseInt(transaction).toLocaleString()} تومان`,
+                    ];
+                  }
+                  return "";
                 },
               },
             },
@@ -182,7 +209,7 @@ setEndTime2(formattedEndTime);
           },
         },
       });
-
+  
       chartRef.current.chartInstance = chartInstance;
     }
   }, [dataChart]);

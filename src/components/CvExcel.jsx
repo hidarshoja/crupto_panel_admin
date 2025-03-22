@@ -128,7 +128,7 @@ console.log(`data2`, data2);
           onClick={exportToExcel}
           className="bg-green-500 px-5 py-2 text-white rounded-lg text-sm cursor-pointer"
         >
-          خروجی اکسل
+          خروجی اکسل (1000-)
         </button>
       ) : (
         <p className="bg-green-500 px-5 py-2 text-white rounded-lg text-sm cursor-pointer">
