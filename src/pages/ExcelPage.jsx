@@ -64,7 +64,7 @@ export default function ExcelPage() {
 
   return (
     <div>
-      <h1>ExcelPage</h1>
+      <h1 className='text-xl py-6 font-semibold'>دانلود اکسل ها</h1>
       <ul>
         {successfulExports.map((item) => (
           <li key={item.id} className='bg-white p-4 rounded-md border border-gray-200 flex gap-2 items-center justify-between mb-3'>
