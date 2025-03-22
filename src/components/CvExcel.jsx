@@ -72,7 +72,6 @@ const CvExcel = ({ listTransaction }) => {
   useEffect(() => {
     setData2(listTransaction || []);
   }, [listTransaction]);
-console.log(`data2`, data2);
   const exportToExcel = () => {
     const csvData = data2.map((person) => {
       if (!person?.created_at) return {};

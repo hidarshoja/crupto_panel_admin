@@ -33,6 +33,7 @@ import DownloadPhoto from "./pages/DownloadPhoto";
 import Remaining from "./components/Bot/Remaining";
 import PortBot from "./pages/BotTrade/PortBot";
 import AccountList from "./pages/BotTrade/AccountList";
+import Excel from "./pages/ExcelPage";
 
 export const route = createBrowserRouter([
     {
@@ -42,6 +43,10 @@ export const route = createBrowserRouter([
             {
                 path: '/',
                 element: <HomePage />
+            },
+            {
+                path: '/excelPage',
+                element: <Excel />
             },
             {
                 path: "/home/:chartType",

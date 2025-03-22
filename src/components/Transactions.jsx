@@ -54,7 +54,6 @@ export default function Transactions({ assets, selectedValue }) {
         }${filters.currency ? `&f[asset_id]=${filters.currency}` : ""}`;
 
         const response = await axiosClient2.get(endpoint);
-        console.log(`response.data.data`, response.data.data);
         SetListTransaction(response.data.data);
         setTotalPage(response.data.meta.last_page);
 
@@ -81,7 +80,6 @@ export default function Transactions({ assets, selectedValue }) {
         }${filters.currency ? `&f[asset_id]=${filters.currency}` : ""}`;
 
         const response = await axiosClient2.get(endpoint);
-        console.log(`response.data.data`, response.data.data);
         SetListExcel(response.data.data);
       } catch (error) {
         console.error("Error fetching transactions:", error);
@@ -110,29 +108,26 @@ export default function Transactions({ assets, selectedValue }) {
     return { Authorization: `Bearer ${accessToken}` };
   };
 
-  const buildQueryParams = () => {
-    const params = new URLSearchParams();
-    if (selectedValue) params.append("f[user.type]", selectedValue);
-    if (userId) params.append("f[user_id]", userId);
-    if (filters.type) params.append("f[type]", filters.type);
-    if (filters.status) params.append("f[status]", filters.status);
-    if (filters.currency) params.append("f[asset_id]", filters.currency);
-    return params.toString();
-  };
 
   const requestExport = async () => {
-    const queryParams = buildQueryParams();
+    // const response = await axios.get(
+    //   `${
+    //     import.meta.env.VITE_API_BASE_URL2
+    //   }/transactions?export=true&f[user.type]=${selectedValue}&excel=true&page=${countPage}${
+    //       userId ? `&f[user_id]=${userId}` : ""
+    //     }${filters.type ? `&f[type]=${filters.type}` : ""}${
+    //       filters.status ? `&f[status]=${filters.status}` : ""
+    //     }${filters.currency ? `&f[asset_id]=${filters.currency}` : ""}`,
+    //   { headers: getAuthHeaders() }
+    // );
     const response = await axios.get(
       `${
         import.meta.env.VITE_API_BASE_URL2
-      }/transactions?export=true&${queryParams}`,
+      }/transactions?export=true`,
       { headers: getAuthHeaders() }
     );
-
     const exportId = response.data.data.id;
-    if (!exportId) {
-      throw new Error("خطا در دریافت شناسه فایل اکسل");
-    }
+   
     return exportId;
   };
 
@@ -151,29 +146,29 @@ export default function Transactions({ assets, selectedValue }) {
     return exportStatus.status;
   };
 
-  const downloadExcelFile = async (exportId) => {
-    const response = await axios.get(
-      `${
-        import.meta.env.VITE_API_BASE_URL2
-      }/excel-exports/${exportId}/download`,
-      {
-        responseType: "blob",
-        headers: getAuthHeaders(),
-      }
-    );
+  // const downloadExcelFile = async (exportId) => {
+  //   const response = await axios.get(
+  //     `${
+  //       import.meta.env.VITE_API_BASE_URL2
+  //     }/excel-exports/${exportId}/download`,
+  //     {
+  //       responseType: "blob",
+  //       headers: getAuthHeaders(),
+  //     }
+  //   );
 
-    if (!response.data) {
-      throw new Error("خطا در دانلود فایل اکسل");
-    }
+  //   if (!response.data) {
+  //     throw new Error("خطا در دانلود فایل اکسل");
+  //   }
 
-    const fileName = `transactions_${new Date()
-      .toISOString()
-      .slice(0, 10)}.xlsx`;
-    const blob = new Blob([response.data], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-    saveAs(blob, fileName);
-  };
+  //   const fileName = `transactions_${new Date()
+  //     .toISOString()
+  //     .slice(0, 10)}.xlsx`;
+  //   const blob = new Blob([response.data], {
+  //     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  //   });
+  //   saveAs(blob, fileName);
+  // };
 
   const startExcelDownload = async () => {
     setLoading2(true);
@@ -207,10 +202,10 @@ export default function Transactions({ assets, selectedValue }) {
       }
 
       // Step 3: Download the file
-      await downloadExcelFile(exportId);
+      // await downloadExcelFile(exportId);
 
       toast.update(toastId, {
-        render: "دانلود فایل اکسل با موفقیت انجام شد",
+        render: "فایل اکسل با موفیقت بارگیری شد",
         type: "success",
         isLoading: false,
         autoClose: 3000,

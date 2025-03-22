@@ -52,6 +52,7 @@ export const navigation = [
       { name :"لیست حساب‌ها و شناسه‌ها" , href :"/bot/account-list"}
     ],
   }, 
+  { name: "دریافت اکسل ها", href: "/excelPage", current: false, },
 ];
 
 
