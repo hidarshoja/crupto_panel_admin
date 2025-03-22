@@ -3,8 +3,8 @@ import UserBox from "../components/UserBox4";
 import axiosClient2 from "../axios-client2";
 import CvExcel from "./CvExcel";
 import { toast } from "react-toastify";
-import { saveAs } from "file-saver";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Transactions({ assets, selectedValue }) {
   const [listTransaction, SetListTransaction] = useState([]);
@@ -16,6 +16,7 @@ export default function Transactions({ assets, selectedValue }) {
   const [countPage, setCountPage] = useState(1);
   const [totalPage, setTotalPage] = useState(0);
   const [loading2, setLoading2] = useState(false);
+  const navigate = useNavigate();
   const [filters, setFilters] = useState({
     type: "",
     status: "",
@@ -110,22 +111,22 @@ export default function Transactions({ assets, selectedValue }) {
 
 
   const requestExport = async () => {
-    // const response = await axios.get(
-    //   `${
-    //     import.meta.env.VITE_API_BASE_URL2
-    //   }/transactions?export=true&f[user.type]=${selectedValue}&excel=true&page=${countPage}${
-    //       userId ? `&f[user_id]=${userId}` : ""
-    //     }${filters.type ? `&f[type]=${filters.type}` : ""}${
-    //       filters.status ? `&f[status]=${filters.status}` : ""
-    //     }${filters.currency ? `&f[asset_id]=${filters.currency}` : ""}`,
-    //   { headers: getAuthHeaders() }
-    // );
     const response = await axios.get(
       `${
         import.meta.env.VITE_API_BASE_URL2
-      }/transactions?export=true`,
+      }/transactions?export=true&f[user.type]=${selectedValue}&excel=true&page=${countPage}${
+          userId ? `&f[user_id]=${userId}` : ""
+        }${filters.type ? `&f[type]=${filters.type}` : ""}${
+          filters.status ? `&f[status]=${filters.status}` : ""
+        }${filters.currency ? `&f[asset_id]=${filters.currency}` : ""}`,
       { headers: getAuthHeaders() }
     );
+    // const response = await axios.get(
+    //   `${
+    //     import.meta.env.VITE_API_BASE_URL2
+    //   }/transactions?export=true`,
+    //   { headers: getAuthHeaders() }
+    // );
     const exportId = response.data.data.id;
    
     return exportId;
@@ -146,30 +147,6 @@ export default function Transactions({ assets, selectedValue }) {
     return exportStatus.status;
   };
 
-  // const downloadExcelFile = async (exportId) => {
-  //   const response = await axios.get(
-  //     `${
-  //       import.meta.env.VITE_API_BASE_URL2
-  //     }/excel-exports/${exportId}/download`,
-  //     {
-  //       responseType: "blob",
-  //       headers: getAuthHeaders(),
-  //     }
-  //   );
-
-  //   if (!response.data) {
-  //     throw new Error("خطا در دانلود فایل اکسل");
-  //   }
-
-  //   const fileName = `transactions_${new Date()
-  //     .toISOString()
-  //     .slice(0, 10)}.xlsx`;
-  //   const blob = new Blob([response.data], {
-  //     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  //   });
-  //   saveAs(blob, fileName);
-  // };
-
   const startExcelDownload = async () => {
     setLoading2(true);
     const toastId = toast.loading("در حال آماده‌سازی فایل اکسل...");
@@ -181,14 +158,15 @@ export default function Transactions({ assets, selectedValue }) {
       // Step 2: Poll for status
       let isReady = false;
       let attempts = 0;
-      const maxAttempts = 30;
-      const pollInterval = 6000;
+      const maxAttempts = 50;
+      const pollInterval = 60000;
 
       while (!isReady && attempts < maxAttempts) {
         const status = await checkExportStatus(exportId);
 
         if (status === 100) {
           isReady = true;
+          navigate(`/excelPage`);
         } else if (status === -100) {
           throw new Error("خطا در تولید فایل اکسل");
         } else {
@@ -254,7 +232,7 @@ export default function Transactions({ assets, selectedValue }) {
               ></path>
             </svg>
           ) : null}
-          {loading2 ? "در حال دانلود..." : "دریافت تمام اکسل"}
+          {loading2 ? "در حال آماده سازی..." : "دریافت تمام اکسل"}
         </button>
       </div>
       <div className="mt-8 flow-root">
