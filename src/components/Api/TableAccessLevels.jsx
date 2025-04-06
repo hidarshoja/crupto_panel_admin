@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Modal from "./Modal";
 import LicenseModal from "./LicenseModal";
-import { FaWallet, FaLock , FaRegEye} from "react-icons/fa";
+import { FaWallet, FaLock, FaRegEye } from "react-icons/fa";
 import { IoCloseOutline } from "react-icons/io5";
 import axiosClient2 from "../../axios-client2";
 import { toast } from "react-toastify";
@@ -16,8 +16,8 @@ const TableAccessLevels = () => {
     "نوع مشتری",
     "کیف پول ها",
     "مجوزها",
-    "API KEY",
-    "TOKEN API",
+    // "API KEY",
+    // "TOKEN API",
     "دسترسی",
     "عملیات",
   ];
@@ -29,8 +29,8 @@ const TableAccessLevels = () => {
   const [selectedAssets2, setSelectedAssets2] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState("");
-  const [countPage , setCountPage] = useState(1);
-  const[totalPage , setTotalPage] = useState(0)
+  const [countPage, setCountPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(0);
   const [formData, setFormData] = useState({
     transaction: "100000",
     exchange: "30000",
@@ -60,8 +60,8 @@ const TableAccessLevels = () => {
       dataToSend.type = updatedItem.customerType;
     }
 
-    if (updatedItem.access) {
-      dataToSend.status = updatedItem.access;
+    if (updatedItem.status) {
+      dataToSend.status = updatedItem.status;
     }
 
     if (formData.assets && formData.assets.length > 0) {
@@ -86,7 +86,7 @@ const TableAccessLevels = () => {
       }
     } catch (error) {
       if (error.response && error.response.data) {
-        const {  errors } = error.response.data;
+        const { errors } = error.response.data;
         if (errors) {
           Object.values(errors).forEach((errorMessages) => {
             errorMessages.forEach((errorMessage) => {
@@ -113,14 +113,16 @@ const TableAccessLevels = () => {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await axiosClient2.get(`/users?include=assets&f[type]=3&page=${countPage}`);
+        const response = await axiosClient2.get(
+          `/users?include=assets&f[type]=3&page=${countPage}`
+        );
         setLoading(true);
         setAccessLevels(response.data.data);
         setTotalPage(response.data.meta.last_page);
       } catch (error) {
         console.error("Error fetching transactions:", error);
         if (error.response && error.response.data) {
-          const {  errors } = error.response.data;
+          const { errors } = error.response.data;
           if (errors) {
             Object.values(errors).forEach((errorMessages) => {
               errorMessages.forEach((errorMessage) => {
@@ -148,8 +150,6 @@ const TableAccessLevels = () => {
     navigator.clipboard.writeText(modalContent);
     toast.success("کپی شد!");
   };
-
-
 
   return (
     <div className="mt-8 flow-root">
@@ -207,8 +207,8 @@ const TableAccessLevels = () => {
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {[...accessLevels]?.reverse().map((transaction) => (
                     <tr key={transaction.id}>
-                       <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                        {transaction.id} 
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        {transaction.id}
                       </td>
                       <td className="px-3 py-4 text-sm text-gray-500 text-center">
                         {transaction.name} - {transaction.lastname}
@@ -250,7 +250,7 @@ const TableAccessLevels = () => {
                           <FaLock size={20} />
                         </button>
                       </td>
-                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                      {/* <td className="px-3 py-4 text-sm text-gray-500 text-center">
                         <button
                           onClick={() => handleShowModal(transaction.mobile)}
                         >
@@ -263,14 +263,14 @@ const TableAccessLevels = () => {
                         >
                           <FaRegEye size={20}/>
                         </button>
-                      </td>
+                      </td> */}
                       <td className="px-3 py-4 text-sm text-gray-500 text-center">
                         <select
-                          value={transaction.access}
+                          value={transaction.status}
                           onChange={(e) =>
                             handleChange(
                               transaction.id,
-                              "access",
+                              "status",
                               e.target.value
                             )
                           }
@@ -298,22 +298,18 @@ const TableAccessLevels = () => {
       {/* صفحه بندی */}
       <div className="flex justify-between items-center mt-4">
         <button
-           disabled={countPage === 1}
-           onClick={() =>
-             setCountPage((prev) => prev - 1)
-           }
+          disabled={countPage === 1}
+          onClick={() => setCountPage((prev) => prev - 1)}
           className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
         >
           صفحه قبل
         </button>
         <span>
-        صفحه {countPage} از {totalPage}
+          صفحه {countPage} از {totalPage}
         </span>
         <button
-           disabled={countPage === totalPage}
-           onClick={() =>
-             setCountPage((prev) => prev + 1)
-           }
+          disabled={countPage === totalPage}
+          onClick={() => setCountPage((prev) => prev + 1)}
           className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
         >
           صفحه بعد
@@ -335,7 +331,7 @@ const TableAccessLevels = () => {
         setFormData={setFormData}
         currentItems={selectedAssets2}
       />
-         {modalOpen && (
+      {modalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-lg w-80 relative">
             <h2 className="text-lg font-bold mb-2">مشاهده اطلاعات</h2>
@@ -350,17 +346,17 @@ const TableAccessLevels = () => {
                 className="bg-gray-500 text-white p-1 rounded-full"
                 onClick={() => setModalOpen(false)}
               >
-               <IoCloseOutline size={20} /> 
+                <IoCloseOutline size={20} />
               </button>
             </div>
-             <div className="flex items-end justify-end mt-4">
-             <button
+            <div className="flex items-end justify-end mt-4">
+              <button
                 className="bg-green-500 text-white px-4 py-2 rounded"
                 onClick={handleCopy}
               >
                 کپی
               </button>
-             </div>
+            </div>
           </div>
         </div>
       )}

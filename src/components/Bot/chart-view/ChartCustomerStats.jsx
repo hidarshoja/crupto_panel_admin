@@ -107,7 +107,7 @@ setEndTime2(formattedEndTime);
             datasets: [
               
               {
-                label: "سود",
+                label: "سود(ریال)",
                 data: sellValues,
                 backgroundColor: "rgba(110, 155, 110)",
                 borderColor: "rgba(0, 255, 0, 3)",
@@ -179,7 +179,7 @@ setEndTime2(formattedEndTime);
                     return [
                       `خریدار: ${wallet[0]}`,
                       `فروشنده: ${wallet[1]}`,
-                      `میزان سود: ${parseInt(transaction).toLocaleString()} تومان`,
+                      `میزان سود: ${parseInt(transaction).toLocaleString()} ریال`,
                     ];
                   }
                   return "";

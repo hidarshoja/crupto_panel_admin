@@ -39,7 +39,7 @@ export const navigation = [
     children: [
       { name: 'ایجاد استراتژی', href: '/bot/strategy' },
       { name: 'لیست استراتژی', href: '/bot/strategy-list' },
-      { name: 'صرافی ها', href: '/bot/exchange' },
+      // { name: 'صرافی ها', href: '/bot/exchange' },
       { name: 'معامله دستی', href: '/bot/transaction' },
       { name :"حسابداری" , href :"/bot/accounting"},
       { name :"سند بات" , href :"/bot/document"},
