@@ -1,43 +1,40 @@
-
-
-import { useState , useEffect } from 'react';
-import Modal from './../components/Api/Modal';  
-import LicenseModal from './../components/Api/LicenseModal';
+import { useState, useEffect } from "react";
+import Modal from "./../components/Api/Modal";
+import LicenseModal from "./../components/Api/LicenseModal";
 import { FaWallet, FaLock } from "react-icons/fa";
 import axiosClient2 from "../axios-client2";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
 const TableAccessLevels = () => {
-
-  const [accessLevels , setAccessLevels] = useState([]);
+  const [accessLevels, setAccessLevels] = useState([]);
   const tableHeaders = [
     "#",
-    'نام و نام خانوادگی',
-    'کدملی',
-    'موبایل',
-    'kyc',
-    'کیف پول ها',
-    'اعتبار',
-    'وضعیت',
-    'عملیات',
+    "نام و نام خانوادگی",
+    "کدملی",
+    "موبایل",
+    "kyc",
+    "کیف پول ها",
+    "اعتبار",
+    "وضعیت",
+    "عملیات",
   ];
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpen2, setIsModalOpen2] = useState(false);
-  const [assetAll , setAssetAll] = useState([]);
+  const [assetAll, setAssetAll] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedAssets, setSelectedAssets] = useState([]);
   const [selectedAssets2, setSelectedAssets2] = useState([]);
   const [formData, setFormData] = useState({
     transaction: "",
     exchange: "",
-    assets : [],
-    access :"1",
-    CustomerType:"1",
+    assets: [],
+    status: "1",
+    CustomerType: "1",
     credit_irr_limit: "",
-    credit_usdt_limit: ""   
+    credit_usdt_limit: "",
   });
-  const [countPage , setCountPage] = useState(1);
-  const[totalPage , setTotalPage] = useState(0)
+  const [countPage, setCountPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(0);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
   const openModal2 = () => setIsModalOpen2(true);
@@ -45,59 +42,59 @@ const TableAccessLevels = () => {
 
   const handleChange = (id, field, value) => {
     setAccessLevels((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, [field]: value } : item
-      )
+      prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
     );
   };
 
-const handleFormSubmit = async (transaction) => {
-  const updatedItem = accessLevels.find((item) => item.id === transaction.id);
+  const handleFormSubmit = async (transaction) => {
+    const updatedItem = accessLevels.find((item) => item.id === transaction.id);
 
-  const dataToSend = {};
+    const dataToSend = {};
 
-  if (updatedItem.customerType) {
-    dataToSend.kyc = updatedItem.customerType;
-  }
-
-  if (updatedItem.access) {
-    dataToSend.status = updatedItem.access;
-  }
-
-  if (formData.assets && formData.assets.length > 0) {
-    dataToSend.assets = formData.assets;
-  }
-  if(formData.transaction) {
-    dataToSend.credit_irr_limit = Number(formData.transaction)
-  }
-  if (formData.exchange) {
-    dataToSend.credit_usdt_limit = Number(formData.exchange)
-  }
-
-  try {
-    const response = await axiosClient2.put(`/users/${transaction.id}`, dataToSend);
-    if (response.status === 200) {
-      toast.success("تغییرات با موفقیت ثبت شد");
-    } else {
-      toast.error("خطا در اعمال تغییرات، لطفاً دوباره تلاش کنید");
+    if (updatedItem.customerType) {
+      dataToSend.kyc = updatedItem.customerType;
     }
-  } catch (error) {
-    if (error.response && error.response.data) {
-      const { message, errors } = error.response.data;
-      toast.error(message || "خطا در ارسال اطلاعات!");
-      if (errors) {
-        Object.values(errors).forEach((errorMessages) => {
-          errorMessages.forEach((errorMessage) => {
-            toast.error(errorMessage);
-          });
-        });
+
+    if (updatedItem.status) {
+      dataToSend.status = updatedItem.status;
+    }
+
+    if (formData.assets && formData.assets.length > 0) {
+      dataToSend.assets = formData.assets;
+    }
+    if (formData.transaction) {
+      dataToSend.credit_irr_limit = Number(formData.transaction);
+    }
+    if (formData.exchange) {
+      dataToSend.credit_usdt_limit = Number(formData.exchange);
+    }
+
+    try {
+      const response = await axiosClient2.put(
+        `/users/${transaction.id}`,
+        dataToSend
+      );
+      if (response.status === 200) {
+        toast.success("تغییرات با موفقیت ثبت شد");
+      } else {
+        toast.error("خطا در اعمال تغییرات، لطفاً دوباره تلاش کنید");
       }
-    } else {
-      toast.error("خطا در ارسال اطلاعات!");
+    } catch (error) {
+      if (error.response && error.response.data) {
+        const { message, errors } = error.response.data;
+        toast.error(message || "خطا در ارسال اطلاعات!");
+        if (errors) {
+          Object.values(errors).forEach((errorMessages) => {
+            errorMessages.forEach((errorMessage) => {
+              toast.error(errorMessage);
+            });
+          });
+        }
+      } else {
+        toast.error("خطا در ارسال اطلاعات!");
+      }
     }
-  }
-};
-
+  };
 
   const fetchTransactionsAssetes = async () => {
     try {
@@ -106,18 +103,18 @@ const handleFormSubmit = async (transaction) => {
       setAssetAll(response.data.data);
     } catch (error) {
       console.error("Error fetching transactions:", error);
-    } 
+    }
   };
 
- 
-  
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await axiosClient2.get(`/users?include=assets&f[type]=1&page=${countPage}`);
-          setLoading(true);
-          setAccessLevels(response.data.data);
-          setTotalPage(response.data.meta.last_page);
+        const response = await axiosClient2.get(
+          `/users?include=assets&f[type]=1&page=${countPage}`
+        );
+        setLoading(true);
+        setAccessLevels(response.data.data);
+        setTotalPage(response.data.meta.last_page);
       } catch (error) {
         console.error("Error fetching transactions:", error);
       } finally {
@@ -128,7 +125,6 @@ const handleFormSubmit = async (transaction) => {
     fetchTransactions();
   }, [countPage]);
 
- 
   return (
     <div className="mt-8 flow-root">
       <h1 className="text-lg font-bold mb-4 mt-4">سطوح دسترسی</h1>
@@ -182,76 +178,85 @@ const handleFormSubmit = async (transaction) => {
                   </tr>
                 </tbody>
               ) : (
-               <tbody className="divide-y divide-gray-200 bg-white">
-                {[...accessLevels]?.reverse().map((transaction) => (
-                  <tr key={transaction.id}>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      {transaction.id}
-                    </td>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      {transaction.name}
-                    </td>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      {transaction.national_code}
-                    </td>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      {transaction.mobile}
-                    </td>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      <select
-                        value={transaction.kyc}
-                        onChange={(e) =>
-                          handleChange(transaction.id, 'customerType', e.target.value)
-                        }
-                     
-                      >
-                        <option value="1">تایید</option>
-                        <option value="2">رد</option>
-                      </select>
-                    </td>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                    <button className="cursor-pointer"
-                       onClick={() => {
-                        setSelectedAssets(transaction.assets); 
-                        openModal();
-                      }}
-                       >
-                        <FaWallet size={20} />
-                      </button>
-                    </td>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                    <button className="cursor-pointer"
+                <tbody className="divide-y divide-gray-200 bg-white">
+                  {[...accessLevels]?.reverse().map((transaction) => (
+                    <tr key={transaction.id}>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        {transaction.id}
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        {transaction.name}
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        {transaction.national_code}
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        {transaction.mobile}
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        <select
+                          value={transaction.kyc}
+                          onChange={(e) =>
+                            handleChange(
+                              transaction.id,
+                              "customerType",
+                              e.target.value
+                            )
+                          }
+                        >
+                          <option value="1">تایید</option>
+                          <option value="2">رد</option>
+                        </select>
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        <button
+                          className="cursor-pointer"
                           onClick={() => {
-                            setSelectedAssets2(transaction); 
+                            setSelectedAssets(transaction.assets);
+                            openModal();
+                          }}
+                        >
+                          <FaWallet size={20} />
+                        </button>
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        <button
+                          className="cursor-pointer"
+                          onClick={() => {
+                            setSelectedAssets2(transaction);
                             openModal2();
                           }}
-                       >
-                        <FaLock size={20}/>
-                      </button>
-                    </td>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                    <select
-                        value={transaction.access}
-                        onChange={(e) =>
-                          handleChange(transaction.id, 'access', e.target.value)
-                        }
-                      >
-                        <option value="100">فعال</option>
-                        <option value="-100">غیر فعال</option>
-                      </select>
-                    </td>
-                    <td className="px-3 py-4 text-sm text-gray-500 text-center">
-                      <button
-                       className="bg-blue-500 text-white px-4 py-2 rounded"
-                       onClick={() => handleFormSubmit(transaction)}
-                       >
-                        ثبت
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-               )}
+                        >
+                          <FaLock size={20} />
+                        </button>
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        <select
+                          value={transaction.status}
+                          onChange={(e) =>
+                            handleChange(
+                              transaction.id,
+                              "status",
+                              e.target.value
+                            )
+                          }
+                        >
+                          <option value="100">فعال</option>
+                          <option value="-100">غیر فعال</option>
+                        </select>
+                      </td>
+                      <td className="px-3 py-4 text-sm text-gray-500 text-center">
+                        <button
+                          className="bg-blue-500 text-white px-4 py-2 rounded"
+                          onClick={() => handleFormSubmit(transaction)}
+                        >
+                          ثبت
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              )}
             </table>
           </div>
         </div>
@@ -259,33 +264,41 @@ const handleFormSubmit = async (transaction) => {
       {/* صفحه بندی */}
       <div className="flex justify-between items-center mt-4">
         <button
-           disabled={countPage === 1}
-           onClick={() =>
-             setCountPage((prev) => prev - 1)
-           }
+          disabled={countPage === 1}
+          onClick={() => setCountPage((prev) => prev - 1)}
           className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
         >
           صفحه قبل
         </button>
         <span>
-        صفحه {countPage} از {totalPage}
+          صفحه {countPage} از {totalPage}
         </span>
         <button
           disabled={countPage === totalPage}
-          onClick={() =>
-            setCountPage((prev) => prev + 1)
-          }
+          onClick={() => setCountPage((prev) => prev + 1)}
           className="px-4 py-2 bg-[#090580] text-white rounded disabled:opacity-50"
         >
           صفحه بعد
         </button>
       </div>
       {/* نمایش مدال */}
-      <Modal isOpen={isModalOpen} closeModal={closeModal} assets={selectedAssets} formData={formData} setFormData={setFormData} assetAll={assetAll} />
-      <LicenseModal isOpen2={isModalOpen2} closeModal2={closeModal2} formData={formData} setFormData={setFormData} currentItems ={selectedAssets2} />
+      <Modal
+        isOpen={isModalOpen}
+        closeModal={closeModal}
+        assets={selectedAssets}
+        formData={formData}
+        setFormData={setFormData}
+        assetAll={assetAll}
+      />
+      <LicenseModal
+        isOpen2={isModalOpen2}
+        closeModal2={closeModal2}
+        formData={formData}
+        setFormData={setFormData}
+        currentItems={selectedAssets2}
+      />
     </div>
   );
 };
 
 export default TableAccessLevels;
-
