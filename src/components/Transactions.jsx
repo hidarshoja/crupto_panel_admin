@@ -121,12 +121,7 @@ export default function Transactions({ assets, selectedValue }) {
         }${filters.currency ? `&f[asset_id]=${filters.currency}` : ""}`,
       { headers: getAuthHeaders() }
     );
-    // const response = await axios.get(
-    //   `${
-    //     import.meta.env.VITE_API_BASE_URL2
-    //   }/transactions?export=true`,
-    //   { headers: getAuthHeaders() }
-    // );
+  
     const exportId = response.data.data.id;
    
     return exportId;
@@ -159,7 +154,7 @@ export default function Transactions({ assets, selectedValue }) {
       let isReady = false;
       let attempts = 0;
       const maxAttempts = 50;
-      const pollInterval = 60000;
+      const pollInterval = 10000;
 
       while (!isReady && attempts < maxAttempts) {
         const status = await checkExportStatus(exportId);
