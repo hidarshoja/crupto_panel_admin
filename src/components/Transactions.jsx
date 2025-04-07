@@ -109,37 +109,38 @@ export default function Transactions({ assets, selectedValue }) {
     return { Authorization: `Bearer ${accessToken}` };
   };
 
-
   const requestExport = async () => {
     const response = await axios.get(
       `${
         import.meta.env.VITE_API_BASE_URL2
       }/transactions?export=true&f[user.type]=${selectedValue}&excel=true&page=${countPage}${
-          userId ? `&f[user_id]=${userId}` : ""
-        }${filters.type ? `&f[type]=${filters.type}` : ""}${
-          filters.status ? `&f[status]=${filters.status}` : ""
-        }${filters.currency ? `&f[asset_id]=${filters.currency}` : ""}`,
+        userId ? `&f[user_id]=${userId}` : ""
+      }${filters.type ? `&f[type]=${filters.type}` : ""}${
+        filters.status ? `&f[status]=${filters.status}` : ""
+      }${filters.currency ? `&f[asset_id]=${filters.currency}` : ""}`,
       { headers: getAuthHeaders() }
     );
-  
+
     const exportId = response.data.data.id;
-   
+
     return exportId;
   };
 
   const startExcelDownload = async () => {
     setLoading2(true);
     const toastId = toast.loading("در حال آماده‌سازی فایل اکسل...");
-  
+
     try {
-      const data = await requestExport(); 
+      const data = await requestExport();
       toast.update(toastId, {
         render: "درخواست با موفقیت ارسال شد",
         type: "success",
         isLoading: false,
         autoClose: 3000,
       });
-      
+
+      // Dispatch a custom event to notify that export has been requested
+      window.dispatchEvent(new CustomEvent("exportRequested"));
     } catch (error) {
       toast.update(toastId, {
         render: error.message || "خطا در دانلود فایل اکسل",
@@ -151,7 +152,6 @@ export default function Transactions({ assets, selectedValue }) {
       setLoading2(false);
     }
   };
-  
 
   return (
     <>
