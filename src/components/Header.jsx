@@ -1,7 +1,9 @@
-import React, { useEffect } from "react";
+import  { useEffect , useState } from "react";
 import { Menu } from "@headlessui/react";
 import { Bars3Icon } from "@heroicons/react/24/outline";
+import { HiOutlineBellAlert } from "react-icons/hi2";
 import {  useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Header({
   setSidebarOpen,
@@ -11,12 +13,35 @@ export default function Header({
   const navigate = useNavigate();
    const userInfo = JSON.parse(localStorage.getItem("USER_INFO"));
   const accessToken = localStorage.getItem("ACCESS_TOKEN");
+  const [exportStatus, setExportStatus] = useState([]);
 
+  const getAuthHeaders = () => {
+    const accessToken = localStorage.getItem("ACCESS_TOKEN");
+    if (!accessToken) {
+      throw new Error("توکن دسترسی پیدا نشد");
+    }
+    return { Authorization: `Bearer ${accessToken}` };
+  };
+
+
+  const checkExportStatus = async () => {
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_BASE_URL2}/excel-exports`,
+      { headers: getAuthHeaders() }
+    );
+    const exportStatuses = response.data.data.filter(
+      (item) => item.status !== 100 && item.status !== -100
+    );
+  
+    setExportStatus(exportStatuses);
+  
+  };
 
   useEffect(() => {
     if (!accessToken) {
        navigate("/auth/login");
     }
+    checkExportStatus();
   }, [accessToken, navigate]);
 
  
@@ -59,8 +84,14 @@ export default function Header({
           </button>
 
           <Menu as="div" className="flex flex-wrap items-center justify-end gap-1">
+          <div className="text-[12px] w-[20px] h-[20px] relative">
+                   <HiOutlineBellAlert  size={24} className="text-white"/>
+                   <span className="absolute top-[-6px] right-[-6px] text-xs bg-white text-red-500 rounded-full w-4 h-4 flex items-center justify-center">{exportStatus.length}</span>
+                </div>
             <div className="px-3 cursor-pointer flex overflow-hidden bg-white h-7 rounded-[11px] border border-[#5B7380]">
+              
               <div className="w-full flex items-center justify-center gap-1">
+             
                 <div>
                   <img
                     src="/img/zahra.svg"
@@ -88,9 +119,7 @@ export default function Header({
                 <div className="text-white text-[12px]">
                   <span>خروج</span>
                 </div>
-                <div className="text-white text-[12px]">
-                  
-                </div>
+               
               </div>
             </div>
           </Menu>
