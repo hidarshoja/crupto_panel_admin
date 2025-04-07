@@ -53,6 +53,7 @@ export const navigation = [
     ],
   }, 
   { name: "دریافت اکسل ها", href: "/excelPage", current: false, },
+  // { name: "لیبل ها", href: "/libel", current: false, },
 ];
 
 

@@ -63,8 +63,8 @@ useEffect(() => {
         const buyData = response.data.data.filter(item => item.type === 1);
         const sellData = response.data.data.filter(item => item.type === 2);
 
-        const buyLabels = buyData.map(item => item.asset.name);
-        const sellLabels = sellData.map(item => item.asset.name);
+        const buyLabels = buyData.map(item => item.user.name);
+        const sellLabels = sellData.map(item => item.user.name);
 
         const buyValues = buyData.map(item => parseFloat(item.total_price));
         const sellValues = sellData.map(item => parseFloat(item.total_price));
@@ -209,7 +209,7 @@ const options = {
                 setPri={setPri}
             />
       </div>
-     <div className="w-full md:w-1/2 flex items-end justify-around">
+     {/* <div className="w-full md:w-1/2 flex items-end justify-around">
         <div>
           <span>کل تتر :</span>
           <span className="text-green-400 px-1">1000</span>
@@ -218,7 +218,7 @@ const options = {
           <span>  کل تومان :</span>
           <span className="text-green-400 px-1">1000000</span>
         </div>
-     </div>
+     </div> */}
       
       </div>
       <div className="my-4 flex flex-col md:flex-row gap-4 w-full">
