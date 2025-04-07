@@ -34,6 +34,7 @@ import Remaining from "./components/Bot/Remaining";
 import PortBot from "./pages/BotTrade/PortBot";
 import AccountList from "./pages/BotTrade/AccountList";
 import Excel from "./pages/ExcelPage";
+import LibelPage from "./pages/Libel";
 
 export const route = createBrowserRouter([
     {
@@ -159,6 +160,10 @@ export const route = createBrowserRouter([
             {
                 path : "/bot/account-list",
                 element : <AccountList />
+            },
+            {
+                path : "/libel",
+                element : <LibelPage />
             }
           
         ]

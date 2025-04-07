@@ -48,7 +48,7 @@ export default function Transactions({ assets, selectedValue }) {
     const fetchTransactions = async () => {
       setLoading(true);
       try {
-        const endpoint = `/transactions?f[user.type]=${selectedValue}&excel=true&page=${countPage}${
+        const endpoint = `/transactions?f[user.type]=${selectedValue}&page=${countPage}${
           userId ? `&f[user_id]=${userId}` : ""
         }${filters.type ? `&f[type]=${filters.type}` : ""}${
           filters.status ? `&f[status]=${filters.status}` : ""
@@ -127,64 +127,20 @@ export default function Transactions({ assets, selectedValue }) {
     return exportId;
   };
 
-  const checkExportStatus = async (exportId) => {
-    const response = await axios.get(
-      `${import.meta.env.VITE_API_BASE_URL2}/excel-exports`,
-      { headers: getAuthHeaders() }
-    );
-
-    const exportStatus = response.data.data.find(
-      (item) => item.id === exportId
-    );
-    if (!exportStatus) {
-      throw new Error("وضعیت فایل اکسل یافت نشد");
-    }
-    return exportStatus.status;
-  };
-
   const startExcelDownload = async () => {
     setLoading2(true);
     const toastId = toast.loading("در حال آماده‌سازی فایل اکسل...");
-
+  
     try {
-      // Step 1: Request export
-      const exportId = await requestExport();
-
-      // Step 2: Poll for status
-      let isReady = false;
-      let attempts = 0;
-      const maxAttempts = 50;
-      const pollInterval = 10000;
-
-      while (!isReady && attempts < maxAttempts) {
-        const status = await checkExportStatus(exportId);
-
-        if (status === 100) {
-          isReady = true;
-          navigate(`/excelPage`);
-        } else if (status === -100) {
-          throw new Error("خطا در تولید فایل اکسل");
-        } else {
-          await new Promise((resolve) => setTimeout(resolve, pollInterval));
-          attempts++;
-        }
-      }
-
-      if (!isReady) {
-        throw new Error("زمان آماده‌سازی فایل اکسل به پایان رسید");
-      }
-
-      // Step 3: Download the file
-      // await downloadExcelFile(exportId);
-
+      const data = await requestExport(); 
       toast.update(toastId, {
-        render: "فایل اکسل با موفیقت بارگیری شد",
+        render: "درخواست با موفقیت ارسال شد",
         type: "success",
         isLoading: false,
         autoClose: 3000,
       });
+      
     } catch (error) {
-      console.error("خطا در دانلود اکسل:", error);
       toast.update(toastId, {
         render: error.message || "خطا در دانلود فایل اکسل",
         type: "error",
@@ -195,6 +151,7 @@ export default function Transactions({ assets, selectedValue }) {
       setLoading2(false);
     }
   };
+  
 
   return (
     <>
