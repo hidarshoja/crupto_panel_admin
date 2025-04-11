@@ -4,7 +4,6 @@ import axiosClient2 from "../axios-client2";
 import CvExcel from "./CvExcel";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 export default function Transactions({ assets, selectedValue }) {
   const [listTransaction, SetListTransaction] = useState([]);
@@ -16,7 +15,6 @@ export default function Transactions({ assets, selectedValue }) {
   const [countPage, setCountPage] = useState(1);
   const [totalPage, setTotalPage] = useState(0);
   const [loading2, setLoading2] = useState(false);
-  const navigate = useNavigate();
   const [filters, setFilters] = useState({
     type: "",
     status: "",
@@ -131,7 +129,9 @@ export default function Transactions({ assets, selectedValue }) {
     const toastId = toast.loading("در حال آماده‌سازی فایل اکسل...");
 
     try {
-      const data = await requestExport();
+      const exportId = await requestExport();
+      console.log("Export ID:", exportId);
+
       toast.update(toastId, {
         render: "درخواست با موفقیت ارسال شد",
         type: "success",

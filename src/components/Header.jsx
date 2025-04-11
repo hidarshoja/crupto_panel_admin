@@ -15,6 +15,7 @@ export default function Header({
   const userInfo = JSON.parse(localStorage.getItem("USER_INFO"));
   const accessToken = localStorage.getItem("ACCESS_TOKEN");
   const [exportStatus, setExportStatus] = useState([]);
+  const [localExportCount, setLocalExportCount] = useState(0);
 
   const getAuthHeaders = () => {
     const accessToken = localStorage.getItem("ACCESS_TOKEN");
@@ -44,7 +45,8 @@ export default function Header({
 
     // Add event listener for export requests
     const handleExportRequested = () => {
-      checkExportStatus();
+      // Only increment the local export count, don't call checkExportStatus here
+      setLocalExportCount((prevCount) => prevCount + 1);
     };
 
     window.addEventListener("exportRequested", handleExportRequested);
@@ -55,10 +57,11 @@ export default function Header({
     };
   }, [accessToken, navigate]);
 
-  // Reset exportStatus when navigating to /excelPage
+  // Reset exportStatus and localExportCount when navigating to /excelPage
   useEffect(() => {
     if (location.pathname === "/excelPage") {
       setExportStatus([]);
+      setLocalExportCount(0);
     }
   }, [location.pathname]);
 
@@ -67,6 +70,9 @@ export default function Header({
     localStorage.removeItem("ACCESS_TOKEN");
     navigate("/auth/login");
   };
+
+  // Calculate total export count (API exports + local exports)
+  const totalExportCount = exportStatus.length + localExportCount;
 
   return (
     <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 bg-[#090580] border-b-2 border-gray-700 px-4 sm:gap-x-6 sm:px-6 lg:px-8">
@@ -105,7 +111,7 @@ export default function Header({
             <div className="text-[12px] w-[20px] h-[20px] relative">
               <HiOutlineBellAlert size={24} className="text-white" />
               <span className="absolute top-[-6px] right-[-6px] text-xs bg-white text-red-500 rounded-full w-4 h-4 flex items-center justify-center">
-                {exportStatus.length}
+                {totalExportCount}
               </span>
             </div>
             <div className="px-3 cursor-pointer flex overflow-hidden bg-white h-7 rounded-[11px] border border-[#5B7380]">
