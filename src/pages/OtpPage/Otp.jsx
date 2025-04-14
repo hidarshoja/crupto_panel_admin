@@ -22,13 +22,13 @@ export default function OTPVerification() {
       return;
     }
 
-   let otp = parseInt(otp);
+    const otpNumber = parseInt(otp);
 
     try {
       const response = await axiosClient.post("/login", {
         mobile,
         password,
-        otp,
+        otp: otpNumber,
       });
 
       const { user, token } = response.data.data;
@@ -56,7 +56,7 @@ export default function OTPVerification() {
           کد تایید را وارد کنید
         </h2>
         <p className="text-gray-500 text-center mt-2">
-          کد  ارسال‌شده به شماره شما را وارد کنید.
+          کد ارسال‌شده به شماره شما را وارد کنید.
         </p>
 
         <form onSubmit={handleVerifyOTP} className="mt-6">
@@ -75,8 +75,9 @@ export default function OTPVerification() {
           </div>
 
           <button
-            type="submit"
+            type="button"
             disabled={isLoading}
+            onClick={handleVerifyOTP}
             className={`w-full bg-green-600 text-white rounded-md py-2 text-lg ${
               isLoading ? "opacity-50 cursor-not-allowed" : ""
             }`}
@@ -97,9 +98,3 @@ export default function OTPVerification() {
     </div>
   );
 }
-
-
-
-
-
-
