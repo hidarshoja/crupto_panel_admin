@@ -22,13 +22,13 @@ export default function OTPVerification() {
       return;
     }
 
-   let otpNumber = parseInt(otp);
+   let otp = parseInt(otp);
 
     try {
       const response = await axiosClient.post("/login", {
         mobile,
         password,
-        otpNumber,
+        otp,
       });
 
       const { user, token } = response.data.data;
