@@ -91,7 +91,8 @@ export default function DocumentComponent({assets}) {
         setUsers(response.data.data);
   
    
-          const users = response.data.data.map((item) => item.user);
+          const users = response.data.data.map((item) => item?.name);
+          console.log(`users`, users);
           const uniqueUsers = Array.from(
             new Map(users.map((user) => [user.id, user])).values()
           );

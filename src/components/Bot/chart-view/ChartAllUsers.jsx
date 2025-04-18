@@ -68,7 +68,7 @@ export default function ChartAllUsers({assets}) {
         }
   
         const response = await axiosClient2.get(endpoint);
-  
+       console.log(`response`, response);
         if (Array.isArray(response.data.data)) {
           const sortedData = response.data.data.sort((a, b) => new Date(a.date) - new Date(b.date));
          
@@ -142,7 +142,7 @@ export default function ChartAllUsers({assets}) {
   
         const response = await axiosClient2.get(endpoint);
   
-         console.log(`response`, response);
+        //  console.log(`response`, response);
       } catch (error) {
         if (error.response && error.response.data) {
           const { message, errors } = error.response.data;

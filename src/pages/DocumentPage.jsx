@@ -24,7 +24,7 @@ useEffect(() => {
       setUsers(response.data.data);
 
       if (!isUsersInitialized) {
-        const users = response.data.data.map((item) => item.user);
+        const users = response.data.data.map((item) => item?.name);
         const uniqueUsers = Array.from(
           new Map(users.map((user) => [user.id, user])).values()
         );
@@ -73,7 +73,6 @@ useEffect(() => {
       const endpoint = `/assets`;
 
       const response = await axiosClient2.get(endpoint);
-        console.log(response.data.data);
         
         setAssets(response.data.data);
 
