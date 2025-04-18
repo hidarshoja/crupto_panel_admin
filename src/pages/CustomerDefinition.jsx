@@ -6,6 +6,7 @@ import { convertPersianToEnglish } from "../constant/DateJalili";
 import { toast } from "react-toastify";
 import axiosClient2 from "../axios-client2";
 import { useNavigate } from "react-router-dom";
+import { AiOutlinePercentage } from "react-icons/ai";
 
 export default function CustomerDefinition() {
   const [dateBirth, setDateBirth] = useState(null);
@@ -27,7 +28,8 @@ export default function CustomerDefinition() {
     status: 100,
     type : "3",
     user_api: true,
-    valid_ips : ["192.1.23.36"]
+    valid_ips : ["192.1.23.36"],
+    fee : ""
   };
 
   useEffect(() => {
@@ -258,7 +260,7 @@ export default function CustomerDefinition() {
       </div>
 
       {/* حد اعتباری خرید و فروش */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-3 gap-4 mb-4">
         <div className="relative">
           <label className="block text-sm font-medium mb-1">
             حد اعتباری  (ریالی):
@@ -293,7 +295,35 @@ export default function CustomerDefinition() {
             تتر
           </span>
         </div>
-
+        <div className="w-full">
+          <label
+            htmlFor="fee"
+            className="block text-sm font-medium leading-6 text-gray-900"
+          >
+           درصد کارمزد
+          </label>
+          <div className="relative mt-2">
+            <input
+              id="fee"
+              name="fee"
+              type="text"
+              value={formData.fee}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^\d*\.?\d{0,3}$/.test(value)) {
+                  handleInputChange(e);
+                }
+              }}
+              placeholder="  درصد کارمزد را وارد کنید"
+              className="peer block w-full pr-2 border-0 bg-gray-50 py-1.5 text-gray-900 focus:ring-0 sm:text-sm sm:leading-6"
+            />
+            <AiOutlinePercentage className="absolute left-2 top-2" />
+            <div
+              aria-hidden="true"
+              className="absolute inset-x-0 bottom-0 border-t border-gray-300 peer-focus:border-t-2 peer-focus:border-indigo-600"
+            />
+          </div>
+        </div>
       
       </div>
 
