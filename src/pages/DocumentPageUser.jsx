@@ -13,8 +13,6 @@ export default function DocumentPage() {
         const endpoint = `/assets`;
   
         const response = await axiosClient2.get(endpoint);
-          console.log(response.data.data);
-          
           setAssets(response.data.data);
   
        

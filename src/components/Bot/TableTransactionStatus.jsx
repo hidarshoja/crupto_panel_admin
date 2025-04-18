@@ -76,8 +76,6 @@ export default function TableTransactionStatus({selectedValue  , startDate , end
     } 
   };
   const fetchAutoOrders = async () => {
-    console.log(`startData`, startDate);
-    console.log(`endDate`, endDate);
     try {
     
       const endpoint = `/auto-orders?page=${countPage}${
