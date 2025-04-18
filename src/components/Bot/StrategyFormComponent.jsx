@@ -116,7 +116,7 @@ const StrategyFormComponent = ({
               value={formData.diff_percent}
               onChange={(e) => {
                 const value = e.target.value;
-                if (/^\d{0,2}$/.test(value)) {
+                if (/^\d*\.?\d{0,3}$/.test(value)) {
                   handleInputChange(e);
                 }
               }}
@@ -166,7 +166,7 @@ const StrategyFormComponent = ({
               value={formData.lower_diff_percent}
               onChange={(e) => {
                 const value = e.target.value;
-                if (/^\d{0,2}$/.test(value)) {
+                if (/^\d*\.?\d{0,3}$/.test(value)) {
                   handleInputChange(e);
                 }
               }}
@@ -195,7 +195,7 @@ const StrategyFormComponent = ({
               value={formData.stop_loss}
               onChange={(e) => {
                 const value = e.target.value;
-                if (/^\d{0,2}$/.test(value)) {
+                if (/^\d*\.?\d{0,3}$/.test(value)) {
                   handleInputChange(e);
                 }
               }}
