@@ -129,7 +129,7 @@ export default function StatusPage() {
     );
   };
 
-  
+
   return (
     <div>
       <h1 className="text-xl font-bold mb-4">وضعیت کاربران</h1>
@@ -194,9 +194,9 @@ export default function StatusPage() {
                 <tbody>
                   {status && status.length > 0 ? (
                      paginateData(status || [])?.map((user) => (
-                      <tr key={user.exchange_id}>
+                      <tr key={user.id}>
                         <td className="border px-4 py-2">
-                          {user.exchange.name}
+                          {user?.name}
                         </td>
 
                         <td className="border px-4 py-2">
@@ -244,7 +244,7 @@ export default function StatusPage() {
                 <tbody>
                 {listUsers && listUsers.length > 0 ? (
                paginateData(listUsers)?.map((user) => (
-                      <tr key={user.exchange_id}>
+                      <tr key={user.id}>
                         <td className="border px-4 py-2">
                           {user.name}
                         </td>
