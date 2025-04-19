@@ -26,10 +26,10 @@ export default function ChartAllUsers() {
 
   const handleFilterByDate = () => {
 
-    if (!dateBirth2 || !dateBirth || !startTime || !endTime) {
-      toast.error("لطفاً فیلتر تاریخ و ساعت را وارد کنید.");
-      return;
-    }
+    // if (!dateBirth2 || !dateBirth || !startTime || !endTime) {
+    //   toast.error("لطفاً فیلتر تاریخ و ساعت را وارد کنید.");
+    //   return;
+    // }
 
 const formattedStartTime = new Date(startTime).toLocaleTimeString("en-GB");
 const formattedEndTime = new Date(endTime).toLocaleTimeString("en-GB");
