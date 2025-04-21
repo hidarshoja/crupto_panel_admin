@@ -26,10 +26,7 @@ export default function StatusPage() {
     ],
   });
 
-  const UserType = {
-    USER: "user",
-    EXCHANGE: "exchange",
-  };
+
   
 
   const categories = [
@@ -43,9 +40,7 @@ export default function StatusPage() {
     setCurrentPage(1);
   };
 
-  const handleRetry = (user, type) => {
-    const exchangeId = type === UserType.USER ? user.id : user.exchange_id;
-  
+  const handleRetry = (exchangeId) => {
     axiosClient2.patch("/exchanges/update-balance", {
       exchange_id: exchangeId,  
     })
@@ -54,6 +49,7 @@ export default function StatusPage() {
     })
     .catch((error) => {
       console.error('خطا در ارسال اطلاعات:', error);
+      toast.error(error.response.data.message)
     });
   };
   
@@ -129,7 +125,7 @@ export default function StatusPage() {
     );
   };
 
-
+console.log(`status`, status);
   return (
     <div>
       <h1 className="text-xl font-bold mb-4">وضعیت کاربران</h1>
@@ -198,10 +194,10 @@ export default function StatusPage() {
                         <td className="border px-4 py-2">
                           {user?.name}
                         </td>
-
+                        
                         <td className="border px-4 py-2">
                           <select
-                            value={user.status ? "فعال" : "غیر فعال"}
+                            value={user.status === true ? "فعال" : "غیر فعال"}
                             onChange={(e) =>
                               handleIssueChange(user.exchange_id, e.target.value)
                             }
@@ -222,7 +218,7 @@ export default function StatusPage() {
                         <td className="border px-4 py-2">
                           <button
                             className="bg-blue-500 text-white px-3 py-1 rounded"
-                            onClick={() => handleRetry(user, UserType.EXCHANGE)} 
+                            onClick={() => handleRetry(user.id)} 
                           >
                             ارسال
                           </button>
@@ -271,7 +267,7 @@ export default function StatusPage() {
                         <td className="border px-4 py-2">
                           <button
                             className="bg-blue-500 text-white px-3 py-1 rounded"
-                            onClick={() => handleRetry(user, UserType.USER)}
+                            onClick={() => handleRetry(user.id)}
                           >
                             ارسال
                           </button>
