@@ -8,6 +8,7 @@ function formatNumber(numberStr) {
 
 export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId }) {
   const [selectedCurrencies, setSelectedCurrencies] = useState({});
+console.log("bot");
 
   const handleCurrencyChange = (exchangeId, currency) => {
     setSelectedCurrencies((prev) => ({ ...prev, [exchangeId]: currency }));

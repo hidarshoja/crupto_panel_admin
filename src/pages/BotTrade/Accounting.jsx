@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import BoxAccount from "../../components/BoxAccount";
 import BoxAccountAll from "../../components/BoxAccountAll";
+import BoxAccountingBot from "../../components/Bot/BoxAccountingBot";
 import Transactions from "../../components/Transactions";
 import axios from "axios";
 import axiosClient2 from "../../axios-client2";
@@ -55,6 +56,7 @@ export default function Accounting() {
               const existingExchange = acc.find(
                 (ex) => ex.exchange_id === item.exchange_id
               );
+          
               if (existingExchange) {
                 existingExchange.assets.push({
                   asset_name_fa: item.asset_name_fa,
@@ -78,6 +80,7 @@ export default function Accounting() {
               }
               return acc;
             }, []);
+           
           setFilteredData(arrayData);
         } else {
           setExchange(response.data.data);
@@ -142,13 +145,20 @@ export default function Accounting() {
           <option value="">همه</option>
           <option value="3">کاربران API</option>
           <option value="2" selected>
-            {" "}
             بات ترید
           </option>
           <option value="1">کاربران</option>
         </select>
       </div>
-      {selectedValue !== "" && (
+      {selectedValue === "3"  && (
+        <BoxAccount
+          exchangeWallet={filteredData}
+          assets={assets}
+          exchange={exchange}
+          setUserId={setUserId}
+        />
+      )}
+         {selectedValue === "1"  && (
         <BoxAccount
           exchangeWallet={filteredData}
           assets={assets}
@@ -162,6 +172,13 @@ export default function Accounting() {
           exchangeWallet={filteredData}
           exchange={exchange}
           setUserId={setUserId}
+        />
+      )}
+      {selectedValue === "2" && (
+        <BoxAccountingBot
+          assets={assets}
+          exchangeWallet={filteredData}
+          exchange={exchange}
         />
       )}
       <div className="flex items-center justify-between mt-6">

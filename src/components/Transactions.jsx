@@ -45,12 +45,21 @@ export default function Transactions({ assets, selectedValue }) {
   useEffect(() => {
     const fetchTransactions = async () => {
       setLoading(true);
+      let endpoint;
       try {
-        const endpoint = `/transactions?f[user.type]=${selectedValue}&page=${countPage}${
-          userId ? `&f[user_id]=${userId}` : ""
-        }${filters.type ? `&f[type]=${filters.type}` : ""}${
-          filters.status ? `&f[status]=${filters.status}` : ""
-        }${filters.currency ? `&f[asset_id]=${filters.currency}` : ""}`;
+        if(selectedValue === "2"){
+          endpoint = `/transactions?f[has_auto_order]=${selectedValue}&page=${countPage}${
+            userId ? `&f[user_id]=${userId}` : ""
+          }${filters.type ? `&f[type]=${filters.type}` : ""}${
+            filters.status ? `&f[status]=${filters.status}` : ""
+          }${filters.currency ? `&f[asset_id]=${filters.currency}` : ""}`;
+        } else {
+          endpoint = `/transactions?f[user.type]=${selectedValue}&page=${countPage}${
+            userId ? `&f[user_id]=${userId}` : ""
+          }${filters.type ? `&f[type]=${filters.type}` : ""}${
+            filters.status ? `&f[status]=${filters.status}` : ""
+          }${filters.currency ? `&f[asset_id]=${filters.currency}` : ""}`;
+        }
 
         const response = await axiosClient2.get(endpoint);
         SetListTransaction(response.data.data);
@@ -71,12 +80,21 @@ export default function Transactions({ assets, selectedValue }) {
 
     const fetchTransactionsExecl = async () => {
       setLoading(true);
+      let endpoint;
       try {
-        const endpoint = `/transactions?f[user.type]=${selectedValue}&per_page=999${
-          userId ? `&f[user_id]=${userId}` : ""
-        }${filters.type ? `&f[type]=${filters.type}` : ""}${
-          filters.status ? `&f[status]=${filters.status}` : ""
-        }${filters.currency ? `&f[asset_id]=${filters.currency}` : ""}`;
+        if(selectedValue === "2"){
+          endpoint = `/transactions?f[has_auto_order]=${selectedValue}&page=${countPage}${
+            userId ? `&f[user_id]=${userId}` : ""
+          }${filters.type ? `&f[type]=${filters.type}` : ""}${
+            filters.status ? `&f[status]=${filters.status}` : ""
+          }${filters.currency ? `&f[asset_id]=${filters.currency}` : ""}`;
+        } else {
+          endpoint = `/transactions?f[user.type]=${selectedValue}&page=${countPage}${
+            userId ? `&f[user_id]=${userId}` : ""
+          }${filters.type ? `&f[type]=${filters.type}` : ""}${
+            filters.status ? `&f[status]=${filters.status}` : ""
+          }${filters.currency ? `&f[asset_id]=${filters.currency}` : ""}`;
+        }
 
         const response = await axiosClient2.get(endpoint);
         SetListExcel(response.data.data);

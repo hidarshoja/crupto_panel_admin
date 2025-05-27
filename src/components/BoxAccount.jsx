@@ -4,6 +4,8 @@ import UserBox from "../components/UserBox3";
 
 
 export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId }) {
+
+  console.log(`1,3`);
   const [selectedCurrencies, setSelectedCurrencies] = useState({});
   const handleCurrencyChange = (exchangeId, currency) => {
     setSelectedCurrencies((prev) => ({ ...prev, [exchangeId]: currency }));
@@ -62,7 +64,7 @@ export default function BoxAccount({ assets, exchangeWallet, exchange, setUserId
   
   const result = mergeExchangeAssets(exchangeWallet);
 
-  
+  console.log(`result`, result);
   return (
     <div className="min-h-[400px]">
       <h1 className="text-xl font-bold text-center mb-8 text-gray-800 mt-4">

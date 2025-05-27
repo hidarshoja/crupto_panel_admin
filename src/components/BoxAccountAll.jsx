@@ -15,6 +15,7 @@ export default function BoxAccountAll({ assets, exchangeWallet, exchange, setUse
     setSelectedCurrencies((prev) => ({ ...prev, [exchangeId]: currency }));
   };
   const [loading, setLoading] = useState(true);
+console.log("all");
 
  useEffect(() => {
     const timer = setTimeout(() => {
